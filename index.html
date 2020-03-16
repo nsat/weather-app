@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,user-scalable=no,minimum-scale=1.0,maximum-scale=1.0">
+    <title> Routing API Visualizer </title>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="img/spire_symb_red.png">
+    <!-- https://vega.github.io/vega/ -->
+    <script type="text/javascript" src="lib/vega-5.js"></script>
+    <script type="text/javascript" src="lib/vega-lite-4.js"></script>
+    <script type="text/javascript" src="lib/vega-embed-6.js"></script>
+    <!-- local libs -->
+    <link rel="stylesheet" type="text/css" href="lib/openlayers.css" />
+    <script type="text/javascript" src="lib/openlayers.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/weather/weatherstats.css" />
+    <link rel="stylesheet" type="text/css" href="css/weather/toggleswitch.css" />
+    <!-- Custom Weather Stats JS -->
+    <script type="text/javascript" src="js/weather/configure_graphs.js"></script>
+    <script type="text/javascript" src="js/weather/parse_data.js"></script>
+    <script type="text/javascript" src="js/weather/get_forecast.js"></script>
+    <script type="text/javascript" src="js/weather/change_forecast.js"></script>
+    <!-- Custom JS -->
+    <script type="text/javascript" src="js/map_maker.js"></script>
+    <script type="text/javascript" src="js/get_vessels.js"></script>
+  </head>
+  <body>
+    <!-------------------------->
+    <!-- Top of App  -->
+    <!-------------------------->
+    <a id="logo" href="https://www.spire.com/" target="_blank" title="Spire Global"></a>
+    <div id="downloadMap" title="Download Map"></div>
+    <div id="buttons">
+      <button id="requestVessels">Get 1000 Vessels in Area</button>
+      <button id="requestForecast">Get Weather Point Forecast</button>
+    </div>
+    <span id="mouseCoordinates"></span>
+    <div id="mapBorder"></div>
+    <div id="mapContainer">
+      <!-- the OpenLayers map component -->
+      <div id="map" class="map"></div>
+    </div>
+    <!-------------------------->
+    <!-- Weather Stats Popup  -->
+    <!-------------------------->
+    <div id="grayPageOverlay"></div>
+    <div id="weatherStats">
+      <h1 id="forecast_title">Spire Weather Point Forecast</h1>
+      <h4 id="forecast_point_label"></h4>
+      <button id="closeWeatherStats" class="remove">
+        X
+      </button>
+      <div id="toggle_forecast">
+        <span id="week" class="selected">Week</span>
+        <div class="switch" title="Switch Forecast">
+          <input id="forecast_switch" type="checkbox" class="switch-input">
+          <label for="toggle"><i></i></label>
+          <!-- Circle Light -->
+          <!-- <span></span> -->
+        </div>
+        <span id="day">Day</span>
+      </div>
+      <div id="basic_graphs">
+        <div id="ne_wind"></div>
+        <div id="wind_gust"></div>
+        <div id="air_temp"></div>
+        <div id="dew_point_temp"></div>
+        <div id="rel_hum"></div>
+        <div id="precip"></div>
+        <div id="air_press_sea_level"></div>
+      </div>
+      <div id="maritime_graphs">
+        <div id="sea_surface_temp"></div>
+        <div id="wave_height"></div>
+        <div id="northward_sea_velocity"></div>
+        <div id="eastward_sea_velocity"></div>
+      </div>
+      <div id="agricultural_graphs">
+        <div id="ag_dew_point_temperature"></div>
+        <div id="surface_temperature"></div>
+        <div id="sensible_heat_flux"></div>
+        <div id="latent_heat_flux"></div>
+        <div id="specific_humidity"></div>
+        <div id="net_upward_longwave_flux_at_top_of_atmosphere"></div>
+        <div id="surface_net_downward_shortwave_flux"></div>
+        <div id="surface_net_downward_longwave_flux"></div>
+        <div id="surface_net_upward_shortwave_flux"></div>
+        <div id="surface_net_upward_longwave_flux"></div>
+        <div id="soil_temperature_0_10cm"></div>
+        <div id="soil_moisture_0_10cm"></div>
+        <div id="soil_temperature_10_40cm"></div>
+        <div id="soil_moisture_10_40cm"></div>
+        <div id="soil_temperature_40_100cm"></div>
+        <div id="soil_moisture_40_100cm"></div>
+        <div id="soil_temperature_100_200cm"></div>
+        <div id="soil_moisture_100_200cm"></div>
+      </div>
+    </div>
+  </body>
+</html>

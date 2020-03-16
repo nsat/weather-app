@@ -1,0 +1,138 @@
+body {
+  min-width: 800px;
+  background: #283446; /* Fallback */
+  /*background: linear-gradient(#36455b, #283446);*/
+}
+#logo {
+  position: absolute;
+  z-index: 99;
+  top: 45px;
+  left: 45px;
+  cursor: pointer;
+  border-radius: 2px;
+  background-image: url('../img/spire_symb_red.png');
+  background-repeat: no-repeat;
+  background-size: 50px 50px;
+  height: 50px;
+  width: 50px;
+}
+#grayPageOverlay {
+  display: none;
+  position: fixed;
+  width: 100%;
+  height: 110%;
+  margin-top: -20px;
+  background: rgba(0,0,0,0.6);
+  z-index: 99;
+}
+#mapContainer {
+  height: 900px;
+}
+#mapBorder {
+  pointer-events: none;
+  position: absolute;
+  width: 99%;
+  height: 900px;
+  border: 2px solid #12161d;
+  background: rgba(0,0,0,0);
+  background-color: rgba(0,0,0,0);
+  box-shadow: inset 0 0 15px 25px rgba(10,10,10,0.4);
+  z-index: 90;
+}
+#map {
+  width: 100%;
+  height: 900px;
+}
+#buttons {
+  position: absolute;
+  margin-top: 35px;
+  margin-left: 120px;
+  z-index: 99;
+  padding: 3px;
+  height: 20px;
+}
+.ol-zoom {
+  position: absolute;
+  top: 130px;
+  left: 35px;
+  z-index: 2000;
+  background-color: rgba(0,0,0,0);
+}
+.ol-control {
+  background-color: rgba(0,0,0,0);
+}
+#downloadMap {
+  position: absolute;
+  z-index: 99;
+  top: 40px;
+  right: 40px;
+  cursor: pointer;
+  background-image: url('../img/download.png');
+  background-repeat: no-repeat;
+  background-size: 30px 30px;
+  height: 30px;
+  width: 30px;
+  background-color: rgba(0,0,0,0);
+  border: none;
+  outline: none;
+  opacity: 0.4;
+}
+#downloadMap:hover {
+  opacity: 0.6;
+}
+#downloadMap:active {
+  opacity: 1.0;
+}
+#mouseCoordinates {
+  position: absolute;
+  font-family: monospace;
+  z-index: 999;
+  display: inline-block;
+  color: rgba(0,0,0,0.5);
+  top: 44px;
+  right: 80px;
+  pointer-events: none;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;          /* Likely future */  
+}
+#requestVessels {
+  border-radius: 2px 0 0 2px;
+}
+#requestForecast {
+  border-radius: 0 2px 2px 0;
+}
+#requestVessels,
+#requestForecast {
+  padding: 7px;
+  border: none;
+}
+#requestVessels.pressed,
+#requestForecast.pressed {
+  box-shadow: 1px 1px rgba(0,0,0,1.0);
+  background-color: rgba(0,60,136,1.0);
+}
+button {
+  cursor: pointer;
+  outline: none;
+  color: white;
+  margin-left: 4px;
+  font-weight: bold;
+  background-color: rgba(0,60,136,0.5);
+  box-shadow: 3px 3px rgba(0,0,0,0.7);
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;          /* Likely future */  
+}
+button:hover {
+  color: white;
+  background-color: rgba(0,60,136,0.7);
+  box-shadow: 2px 2px rgba(0,0,0,0.9);
+}
+button:active {
+  color: white;
+  background-color: rgba(0,60,136,1.0);
+  box-shadow: 1px 1px rgba(0,0,0,1.0);
+}
