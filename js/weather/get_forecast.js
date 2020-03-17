@@ -184,7 +184,7 @@ function getPointForecast(coordinate, time_bundle) {
                     });
                     precip_vals.push({
                         'Time': get_vega_time(time),
-                        'Value': parse_precipitation(response.data, i)
+                        'Value': parse_accumulated_value(response.data, 'precipitation_amount', i)
                     });
                 }
 
@@ -241,23 +241,23 @@ function getPointForecast(coordinate, time_bundle) {
                     });
                     surface_net_downward_shortwave_flux_vals.push({
                         'Time': get_vega_time(time),
-                        'Value': response.data[i].values.surface_net_downward_shortwave_flux
+                        'Value': parse_accumulated_value(response.data, 'surface_net_downward_shortwave_flux', i)
                     });
                     surface_net_downward_longwave_flux_vals.push({
                         'Time': get_vega_time(time),
-                        'Value': response.data[i].values.surface_net_downward_longwave_flux
+                        'Value': parse_accumulated_value(response.data, 'surface_net_downward_longwave_flux', i)
                     });
                     surface_net_upward_shortwave_flux_vals.push({
                         'Time': get_vega_time(time),
-                        'Value': response.data[i].values.surface_net_upward_shortwave_flux
+                        'Value': parse_accumulated_value(response.data, 'surface_net_upward_shortwave_flux', i)
                     });
                     surface_net_upward_longwave_flux_vals.push({
                         'Time': get_vega_time(time),
-                        'Value': response.data[i].values.surface_net_upward_longwave_flux
+                        'Value': parse_accumulated_value(response.data, 'surface_net_upward_longwave_flux', i)
                     });
                     net_upward_longwave_flux_at_top_of_atmosphere_vals.push({
                         'Time': get_vega_time(time),
-                        'Value': response.data[i].values.net_upward_longwave_flux_at_top_of_atmosphere
+                        'Value': parse_accumulated_value(response.data, 'net_upward_longwave_flux_at_top_of_atmosphere', i)
                     });
                     soil_temperature_0_10cm_vals.push({
                         'Time': get_vega_time(time),

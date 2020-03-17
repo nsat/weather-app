@@ -31,16 +31,16 @@ function parse_and_combine_velocity_vectors(u, v) {
     return dir;
 }
 
-// subtract previous precipitation value from current data
-// since raw value is Accumulated over all time
-// and we want each bar to be the value for that time window only
-function parse_precipitation(data, i) {
-    var precip;
+// subtract previous data value from current value
+// since raw value is accumulated over all time
+// and we want each bar in the graph to be the value for that time window only
+function parse_accumulated_value(data, name, i) {
+    var curval;
     if (i != 0) {
-        var previous = data[i - 1].values.precipitation_amount;
-        precip = data[i].values.precipitation_amount - previous;
+        var previous = data[i - 1].values[name];
+        curval = data[i].values[name] - previous;
     } else {
-        precip = data[i].values.precipitation_amount;
+        curval = data[i].values[name];
     }
-    return precip;
+    return curval;
 }
