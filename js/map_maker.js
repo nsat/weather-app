@@ -2,36 +2,67 @@ function vesselStyleFunction(feature) {
     // console.log(feature.getProperties())
     return new ol.style.Style({
         image: new ol.style.Circle({
-            radius: 3,
+            radius: 4,
             fill: new ol.style.Fill({
-                color: 'rgba(0, 0, 255, 0.7)'
+                color: 'rgba(0, 60, 136, 0.3)'
+            }),
+            stroke: new ol.style.Stroke({
+                width: 1,
+                color: 'rgba(0, 60, 136, 0.7)'
             })
         })
     });
 }
 
+var vesselHoverStyle = new ol.style.Style({
+    zIndex: Infinity,
+    image: new ol.style.Circle({
+        radius: 7,
+        fill: new ol.style.Fill({
+            // Spire logo red
+            color: 'rgba(210, 32, 31, 0.4)'
+        }),
+        stroke: new ol.style.Stroke({
+            width: 2,
+            color: 'rgba(210, 32, 31, 0.8)'
+        })
+    })
+});
+
+var vesselSelectStyle = new ol.style.Style({
+    zIndex: Infinity,
+    image: new ol.style.Icon({
+        anchor: [0.5, 0.5],
+        scale: 0.05,
+        opacity: 1.0,
+        src: 'img/spire_symb_red.png'
+    })
+});
+
 function boxStyleFunction(feature) {
     // console.log(feature.getProperties())
     return new ol.style.Style({
         stroke: new ol.style.Stroke({
-            color: 'blue',
+            color: 'rgba(0, 60, 136, 1.0)',
             width: 1
         })
     });
 }
 
 function createMapLayer(geojson) {
-    var type = geojson['features'][0]['geometry']['type'];
+    // console.log("Create Map Layer for:", geojson)
+    var type = geojson['properties']['type'];
     var styleFunction;
-    if (type == 'MultiPoint') {
+    if (type == 'vessels') {
         styleFunction = vesselStyleFunction;
-    } else if (type == 'Polygon') {
+    } else {
         styleFunction = boxStyleFunction;
     }
     var vectorSource = new ol.source.Vector({
         features: (new ol.format.GeoJSON()).readFeatures(geojson)
     });
     var vectorLayer = new ol.layer.Vector({
+        className: name,
         source: vectorSource,
         style: styleFunction,
     });
@@ -69,13 +100,69 @@ function createMap(geojsonObject) {
         })
     });
 
-    // window.ol_map.on('singleclick', function(evt) {
-    //     console.log(evt)
-    //     var pixel = evt.pixel;
-    //     window.ol_map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-    //         console.log(feature, layer)
-    //     });
-    // });
+    // 'singleclick'
+    // 'click'
+    // 'pointermove'
+    // 'altclick'
+    window.selectedFeature = null;
+    window.hoveredFeature = null;
+
+    // click event listener
+    window.ol_map.on('click', function(e) {
+        if (ENABLE_FORECAST == false) {
+            // if (window.selectedFeature !== null) {
+            //     window.selectedFeature.setStyle(undefined);
+            //     window.selectedFeature = null;
+            // }
+
+            window.ol_map.forEachFeatureAtPixel(e.pixel, function(f) {
+                if (window.selectedFeature !== null) {
+                    // remove selected styling for current selection
+                    window.selectedFeature.setStyle(undefined);
+                }
+                // set new selected feature and style
+                window.selectedFeature = f;
+                f.setStyle(vesselSelectStyle);
+                return true;
+            });
+
+            if (window.selectedFeature) {
+                if (window.selectedFeature.get('type') == 'vessel') {
+                    window.hoveredFeature = null;
+                    var vessel_data = window.selectedFeature.get('data');
+                    console.log('Selected:', vessel_data);
+                    document.getElementById('vesselInfo').innerHTML = '';
+                    jsonView.format(vessel_data, '#vesselInfo');
+                    document.getElementById('vesselPopup').style.display = 'block';
+                }
+            }
+        }
+    });
+
+    // hover event listener
+    window.ol_map.on('pointermove', function(e) {
+        if (ENABLE_FORECAST == false) {
+            if (window.hoveredFeature !== null) {
+                window.hoveredFeature.setStyle(undefined);
+                window.hoveredFeature = null;
+            }
+
+            window.ol_map.forEachFeatureAtPixel(e.pixel, function(f) {
+                if (window.selectedFeature != f) {
+                    window.hoveredFeature = f;
+                    if (window.hoveredFeature.get('type') == 'vessel') {
+                        f.setStyle(vesselHoverStyle);
+                    }
+                }
+                return true;
+            });
+            // if (window.hoveredFeature) {
+            //     console.log('Hovering:', window.selectedFeature.get('name'));
+            //     console.log(window.selectedFeature);
+            //     console.log()
+            // }
+        }
+    });
 
     // set up the "Download Map Image" button
     var downloadLink = document.getElementById('downloadMap');

@@ -9,6 +9,13 @@ window.addEventListener('load', function() {
         // hide button for getting vessels
         document.getElementById('requestVessels').style.display = 'none';
     }
+    document.getElementById ('getVesselForecast').onclick = function() {
+        var vessel_data = window.selectedFeature.get('data');
+        var coordinate = vessel_data['last_known_position']['geometry']['coordinates'];
+        this.style.cursor = 'progress';
+        document.body.style.cursor = 'progress';
+        getPointForecast(coordinate, 'medium_range_std_freq');
+    }
     document.getElementById('map').onclick = function(evt) {
         if (ENABLE_FORECAST == true) {
             // set cursor to spinning wheel until forecast is retrieved
@@ -28,7 +35,7 @@ window.addEventListener('load', function() {
                 window.ol_map.removeInteraction(window.drag_box);
                 document.getElementById('requestVessels').className = '';
             }
-            if (urlParams.get('token') != null) {
+            if (TOKEN != null) {
                 // enable clicking on map to request forequest
                 // and change the cursor to indicate new mode has been entered
                 this.className = 'pressed';
@@ -48,7 +55,9 @@ window.addEventListener('load', function() {
         closeForecastPopup();
     }
     document.getElementById('grayPageOverlay').onclick = function() {
-        closeForecastPopup();
+        if (TOKEN != null) {
+            closeForecastPopup();
+        }
     };
 });
 
@@ -98,12 +107,17 @@ function getPointForecast(coordinate, time_bundle) {
     // for demo purposes, see below
     var WARMEST_WATER = 0;
 
-    fetch(url, {headers:{'spire-api-key':urlParams.get('token')}})
+    fetch(url, {headers:{'spire-api-key':TOKEN}})
         .then((rawresp) => {
             return rawresp.json();
         })
         .then((response) => {
             console.log('Weather API Response:', response);
+            if (response['errors']) {
+                // assume invalid API key and prompt re-entry
+                document.getElementById('grayPageOverlay').style.display = 'block';
+                document.getElementById('tokenPopup').style.display = 'block';
+            }
 
             var tempscale = urlParams.get('tempscale');
             if (tempscale == null) {
@@ -570,6 +584,7 @@ function getPointForecast(coordinate, time_bundle) {
                 );
             }
             // reset cursor from spinning wheel to default
+            document.getElementById('getVesselForecast').style.cursor = 'pointer';
             document.getElementById('forecast_switch').style.cursor = 'pointer';
             document.body.style.cursor = 'default';
             // make the forecast popup visible

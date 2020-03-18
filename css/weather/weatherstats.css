@@ -9,7 +9,7 @@
 	display: none;
 	position: absolute;
 	top: 50px;
-	left: 50px;
+	left: 110px;
 	width: 80%;
 	z-index: 101;
 	-webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
@@ -21,23 +21,6 @@
 }
 #weatherStats canvas {
 	margin-bottom: 40px;
-}
-.remove {
-	position: absolute;
-	top: 2px;
-	left: 2px;
-	color: #000000;
-	margin-right: 10px;
-	background: #ffffff;
-	padding-left: 4px;
-	padding-right: 4px;
-	border-radius: 10px;
-}
-.remove:hover {
-	background: #ff7f7f;
-}
-.remove:active {
-	background: #ff3232;
 }
 #day,
 #week {

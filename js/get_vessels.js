@@ -1,5 +1,32 @@
+var TOKEN;
+
 window.addEventListener('load', function() {
     createMap();
+    document.getElementById('token').addEventListener('change', function(evt) {
+        if (this.value != null) {
+            TOKEN = this.value;
+            document.getElementById('tokenPopup').style.display = 'none';
+            document.getElementById('grayPageOverlay').style.display = 'none';
+        }
+    });
+    document.getElementById('tokenForm').addEventListener('submit', function(evt) {
+        evt.preventDefault(); // prevent page reload
+        var token = document.getElementById('token').value;
+        if (token != null) {
+            TOKEN = token;
+            document.getElementById('tokenPopup').style.display = 'none';
+            document.getElementById('grayPageOverlay').style.display = 'none';
+            // console.log("Form submitted with token value of: ", TOKEN);
+        }
+    });
+    document.getElementById('closeVesselPopup').addEventListener('click', function() {
+        document.getElementById('vesselPopup').style.display = 'none';
+        document.getElementById('vesselInfo').innerHTML = '';
+        if (window.selectedFeature) {
+            window.selectedFeature.setStyle(undefined);
+            window.selectedFeature = null;
+        }
+    });
     document.getElementById('requestVessels').addEventListener('click', function() {
         var self = this;
         // unpress the button if it's already activated
@@ -7,21 +34,13 @@ window.addEventListener('load', function() {
         document.body.style.cursor = 'default';
         ENABLE_FORECAST = false;
         if (self.className != 'pressed') {
-            if (urlParams.get('token') == null) {
+            if (TOKEN == null) {
                 alert('Please include your Spire API token as a URL parameter:\n "?token=YOURTOKEN"');
                 return;
             }
             self.className = 'pressed';
             document.body.style.cursor = 'crosshair';
-            boxControl = new ol.interaction.DragBox({
-                // condition: ol.events.condition.click,
-                style: new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: 'rgba(0, 0, 255, 0.5)'
-                    }),
-                    stroke: new ol.style.Stroke({color: [0, 255, 255, 1]})
-                })
-            });
+            boxControl = new ol.interaction.DragBox({className: 'dragbox'});
             boxControl.on('boxend', function () {
                 document.body.style.cursor = 'progress';
                 // get coordinates of user-drawn box
@@ -33,8 +52,8 @@ window.addEventListener('load', function() {
                     var converted = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
                     coordinates.push(converted);
                 }
-                // request 1000 vessels within this polygon
-                requestVessels(1000, coordinates, boxCoords);
+                // request 500 vessels within this polygon
+                requestVessels(500, coordinates, boxCoords);
                 // remove the DragBox control from the map
                 window.ol_map.removeInteraction(boxControl);
                 // return the trigger button to it's normal state
@@ -59,6 +78,7 @@ function requestVessels(number, coords, boxCoords) {
         // draw the AOI box on the map
         createMapLayer({
             "type": "FeatureCollection",
+            "properties": {"type": "bbox"},
             "features": [{
                 "type": "Feature",
                 "geometry": {
@@ -78,12 +98,17 @@ function requestVessels(number, coords, boxCoords) {
         uri += '&last_known_or_predicted_position_within=' + encoded;
     }
     console.log("GET", uri)
-    fetch(uri, {headers:{'Authorization': 'Bearer ' + urlParams.get('token')}})
+    fetch(uri, {headers:{'Authorization': 'Bearer ' + TOKEN}})
         .then((raw_response) => {
             return raw_response.json();
         })
         .then((response) => {
             console.log('Vessels API Response:', response);
+            if (response['fault']) {
+                // assume invalid API key and prompt re-entry
+                document.getElementById('grayPageOverlay').style.display = 'block';
+                document.getElementById('tokenPopup').style.display = 'block';
+            }
             var geojson = convertResponseToGeoJson(response);
             createMapLayer(geojson);
             document.body.style.cursor = 'default';
@@ -93,24 +118,30 @@ function requestVessels(number, coords, boxCoords) {
 // convert Routing API response to valid GeoJSON
 function convertResponseToGeoJson(resp) {
     var geojson = {};
+    var features = [];
     if (resp["data"]) {
         var data = resp["data"];
-        var coordinates = [];
         for (var i=0; i < data.length; i++) {
             var vessel = data[i];
             var coords = vessel["last_known_position"]["geometry"]["coordinates"];
             var converted = ol.proj.fromLonLat(coords, "EPSG:3857");
-            coordinates.push(converted);
+            features.push({
+                "type": "Feature",
+                "id": vessel['id'],
+                "properties": {
+                    "type": "vessel",
+                    "data": vessel
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": converted
+                }
+            });
         }
         geojson = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "MultiPoint",
-                    "coordinates": coordinates
-                }
-            }]
+            "properties": {"type": "vessels"},
+            "features": features
         };
     } else {
         console.log('Failure: API response does not contain vessels.')

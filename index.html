@@ -5,13 +5,14 @@
     <title> Spire Data Visualizer </title>
     <meta charset="utf-8">
     <link rel="shortcut icon" href="img/spire_symb_red.png">
-    <!-- https://vega.github.io/vega/ -->
+    <!-- 3rd-Party Libs -->
     <script type="text/javascript" src="lib/vega-5.js"></script>
     <script type="text/javascript" src="lib/vega-lite-4.js"></script>
     <script type="text/javascript" src="lib/vega-embed-6.js"></script>
-    <!-- local libs -->
     <link rel="stylesheet" type="text/css" href="lib/openlayers.css" />
     <script type="text/javascript" src="lib/openlayers.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/jsonview.css" />
+    <script type="text/javascript" src="lib/jsonview.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="css/weather/weatherstats.css" />
@@ -26,13 +27,14 @@
     <script type="text/javascript" src="js/get_vessels.js"></script>
   </head>
   <body>
+    <div id="grayPageOverlay"></div>
     <!-------------------------->
     <!-- Top of App  -->
     <!-------------------------->
     <a id="logo" href="https://www.spire.com/" target="_blank" title="Spire Global"></a>
     <div id="downloadMap" title="Download Map"></div>
     <div id="buttons">
-      <button id="requestVessels">Get 1000 Vessels in Area</button>
+      <button id="requestVessels">Get 500 Vessels in Area</button>
       <button id="requestForecast">Get Weather Point Forecast</button>
     </div>
     <span id="mouseCoordinates"></span>
@@ -41,10 +43,26 @@
       <!-- the OpenLayers map component -->
       <div id="map" class="map"></div>
     </div>
+    <!-- token submission popup -->
+    <div id="tokenPopup">
+      <h1 id="token_title">Spire API Token</h1>
+      <form id="tokenForm">
+        <input id="token" type="password" placeholder="Please Enter Your Token Here" />
+        <input id="submitToken" type="submit" />
+      </form>
+    </div>
+    <!-- vessel info popup -->
+    <div id="vesselPopup">
+      <h1 id="vessel_title">Spire Vessels API Data</h1>
+      <button id="getVesselForecast">Spire Forecast</button>
+      <button id="closeVesselPopup" class="remove">
+        X
+      </button>
+      <div id="vesselInfo"></div>
+    </div>
     <!-------------------------->
     <!-- Weather Stats Popup  -->
     <!-------------------------->
-    <div id="grayPageOverlay"></div>
     <div id="weatherStats">
       <h1 id="forecast_title">Spire Weather Point Forecast</h1>
       <h4 id="forecast_point_label"></h4>
@@ -61,7 +79,8 @@
         </div>
         <span id="day">Day</span>
       </div>
-      <div id="basic_graphs">
+      <div id="weather_graphs">
+        <!-- basic -->
         <div id="ne_wind"></div>
         <div id="wind_gust"></div>
         <div id="air_temp"></div>
@@ -69,14 +88,12 @@
         <div id="rel_hum"></div>
         <div id="precip"></div>
         <div id="air_press_sea_level"></div>
-      </div>
-      <div id="maritime_graphs">
+        <!-- maritime -->
         <div id="sea_surface_temp"></div>
         <div id="wave_height"></div>
         <div id="northward_sea_velocity"></div>
         <div id="eastward_sea_velocity"></div>
-      </div>
-      <div id="agricultural_graphs">
+        <!-- agricultural -->
         <div id="ag_dew_point_temperature"></div>
         <div id="surface_temperature"></div>
         <div id="sensible_heat_flux"></div>

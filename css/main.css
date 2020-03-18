@@ -17,13 +17,85 @@ body {
   width: 50px;
 }
 #grayPageOverlay {
-  display: none;
+  display: block;
   position: fixed;
   width: 100%;
   height: 110%;
   margin-top: -20px;
   background: rgba(0,0,0,0.6);
-  z-index: 99;
+  z-index: 100;
+}
+#tokenPopup,
+#vesselPopup {
+  background-color: #22293d;
+  font-family: monospace;
+  padding: 40px;
+  border: 2px solid white;
+  border-radius: 10px;
+  overflow: hidden;
+  display: none;
+  position: absolute;
+  top: 110px;
+  left: 110px;
+  max-width: 800px;
+  /*width: 50%;*/
+  z-index: 101;
+  -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+  -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+  box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+}
+#tokenPopup {
+  display: block;
+  text-align: center;
+  left: 35%;
+  top: 150px;
+}
+#tokenForm {
+  padding: 30px;
+}
+#token {
+  height: 20px;
+  width: 200px;
+  text-align: center;
+}
+.remove {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  color: #000000;
+  margin-right: 10px;
+  background: #ffffff;
+  padding-left: 4px;
+  padding-right: 4px;
+  border-radius: 10px;
+}
+.remove:hover {
+  background: #ff7f7f;
+}
+.remove:active {
+  background: #ff3232;
+}
+#getVesselForecast,
+#vesselPopup .remove {
+  margin: 10px;
+}
+#getVesselForecast {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
+#vesselInfo {
+  margin: 20px;
+}
+#vessel_title,
+#token_title {
+  color: #FFFFFF;
+  text-align: center;
+  text-decoration: underline;
+  font-family: 'serif';
+}
+.dragbox {
+  border: 2px solid rgba(0, 60, 150, 1.0);
 }
 #mapContainer {
   height: 900px;
@@ -41,7 +113,7 @@ body {
 }
 #map {
   width: 100%;
-  height: 900px;
+  height: 100%;
 }
 #buttons {
   position: absolute;
@@ -113,6 +185,11 @@ body {
   box-shadow: 1px 1px rgba(0,0,0,1.0);
   background-color: rgba(0,60,136,1.0);
 }
+#getVesselForecast,
+#submitToken {
+  padding: 7px;
+}
+#submitToken,
 button {
   cursor: pointer;
   outline: none;
@@ -126,11 +203,13 @@ button {
   -ms-user-select: none;      /* IE 10+ */
   user-select: none;          /* Likely future */  
 }
+#submitToken:hover,
 button:hover {
   color: white;
   background-color: rgba(0,60,136,0.7);
   box-shadow: 2px 2px rgba(0,0,0,0.9);
 }
+#submitToken:active,
 button:active {
   color: white;
   background-color: rgba(0,60,136,1.0);

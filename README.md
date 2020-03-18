@@ -1,15 +1,17 @@
-# Maritime Usage
+# Live URL
+
+https://elliott-spire.github.io/weather-app/
+
+# General Usage
 
 Obtain a valid Spire API token for the Vessels API and the Weather Point Forecast API with the Maritime bundle
 
-Use the token as a URL parameter:
+Enter it in the prompt when the page loads, and optionally save the token as a password in your browser for autofill
 
-	?token=YOURTOKEN
+# Agricultural Option
 
-# Agricultural Usage
+Ensure your Spire API Token is valid for the Weather Point Forecast API with the Agricultural bundle
 
-Obtain a valid Spire API token for the Weather Point Forecast API with the Agricultural bundle
+Specify `bundles=agricultural` as a URL parameter
 
-Use the token as a URL parameter and set `bundles=agricultural`:
-
-	?bundles=agricultural&token=YOURTOKEN
+https://elliott-spire.github.io/weather-app/?bundles=agricultural
