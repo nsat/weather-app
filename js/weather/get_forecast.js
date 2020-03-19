@@ -4,71 +4,6 @@ var WEATHER_LON = 0;
 // get the current URL parameters
 var urlParams = new URLSearchParams(window.location.search);
 
-window.addEventListener('load', function() {
-    if (urlParams.get('bundles') == 'agricultural') {
-        // hide button for getting vessels
-        document.getElementById('requestVessels').style.display = 'none';
-    }
-    document.getElementById ('getVesselForecast').onclick = function() {
-        var vessel_data = window.selectedFeature.get('data');
-        var coordinate = vessel_data['last_known_position']['geometry']['coordinates'];
-        this.style.cursor = 'progress';
-        document.body.style.cursor = 'progress';
-        getPointForecast(coordinate, 'medium_range_std_freq');
-    }
-    document.getElementById('map').onclick = function(evt) {
-        if (ENABLE_FORECAST == true) {
-            // set cursor to spinning wheel until forecast is retrieved
-            document.getElementById('forecast_switch').style.cursor = 'progress';
-            document.body.style.cursor = 'progress';
-            var coordinate = document.getElementById('mouseCoordinates').textContent;
-            coordinate = coordinate.replace(' ','').split(',')
-            getPointForecast(coordinate, 'medium_range_std_freq');
-        }
-    };
-    var selectForecast = document.getElementById('requestForecast');
-    selectForecast.style.visibility = 'visible';
-    selectForecast.style.marginBottom = '10px';
-    selectForecast.onclick = function() {
-        if (this.className != 'pressed') {
-            if (window.drag_box != null) {
-                window.ol_map.removeInteraction(window.drag_box);
-                document.getElementById('requestVessels').className = '';
-            }
-            if (TOKEN != null) {
-                // enable clicking on map to request forequest
-                // and change the cursor to indicate new mode has been entered
-                this.className = 'pressed';
-                document.body.style.cursor = 'crosshair';
-                ENABLE_FORECAST = true;
-            } else {
-                alert('Please include your Spire API token as a URL parameter:\n "?token=YOURTOKEN"');
-            }
-        } else {
-            // unpress the button if it's already activated
-            this.className = '';
-            document.body.style.cursor = 'default';
-            ENABLE_FORECAST = false;
-        }
-    };
-    document.getElementById('closeWeatherStats').onclick = function() {
-        closeForecastPopup();
-    }
-    document.getElementById('grayPageOverlay').onclick = function() {
-        if (TOKEN != null) {
-            closeForecastPopup();
-        }
-    };
-});
-
-function closeForecastPopup() {
-    document.getElementById('weatherStats').style.display = 'none';
-    document.getElementById('grayPageOverlay').style.display = 'none';
-    document.getElementById('day').className = '';
-    document.getElementById('week').className = 'selected';
-    document.getElementById('forecast_switch').checked = false;
-}
-
 function getPointForecast(coordinate, time_bundle) {
     if (coordinate != null) {
         var lat = Number(coordinate[1]);
@@ -107,7 +42,7 @@ function getPointForecast(coordinate, time_bundle) {
     // for demo purposes, see below
     var WARMEST_WATER = 0;
 
-    fetch(url, {headers:{'spire-api-key':TOKEN}})
+    fetch(url, {headers:{'spire-api-key': window.TOKEN}})
         .then((rawresp) => {
             return rawresp.json();
         })

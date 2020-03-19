@@ -1,116 +1,78 @@
-var TOKEN;
-
-window.addEventListener('load', function() {
-    createMap();
-    document.getElementById('token').addEventListener('change', function(evt) {
-        if (this.value != null) {
-            TOKEN = this.value;
-            document.getElementById('tokenPopup').style.display = 'none';
-            document.getElementById('grayPageOverlay').style.display = 'none';
-        }
-    });
-    document.getElementById('tokenForm').addEventListener('submit', function(evt) {
-        evt.preventDefault(); // prevent page reload
-        var token = document.getElementById('token').value;
-        if (token != null) {
-            TOKEN = token;
-            document.getElementById('tokenPopup').style.display = 'none';
-            document.getElementById('grayPageOverlay').style.display = 'none';
-            // console.log("Form submitted with token value of: ", TOKEN);
-        }
-    });
-    document.getElementById('closeVesselPopup').addEventListener('click', function() {
-        document.getElementById('vesselPopup').style.display = 'none';
-        document.getElementById('vesselInfo').innerHTML = '';
-        if (window.selectedFeature) {
-            window.selectedFeature.setStyle(undefined);
-            window.selectedFeature = null;
-        }
-    });
-    document.getElementById('requestVessels').addEventListener('click', function() {
-        var self = this;
-        // unpress the button if it's already activated
-        document.getElementById('requestForecast').className = '';
-        document.body.style.cursor = 'default';
-        ENABLE_FORECAST = false;
-        if (self.className != 'pressed') {
-            if (TOKEN == null) {
-                alert('Please include your Spire API token as a URL parameter:\n "?token=YOURTOKEN"');
-                return;
-            }
-            self.className = 'pressed';
-            document.body.style.cursor = 'crosshair';
-            boxControl = new ol.interaction.DragBox({className: 'dragbox'});
-            boxControl.on('boxend', function () {
-                document.body.style.cursor = 'progress';
-                // get coordinates of user-drawn box
-                var boxCoords = boxControl.getGeometry().getCoordinates()[0];
-                var coordinates = [];
-                // convert each coordinate pair to standard projection
-                for (var i=0; i < boxCoords.length; i++) {
-                    var coords = boxCoords[i];
-                    var converted = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
-                    coordinates.push(converted);
-                }
-                // request 500 vessels within this polygon
-                requestVessels(500, coordinates, boxCoords);
-                // remove the DragBox control from the map
-                window.ol_map.removeInteraction(boxControl);
-                // return the trigger button to it's normal state
-                self.className = '';
-                window.drag_box = null;
-            });
-            window.ol_map.addInteraction(boxControl);
-            window.drag_box = boxControl;
-        } else {
-            window.ol_map.removeInteraction(window.drag_box);
-            self.className = '';
-        }
-    });
-});
-
 // use Spire Maritime's Vessels API
-// to get the latest positions of n vessels
-function requestVessels(number, coords, boxCoords) {
+// to get the latest positions of N number of vessels
+function requestVessels(number, boxCoords) {
     var uri = 'https://api.sense.spire.com/vessels/';
     uri += '?limit=' + number;
-    if (coords) {
-        // draw the AOI box on the map
+    if (boxCoords) {
+        // draw the bounding box on the map
+        // as its own unique OpenLayers map layer
         createMapLayer({
-            "type": "FeatureCollection",
-            "properties": {"type": "bbox"},
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
+            'type': 'FeatureCollection',
+            'properties': {
+                // specify the type as a bounding box
+                // so we can distinguish it from vessel features
+                // and ignore mouse events on the box
+                'type': 'bbox'
+            },
+            'features': [{
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Polygon',
                     // boxCoords are in EPSG:3857
-                    "coordinates": [ boxCoords ]
+                    'coordinates': [ boxCoords ]
                 }
             }]
         });
+        // convert each coordinate pair to a different projection
+        // since OpenLayers uses EPSG:3857 projection
+        // but the Vessels API expects standard EPSG:4326 projection
+        var stdCoords = [];
+        for (var i=0; i < boxCoords.length; i++) {
+            var coords = boxCoords[i];
+            // convert the coordinates to the projection used by the Vessels API
+            var converted = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
+            stdCoords.push(converted);
+        }
         var polygon = {
             'type':'Polygon',
-            // coords are in EPSG:4326
-            'coordinates': [ coords ]
+            // stdCoords are in EPSG:4326
+            'coordinates': [ stdCoords ]
         };
-        // build the URL parameter with encoded JSON
+        // build the URL parameter with the JSON for the bounding box
+        // and ensure that special characters are encoded properly for a URL
         var encoded = encodeURIComponent(JSON.stringify(polygon));
+        // append the Vessels API parameter for a GeoJSON bounding polygon
         uri += '&last_known_or_predicted_position_within=' + encoded;
     }
-    console.log("GET", uri)
-    fetch(uri, {headers:{'Authorization': 'Bearer ' + TOKEN}})
+    // print the full API request to the JS console
+    console.log('GET', uri)
+    // build the HTTP header for Authorization 
+    var auth_header = {'Authorization': 'Bearer ' + window.TOKEN};
+    // make the API request with the specified auth header
+    fetch(uri, {headers: auth_header})
         .then((raw_response) => {
+            // return the API response JSON
+            // when it is received
             return raw_response.json();
         })
         .then((response) => {
+            // print the API response to the JS console
             console.log('Vessels API Response:', response);
+            // check if the API returned a fault/error
             if (response['fault']) {
                 // assume invalid API key and prompt re-entry
                 document.getElementById('grayPageOverlay').style.display = 'block';
                 document.getElementById('tokenPopup').style.display = 'block';
+                // notify the user that the API response failed
+                alert('API response failed.\nPlease enter a valid API key.')
+            } else {
+                // convert the API response to the GeoJSON
+                // expected by the OpenLayers map library
+                var geojson = convertResponseToGeoJson(response);
+                // create a new OpenLayers map layer
+                // from the GeoJSON FeatureCollection of vessels
+                createMapLayer(geojson);
             }
-            var geojson = convertResponseToGeoJson(response);
-            createMapLayer(geojson);
             document.body.style.cursor = 'default';
         });
 }
@@ -119,32 +81,47 @@ function requestVessels(number, coords, boxCoords) {
 function convertResponseToGeoJson(resp) {
     var geojson = {};
     var features = [];
-    if (resp["data"]) {
-        var data = resp["data"];
+    // first check that the API returned valid data 
+    if (resp['data']) {
+        var data = resp['data'];
+        // iterate through each vessel in the response
         for (var i=0; i < data.length; i++) {
             var vessel = data[i];
-            var coords = vessel["last_known_position"]["geometry"]["coordinates"];
-            var converted = ol.proj.fromLonLat(coords, "EPSG:3857");
+            // get this vessel's last known position coordinates
+            var coords = vessel['last_known_position']['geometry']['coordinates'];
+            // convert the coordinates to the projection used by OpenLayers
+            var converted = ol.proj.fromLonLat(coords, 'EPSG:3857');
+            // build the GeoJSON feature for this vessel
+            // and append it to the array of features for this layer
             features.push({
-                "type": "Feature",
-                "id": vessel['id'],
-                "properties": {
-                    "type": "vessel",
-                    "data": vessel
+                'type': 'Feature',
+                'id': vessel['id'],
+                'properties': {
+                    // specify the type as a vessel
+                    // so we can distinguish it from bounding box features
+                    // and apply mouse events only to vessels
+                    'type': 'vessel',
+                    // include all vessel data as a GeoJSON property
+                    // so we can populate #vesselInfo in the #vesselPopup element
+                    // when the user clicks on this feature
+                    'data': vessel
                 },
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": converted
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': converted
                 }
             });
         }
+        // create the full GeoJSON object
+        // which will be used to create a unique map layer
         geojson = {
-            "type": "FeatureCollection",
-            "properties": {"type": "vessels"},
-            "features": features
+            'type': 'FeatureCollection',
+            'properties': {'type': 'vessels'},
+            'features': features
         };
     } else {
-        console.log('Failure: API response does not contain vessels.')
+        // print error message to the JS console for debugging purposes
+        console.log('Failure: API response does not contain vessels.', resp);
     }
     return geojson;
 }

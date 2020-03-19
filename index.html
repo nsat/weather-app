@@ -5,14 +5,18 @@
     <title> Spire Data Visualizer </title>
     <meta charset="utf-8">
     <link rel="shortcut icon" href="img/spire_symb_red.png">
-    <!-- 3rd-Party Libs -->
+    <!-- 3rd-Party Libraries for graphs -->
     <script type="text/javascript" src="lib/vega-5.js"></script>
     <script type="text/javascript" src="lib/vega-lite-4.js"></script>
     <script type="text/javascript" src="lib/vega-embed-6.js"></script>
+    <!-- 3rd-Party Libraries for maps -->
     <link rel="stylesheet" type="text/css" href="lib/openlayers.css" />
     <script type="text/javascript" src="lib/openlayers.js"></script>
+    <!-- 3rd-Party Libraries for JSON viewer UI (some customization) -->
     <link rel="stylesheet" type="text/css" href="lib/jsonview.css" />
     <script type="text/javascript" src="lib/jsonview.js"></script>
+    <!-- simple w3schools.com snippet for making a DOM element draggable -->
+    <script type="text/javascript" src="lib/draggable_element.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="css/weather/weatherstats.css" />
@@ -22,9 +26,12 @@
     <script type="text/javascript" src="js/weather/parse_data.js"></script>
     <script type="text/javascript" src="js/weather/get_forecast.js"></script>
     <script type="text/javascript" src="js/weather/change_forecast.js"></script>
-    <!-- Custom JS -->
+    <!-- Custom Map JS -->
     <script type="text/javascript" src="js/map_maker.js"></script>
+    <!-- Custom Vessels JS (requires map functions to draw vessels on map) -->
     <script type="text/javascript" src="js/get_vessels.js"></script>
+    <!-- Custom JS executed when the page and all DOM elements have loaded -->
+    <script type="text/javascript" src="js/on_load.js"></script>
   </head>
   <body>
     <div id="grayPageOverlay"></div>

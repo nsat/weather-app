@@ -23,7 +23,7 @@ body {
   height: 110%;
   margin-top: -20px;
   background: rgba(0,0,0,0.6);
-  z-index: 100;
+  z-index: 101;
 }
 #tokenPopup,
 #vesselPopup {
@@ -39,12 +39,19 @@ body {
   left: 110px;
   max-width: 800px;
   /*width: 50%;*/
-  z-index: 101;
   -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 }
+#vesselPopup {
+  z-index: 100;
+  cursor: move;
+}
+#vesselInfo {
+  cursor: default;
+}
 #tokenPopup {
+  z-index: 999;
   display: block;
   text-align: center;
   left: 35%;
@@ -167,7 +174,7 @@ body {
   -webkit-user-select: none;  /* Chrome all / Safari all */
   -moz-user-select: none;     /* Firefox all */
   -ms-user-select: none;      /* IE 10+ */
-  user-select: none;          /* Likely future */  
+  user-select: none;
 }
 #requestVessels {
   border-radius: 2px 0 0 2px;
@@ -201,7 +208,7 @@ button {
   -webkit-user-select: none;  /* Chrome all / Safari all */
   -moz-user-select: none;     /* Firefox all */
   -ms-user-select: none;      /* IE 10+ */
-  user-select: none;          /* Likely future */  
+  user-select: none;
 }
 #submitToken:hover,
 button:hover {
@@ -214,4 +221,7 @@ button:active {
   color: white;
   background-color: rgba(0,60,136,1.0);
   box-shadow: 1px 1px rgba(0,0,0,1.0);
+}
+h1 {
+  pointer-events: none;
 }
