@@ -101,9 +101,9 @@ body {
   text-decoration: underline;
   font-family: 'serif';
 }
-.dragbox {
+/*.dragbox {
   border: 2px solid rgba(0, 60, 150, 1.0);
-}
+}*/
 #mapContainer {
   height: 900px;
 }

@@ -122,7 +122,10 @@ function createMap(geojsonObject) {
                 }
                 // set new selected feature and style
                 window.selectedFeature = f;
-                f.setStyle(vesselSelectStyle);
+                // only style with Spire logo if it's a vessel being clicked
+                if (window.selectedFeature.get('type') == 'vessel') {
+                    f.setStyle(vesselSelectStyle);
+                }
                 return true;
             });
 

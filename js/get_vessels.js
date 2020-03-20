@@ -42,7 +42,7 @@ function requestVessels(number, boxCoords) {
         // and ensure that special characters are encoded properly for a URL
         var encoded = encodeURIComponent(JSON.stringify(polygon));
         // append the Vessels API parameter for a GeoJSON bounding polygon
-        uri += '&last_known_or_predicted_position_within=' + encoded;
+        uri += '&last_known_position_within=' + encoded;
     }
     // print the full API request to the JS console
     console.log('GET', uri)
