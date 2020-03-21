@@ -1,8 +1,6 @@
 var ENABLE_FORECAST = false;
 var WEATHER_LAT = 0;
 var WEATHER_LON = 0;
-// get the current URL parameters
-var urlParams = new URLSearchParams(window.location.search);
 
 function getPointForecast(coordinate, time_bundle) {
     if (coordinate != null) {
@@ -26,16 +24,18 @@ function getPointForecast(coordinate, time_bundle) {
     // build the route for the API call using the `lat` and `lon` URL parameters
     var url = 'https://api.wx.spire.com/forecast/point?lat=' + WEATHER_LAT + '&lon=' + WEATHER_LON;
     url += '&time_bundle=' + time_bundle;
-    var BASIC = false;
+    // always show basic bundle graphs
+    var BASIC = true;
+    // determine whether to show Maritime or Agricultural graphs
+    // based on if the user has specified `bundles=agricultural`
+    // as a URL parameter
     var MARITIME = false;
     var AGRICULTURAL = false;
-    if (urlParams.get('bundles') == 'agricultural') {
-        url += '&bundles=agricultural';
+    if (window.urlParams.get('bundles') == 'agricultural') {
+        url += '&bundles=agricultural,basic';
         AGRICULTURAL = true;
-        // hide button for getting vessels
-        document.getElementById('requestVessels').style.display = 'none';
     } else {
-        url += '&bundles=maritime';
+        url += '&bundles=maritime,basic';
         MARITIME = true;
     }
 
@@ -54,7 +54,7 @@ function getPointForecast(coordinate, time_bundle) {
                 document.getElementById('tokenPopup').style.display = 'block';
             }
 
-            var tempscale = urlParams.get('tempscale');
+            var tempscale = window.urlParams.get('tempscale');
             if (tempscale == null) {
                 tempscale = 'C'
             } else {
@@ -259,15 +259,21 @@ function getPointForecast(coordinate, time_bundle) {
                     ),
                     '#air_temp'
                 );
-                embed_vega_spec(
-                    build_vega_spec(
-                        'Dew Point Temperature (' + tempscale + ')',
-                        { 'values': dew_point_temp_vals },
-                        7, // warn threshold value
-                        9 // alert threshold value
-                    ),
-                    '#dew_point_temp'
-                );
+                if (AGRICULTURAL == false) {
+                    // Dewpoint Temperature (2 Meters AGL) is used in both Basic and Agricultural bundles
+                    // so exclude it from the Basic graphs if Agricultural is already specified
+                    embed_vega_spec(
+                        build_vega_spec(
+                            'Dew Point Temperature (' + tempscale + ')',
+                            { 'values': dew_point_temp_vals },
+                            7, // warn threshold value
+                            9 // alert threshold value
+                        ),
+                        '#dew_point_temp'
+                    );
+                } else {
+                    document.getElementById('dew_point_temp').style.display = 'none';
+                }
                 embed_vega_spec(
                     build_vega_spec(
                         'Wind Speed (m/s)',
@@ -299,8 +305,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Precipitation (kg/m2)',
                         { 'values': precip_vals },
-                        4, // warn threshold value
-                        5 // alert threshold value
+                        2, // warn threshold value
+                        3 // alert threshold value
                     ),
                     '#precip'
                 );
@@ -386,8 +392,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Sensible Heat Flux (W/m2)',
                         { 'values': sensible_heat_flux_vals },
-                        0.5, // warn threshold value
-                        1.0 // alert threshold value
+                        200, // warn threshold value
+                        300 // alert threshold value
                     ),
                     '#sensible_heat_flux'
                 );
@@ -395,8 +401,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Latent Heat Flux (W/m2)',
                         { 'values': latent_heat_flux_vals },
-                        0.5, // warn threshold value
-                        1.0 // alert threshold value
+                        150, // warn threshold value
+                        200 // alert threshold value
                     ),
                     '#latent_heat_flux'
                 );
@@ -404,8 +410,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Suface Net Downward Shortwave Flux (W/m2)',
                         { 'values': surface_net_downward_shortwave_flux_vals },
-                        0.5, // warn threshold value
-                        1.0 // alert threshold value
+                        8000000, // warn threshold value
+                        10000000 // alert threshold value
                     ),
                     '#surface_net_downward_shortwave_flux'
                 );
@@ -413,8 +419,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Surface Net Downward Longwave Flux (W/m2)',
                         { 'values': surface_net_downward_longwave_flux_vals },
-                        0.5, // warn threshold value
-                        1.0 // alert threshold value
+                        8000000, // warn threshold value
+                        10000000 // alert threshold value
                     ),
                     '#surface_net_downward_longwave_flux'
                 );
@@ -422,8 +428,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Surface Net Upward Shortwave Flux (W/m2)',
                         { 'values': surface_net_upward_shortwave_flux_vals },
-                        0.5, // warn threshold value
-                        1.0 // alert threshold value
+                        8000000, // warn threshold value
+                        10000000 // alert threshold value
                     ),
                     '#surface_net_upward_shortwave_flux'
                 );
@@ -431,8 +437,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Surface Net Upward Longwave Flux (W/m2)',
                         { 'values': surface_net_upward_longwave_flux_vals },
-                        0.5, // warn threshold value
-                        1.0 // alert threshold value
+                        8000000, // warn threshold value
+                        10000000 // alert threshold value
                     ),
                     '#surface_net_upward_longwave_flux'
                 );
@@ -440,8 +446,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Net Upward Longwave Flux at Top of Atmosphere (W/m2)',
                         { 'values': net_upward_longwave_flux_at_top_of_atmosphere_vals },
-                        0.5, // warn threshold value
-                        1.0 // alert threshold value
+                        8000000, // warn threshold value
+                        10000000 // alert threshold value
                     ),
                     '#net_upward_longwave_flux_at_top_of_atmosphere'
                 );
@@ -485,8 +491,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Soil Moisture 0-10cm (Fraction)',
                         { 'values': soil_moisture_0_10cm_vals },
-                        0.3, // warn threshold value
-                        0.5 // alert threshold value
+                        0.5, // warn threshold value
+                        0.8 // alert threshold value
                     ),
                     '#soil_moisture_0_10cm'
                 );
@@ -494,8 +500,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Soil Moisture 10-40cm (Fraction)',
                         { 'values': soil_moisture_10_40cm_vals },
-                        0.3, // warn threshold value
-                        0.5 // alert threshold value
+                        0.5, // warn threshold value
+                        0.8 // alert threshold value
                     ),
                     '#soil_moisture_10_40cm'
                 );
@@ -503,8 +509,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Soil Moisture 40-100cm (Fraction)',
                         { 'values': soil_moisture_40_100cm_vals },
-                        0.3, // warn threshold value
-                        0.5 // alert threshold value
+                        0.5, // warn threshold value
+                        0.8 // alert threshold value
                     ),
                     '#soil_moisture_40_100cm'
                 );
@@ -512,8 +518,8 @@ function getPointForecast(coordinate, time_bundle) {
                     build_vega_spec(
                         'Soil Moisture 100-200cm (Fraction)',
                         { 'values': soil_moisture_100_200cm_vals },
-                        0.3, // warn threshold value
-                        0.5 // alert threshold value
+                        0.5, // warn threshold value
+                        0.8 // alert threshold value
                     ),
                     '#soil_moisture_100_200cm'
                 );

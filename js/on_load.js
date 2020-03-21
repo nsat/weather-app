@@ -48,8 +48,8 @@ window.addEventListener('load', function() {
         if (this.className != 'pressed') {
             // disable area selection
             // since it interferes with selecting a point forecast
-            if (window.drag_box != null) {
-                window.ol_map.removeInteraction(window.drag_box);
+            if (window.draw_tool != null) {
+                window.ol_map.removeInteraction(window.draw_tool);
                 document.getElementById('requestVessels').className = '';
             }
             // change button style to indicate it has been pressed
@@ -114,74 +114,95 @@ window.addEventListener('load', function() {
         }
     };
 
+    document.getElementById('requestVessels').addEventListener('click', function() {
+        // create an alias for clicked button element
+        // so we can refer to it in other event handlers
+        var self = this;
+        // un-press the forecast button if it's already activated
+        document.getElementById('requestForecast').className = '';
+        // disable the global forecast flag / point forecast on map click
+        ENABLE_FORECAST = false;
+        // return the cursor to default state
+        document.body.style.cursor = 'default';
+        // ensure the vessels button isn't already pressed
+        if (self.className != 'pressed') {
+            // change button style to indicate it has been pressed
+            self.className = 'pressed';
+            // change the cursor to indicate a new mode has been entered
+            // where clicking on the map will request a point forecast
+            document.body.style.cursor = 'cell';
+            // initialize the tool to draw a polygon
+            var drawSource = new ol.source.Vector({
+                wrapX: false
+            });
+            var drawControl = new ol.interaction.Draw({
+                source: drawSource,
+                type: 'Polygon',
+                freehandCondition: function(){return false;},
+                // // custom styling for draw tool
+                // style: new ol.style.Style({
+                //     fill: new ol.style.Fill({
+                //         color: 'rgba(0, 60, 136, 0.2)'
+                //     }),
+                //     stroke: new ol.style.Stroke({
+                //         width: 3,
+                //         color: 'rgba(0, 60, 136, 0.7)'
+                //     })
+                // })
+            });
+            drawSource.on('addfeature', function(evt){
+                var feature = evt.feature;
+                var drawCoords = feature.getGeometry().getCoordinates()[0];
+                // draw the bounding box on the map
+                // as its own unique OpenLayers map layer
+                createMapLayer({
+                    'type': 'FeatureCollection',
+                    'properties': {
+                        // specify the type as a bounding box
+                        // so we can distinguish it from vessel features
+                        // and ignore mouse events on the box
+                        'type': 'bbox'
+                    },
+                    'features': [{
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Polygon',
+                            // boxCoords are in EPSG:3857
+                            'coordinates': [ drawCoords ]
+                        }
+                    }]
+                });
+                // only request vessels in the area if we're in the Maritime context
+                if (window.urlParams.get('bundles') != 'agricultural') {
+                    // request 500 vessels within this polygon
+                    requestVessels(500, drawCoords);
+                }
+                // remove the DrawPolygon control from the map
+                window.ol_map.removeInteraction(drawControl);
+                // return the trigger button to it's normal state
+                self.className = '';
+                window.draw_tool = null;
+                document.body.style.cursor = 'default';
+            });
+            window.draw_tool = drawControl
+            window.ol_map.addInteraction(window.draw_tool);
+        } else {
+            window.ol_map.removeInteraction(window.draw_tool);
+            self.className = '';
+        }
+    });
+
     // check if the `agricultural` URL parameter has been specified,
     // in which case we will hide the maritime-specific features
     if (window.urlParams.get('bundles') == 'agricultural') {
         // hide button for getting vessels
-        document.getElementById('requestVessels').style.display = 'none';
+        document.getElementById('requestVessels').textContent = 'Draw Polygon Area';
     } else {
 
         // maritime-specific event handlers:
 
         // enable the vessel info popup to be dragged around on the screen
         makeElementDraggable(document.getElementById('vesselPopup'));
-
-        document.getElementById('requestVessels').addEventListener('click', function() {
-            // create an alias for clicked button element
-            // so we can refer to it in other event handlers
-            var self = this;
-            // un-press the forecast button if it's already activated
-            document.getElementById('requestForecast').className = '';
-            // disable the global forecast flag / point forecast on map click
-            ENABLE_FORECAST = false;
-            // return the cursor to default state
-            document.body.style.cursor = 'default';
-            // ensure the vessels button isn't already pressed
-            if (self.className != 'pressed') {
-                // change button style to indicate it has been pressed
-                self.className = 'pressed';
-                // change the cursor to indicate a new mode has been entered
-                // where clicking on the map will request a point forecast
-                document.body.style.cursor = 'cell';
-                // initialize the tool to draw a polygon
-                var drawSource = new ol.source.Vector({
-                    wrapX: false
-                });
-                var drawControl = new ol.interaction.Draw({
-                    source: drawSource,
-                    type: 'Polygon',
-                    freehandCondition: function(){return false;},
-                    // // custom styling for draw tool
-                    // style: new ol.style.Style({
-                    //     fill: new ol.style.Fill({
-                    //         color: 'rgba(0, 60, 136, 0.2)'
-                    //     }),
-                    //     stroke: new ol.style.Stroke({
-                    //         width: 3,
-                    //         color: 'rgba(0, 60, 136, 0.7)'
-                    //     })
-                    // })
-                });
-                drawSource.on('addfeature', function(evt){
-                    var feature = evt.feature;
-                    var drawCoords = feature.getGeometry().getCoordinates()[0];
-                    console.log(drawCoords)
-                    // request 500 vessels within this polygon
-                    requestVessels(500, drawCoords);
-                    // remove the DragBox control from the map
-                    window.ol_map.removeInteraction(drawControl);
-                    // return the trigger button to it's normal state
-                    self.className = '';
-                    window.draw_tool = null;
-                    document.body.style.cursor = 'default';
-                });
-                window.draw_tool = drawControl
-                window.ol_map.addInteraction(window.draw_tool);
-            } else {
-                window.ol_map.removeInteraction(window.drag_box);
-                self.className = '';
-            }
-        });
 
         document.getElementById('closeVesselPopup').addEventListener('click', function() {
             document.getElementById('vesselPopup').style.display = 'none';

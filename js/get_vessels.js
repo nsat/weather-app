@@ -4,25 +4,6 @@ function requestVessels(number, boxCoords) {
     var uri = 'https://api.sense.spire.com/vessels/';
     uri += '?limit=' + number;
     if (boxCoords) {
-        // draw the bounding box on the map
-        // as its own unique OpenLayers map layer
-        createMapLayer({
-            'type': 'FeatureCollection',
-            'properties': {
-                // specify the type as a bounding box
-                // so we can distinguish it from vessel features
-                // and ignore mouse events on the box
-                'type': 'bbox'
-            },
-            'features': [{
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'Polygon',
-                    // boxCoords are in EPSG:3857
-                    'coordinates': [ boxCoords ]
-                }
-            }]
-        });
         // convert each coordinate pair to a different projection
         // since OpenLayers uses EPSG:3857 projection
         // but the Vessels API expects standard EPSG:4326 projection
