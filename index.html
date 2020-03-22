@@ -36,23 +36,34 @@
     <script type="text/javascript" src="js/on_load.js"></script>
   </head>
   <body>
+    <!-- page overlay triggered when either of
+    the Token Submit Form or the Weather Graphs are visible -->
     <div id="grayPageOverlay"></div>
-    <!-------------------------->
+    <!----------------->
     <!-- Top of App  -->
-    <!-------------------------->
+    <!----------------->
+    <!-- Spire logo in the top left of the map element -->
     <a id="logo" href="https://www.spire.com/" target="_blank" title="Spire Global"></a>
+    <!-- map download icon in the top right of the map element -->
     <div id="downloadMap" title="Download Map"></div>
+    <!-- buttons near the top left of the map element -->
     <div id="buttons">
+      <!-- button to trigger Draw Polygon feature
+      note: this button's text will change for the Agricultural setting -->
       <button id="drawPolygonArea">Get 500 Vessels in Area</button>
+      <!-- button to trigger Click-Map-For-Point-Forecast feature -->
       <button id="requestForecast">Get Weather Point Forecast</button>
     </div>
+    <!-- the map coordinates at the mouse's current position
+    displayed in the top right of the map element (lon, lat) -->
     <span id="mouseCoordinates"></span>
+    <!-- shading around edges of map -->
     <div id="mapBorder"></div>
-    <div id="mapContainer">
-      <!-- the OpenLayers map component -->
-      <div id="map" class="map"></div>
-    </div>
-    <!-- token submission popup -->
+    <!-- the OpenLayers map component -->
+    <div id="map" class="map"></div>
+    <!------------------------------>
+    <!-- Token Submit Form Popup  -->
+    <!------------------------------>
     <div id="tokenPopup">
       <h1 id="token_title">Spire API Token</h1>
       <form id="tokenForm">
@@ -60,7 +71,9 @@
         <input id="submitToken" type="submit" />
       </form>
     </div>
-    <!-- vessel info popup -->
+    <!------------------------>
+    <!-- Vessel Info Popup  -->
+    <!------------------------>
     <div id="vesselPopup">
       <h1 id="vessel_title">Spire Vessels API Data</h1>
       <button id="getVesselForecast">Spire Forecast</button>
@@ -69,9 +82,9 @@
       </button>
       <div id="vesselInfo"></div>
     </div>
-    <!-------------------------->
-    <!-- Weather Stats Popup  -->
-    <!-------------------------->
+    <!--------------------------->
+    <!-- Weather Graphs Popup  -->
+    <!--------------------------->
     <div id="weatherStats">
       <h1 id="forecast_title">Spire Weather Point Forecast</h1>
       <h4 id="forecast_point_label"></h4>
@@ -83,11 +96,14 @@
         <div class="switch" title="Switch Forecast">
           <input id="forecast_switch" type="checkbox" class="switch-input">
           <label for="toggle"><i></i></label>
-          <!-- Circle Light -->
+          <!-- round "LED" indicator for toggle -->
           <!-- <span></span> -->
         </div>
         <span id="day">Day</span>
       </div>
+      <!-- the order of the DIV elements here
+      is the order in which the graphs will be displayed
+      regardless of which ones are created first in the JavaScript code -->
       <div id="weather_graphs">
         <!-- maritime -->
         <div id="sea_surface_temp"></div>
