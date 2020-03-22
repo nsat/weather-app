@@ -27,7 +27,9 @@
     <script type="text/javascript" src="js/weather/create_graphs.js"></script>
     <script type="text/javascript" src="js/weather/get_spire_forecast.js"></script>
     <!-- Custom Map JS -->
-    <script type="text/javascript" src="js/map_maker.js"></script>
+    <script type="text/javascript" src="js/map/enable_map_download.js"></script>
+    <script type="text/javascript" src="js/map/feature_styles.js"></script>
+    <script type="text/javascript" src="js/map/map_maker.js"></script>
     <!-- Custom Vessels JS (requires map functions to draw vessels on map) -->
     <script type="text/javascript" src="js/get_spire_vessels.js"></script>
     <!-- Custom JS executed when the page and all DOM elements have loaded -->
@@ -41,7 +43,7 @@
     <a id="logo" href="https://www.spire.com/" target="_blank" title="Spire Global"></a>
     <div id="downloadMap" title="Download Map"></div>
     <div id="buttons">
-      <button id="requestVessels">Get 500 Vessels in Area</button>
+      <button id="drawPolygonArea">Get 500 Vessels in Area</button>
       <button id="requestForecast">Get Weather Point Forecast</button>
     </div>
     <span id="mouseCoordinates"></span>

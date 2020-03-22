@@ -1,4 +1,4 @@
-// wait to execute all of these functions until the page has loaded,
+// wait to execute the following code block until the page has fully loaded,
 // ensuring that all HTML elements referenced here have already been created
 window.addEventListener('load', function() {
 
@@ -55,7 +55,7 @@ window.addEventListener('load', function() {
             // since it interferes with selecting a point forecast
             if (window.draw_tool != null) {
                 window.ol_map.removeInteraction(window.draw_tool);
-                document.getElementById('requestVessels').className = '';
+                document.getElementById('drawPolygonArea').className = '';
             }
             // change button style to indicate it has been pressed
             this.className = 'pressed';
@@ -171,7 +171,7 @@ window.addEventListener('load', function() {
         }
     };
 
-    document.getElementById('requestVessels').addEventListener('click', function() {
+    document.getElementById('drawPolygonArea').addEventListener('click', function() {
         // create an alias for clicked button element
         // so we can refer to it in other event handlers
         var self = this;
@@ -250,11 +250,14 @@ window.addEventListener('load', function() {
     // check if the `agricultural` URL parameter has been specified,
     // in which case we will hide the maritime-specific features
     if (window.urlParams.get('bundles') == 'agricultural') {
-        // hide button for getting vessels
-        document.getElementById('requestVessels').textContent = 'Draw Polygon Area';
+        // change button text to indicate
+        document.getElementById('drawPolygonArea').textContent = 'Draw Polygon Area';
     } else {
         // Maritime-specific event handlers:
         //
+        // change button text to indicate a Vessels API request will be sent
+        // after the polygon area is drawn on the map
+        document.getElementById('drawPolygonArea').textContent = 'Get 500 Vessels in Area';
         // enable the vessel info popup to be dragged around on the screen
         makeElementDraggable(document.getElementById('vesselPopup'));
         // close the vessel info popup when the X button is clicked

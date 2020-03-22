@@ -176,18 +176,18 @@ body {
   -ms-user-select: none;      /* IE 10+ */
   user-select: none;
 }
-#requestVessels {
+#drawPolygonArea {
   border-radius: 2px 0 0 2px;
 }
 #requestForecast {
   border-radius: 0 2px 2px 0;
 }
-#requestVessels,
+#drawPolygonArea,
 #requestForecast {
   padding: 7px;
   border: none;
 }
-#requestVessels.pressed,
+#drawPolygonArea.pressed,
 #requestForecast.pressed {
   box-shadow: 1px 1px rgba(0,0,0,1.0);
   background-color: rgba(0,60,136,1.0);
