@@ -1,25 +1,22 @@
-function vesselStyleFunction(feature) {
-    // console.log(feature.getProperties())
-    return new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 4,
-            fill: new ol.style.Fill({
-                color: 'rgba(0, 60, 136, 0.3)'
-            }),
-            stroke: new ol.style.Stroke({
-                width: 1,
-                color: 'rgba(0, 60, 136, 0.7)'
-            })
+var vesselStyle = new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: 4,
+        fill: new ol.style.Fill({
+            color: 'rgba(0, 60, 136, 0.3)'
+        }),
+        stroke: new ol.style.Stroke({
+            width: 1,
+            color: 'rgba(0, 60, 136, 0.7)'
         })
-    });
-}
+    })
+});
 
 var vesselHoverStyle = new ol.style.Style({
     zIndex: Infinity,
     image: new ol.style.Circle({
         radius: 7,
         fill: new ol.style.Fill({
-            // Spire logo red
+            // red from Spire logo
             color: 'rgba(210, 32, 31, 0.4)'
         }),
         stroke: new ol.style.Stroke({
@@ -36,35 +33,58 @@ var vesselSelectStyle = new ol.style.Style({
         scale: 0.05,
         opacity: 1.0,
         src: 'img/spire_symb_red.png'
+        // src: 'img/spire_symb_maritime.png'
+        // src: 'img/icon_ship.png'
     })
 });
 
-function boxStyleFunction(feature) {
-    // console.log(feature.getProperties())
-    return new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'rgba(0, 60, 136, 1.0)',
-            width: 1
-        })
-    });
+var forecastPointStyle = function(feature) {
+    var type = feature.get('type');
+    if (type == 'forecast') {
+        return new ol.style.Style({
+            zIndex: Infinity,
+            image: new ol.style.Icon({
+                anchor: [0.5, 0.5],
+                scale: 0.02,
+                opacity: 1.0,
+                src: 'img/icon_cloud.png'
+            })
+        });
+    } else if (type == 'vessel_forecast') {
+        // features with a type of `vessel_forecast`
+        // are kept invisible, so they don't interfere
+        // with the vessel's rendering at the same coordinate
+        return null;
+    }
 }
 
-function createMapLayer(geojson) {
+var forecastHoverStyle = new ol.style.Style({
+    zIndex: Infinity,
+    image: new ol.style.Icon({
+        anchor: [0.5, 0.5],
+        scale: 0.03,
+        opacity: 1.0,
+        src: 'img/icon_cloud.png'
+    })
+});
+
+var aoiStyle = new ol.style.Style({
+    zIndex: 1,
+    stroke: new ol.style.Stroke({
+        color: 'rgba(0, 60, 136, 1.0)',
+        width: 1
+    })
+});
+
+function createVesselsLayer(geojson) {
     // console.log("Create Map Layer for:", geojson)
-    var type = geojson['properties']['type'];
-    var styleFunction;
-    if (type == 'vessels') {
-        styleFunction = vesselStyleFunction;
-    } else {
-        styleFunction = boxStyleFunction;
-    }
     var vectorSource = new ol.source.Vector({
         features: (new ol.format.GeoJSON()).readFeatures(geojson)
     });
     var vectorLayer = new ol.layer.Vector({
         className: name,
         source: vectorSource,
-        style: styleFunction,
+        style: vesselStyle
     });
     window.ol_map.addLayer(vectorLayer);
 }
@@ -84,6 +104,8 @@ function createMap(geojsonObject) {
         undefinedHTML: '&nbsp;'
     });
 
+    window.aoi_source = new ol.source.Vector({});
+    window.forecast_source = new ol.source.Vector({});
     // create the OpenLayers map and store it in a global variable
     window.ol_map = new ol.Map({
         controls: ol.control.defaults().extend([mousePositionControl]),
@@ -91,6 +113,16 @@ function createMap(geojsonObject) {
             new ol.layer.Tile({
                 // free OpenStreetMap tileset
                 source: new ol.source.OSM()
+            }),
+            new ol.layer.Vector({
+                source: window.aoi_source,
+                style: aoiStyle,
+                // zIndex: 100
+            }),
+            new ol.layer.Vector({
+                source: window.forecast_source,
+                style: forecastPointStyle,
+                // zIndex: 100
             })
         ],
         target: 'map',
@@ -99,71 +131,104 @@ function createMap(geojsonObject) {
             zoom: 2
         })
     });
-
-    // 'singleclick'
-    // 'click'
-    // 'pointermove'
-    // 'altclick'
-    window.selectedFeature = null;
-    window.hoveredFeature = null;
-
+    // keep track of hovered/selected forecast
+    window.selectedForecast = null;
+    window.hoveredForecast = null;
+    // keep track of hovered/selected vessel
+    window.selectedVessel = null;
+    window.hoveredVessel = null;
     // click event listener
     window.ol_map.on('click', function(e) {
-        if (ENABLE_FORECAST == false) {
-            // if (window.selectedFeature !== null) {
-            //     window.selectedFeature.setStyle(undefined);
-            //     window.selectedFeature = null;
-            // }
-
+        // check that a map click won't trigger a forecast,
+        // otherwise we don't allow any OpenLayers features to be selected
+        if (window.ENABLE_FORECAST == false) {
+            // check each feature at clicked pixel
             window.ol_map.forEachFeatureAtPixel(e.pixel, function(f) {
-                if (window.selectedFeature !== null) {
-                    // remove selected styling for current selection
-                    window.selectedFeature.setStyle(undefined);
-                }
-                // set new selected feature and style
-                window.selectedFeature = f;
-                // only style with Spire logo if it's a vessel being clicked
-                if (window.selectedFeature.get('type') == 'vessel') {
+                // get the type of the selected feature
+                var type = f.get('type');
+                if (type == 'vessel') {
+                    // check if there is a vessel already selected
+                    if (window.selectedVessel !== null) {
+                        // remove selected styling for current selection
+                        window.selectedVessel.setStyle(undefined);
+                    }
+                    // set the global variable to the newly selected vessel
+                    window.selectedVessel = f;
+                    // style selected vessel as the red Spire logo
+                    // so it's easy to differentiate from the other blue ship dots
                     f.setStyle(vesselSelectStyle);
+                    // turn off hover styling
+                    window.hoveredVessel = null;
+                    var vessel_data = window.selectedVessel.get('data');
+                    console.log('Selected vessel:', vessel_data);
+                    document.getElementById('vesselInfo').innerHTML = '';
+                    // display the vessel info popup
+                    jsonView.format(vessel_data, '#vesselInfo');
+                    document.getElementById('vesselPopup').style.display = 'block';
+                } else if (type == 'forecast') {
+                    // keep track of which forecast is selected
+                    window.selectedForecast = f;
+                    // this is always hidden by the weather graph popup
+                    // so we don't add special selection styling here
+                    // but we do turn off hover styling
+                    window.hoveredForecast = null;
+                    // always show the `medium_range_std_freq` forecast data by default
+                    var forecast_data = window.selectedForecast.get(window.MEDIUM_RANGE_FORECAST);
+                    console.log('Selected forecast:', forecast_data);
+                    // display the weather graphs popup
+                    displayForecastData(forecast_data, window.selectedForecast.getId());
                 }
                 return true;
             });
-
-            if (window.selectedFeature) {
-                if (window.selectedFeature.get('type') == 'vessel') {
-                    window.hoveredFeature = null;
-                    var vessel_data = window.selectedFeature.get('data');
-                    console.log('Selected:', vessel_data);
-                    document.getElementById('vesselInfo').innerHTML = '';
-                    jsonView.format(vessel_data, '#vesselInfo');
-                    document.getElementById('vesselPopup').style.display = 'block';
-                }
-            }
         }
     });
 
+    function removeHoverStyles() {
+        // remove hover styling for currently hovered vessel
+        if (window.hoveredVessel) {
+            window.hoveredVessel.setStyle(undefined);
+            window.hoveredVessel = null;
+        }
+        // remove hover styling for currently hovered forecast
+        if (window.hoveredForecast) {
+            window.hoveredForecast.setStyle(undefined);
+            window.hoveredForecast = null;
+        }
+    }
+
     // hover event listener
     window.ol_map.on('pointermove', function(e) {
-        if (ENABLE_FORECAST == false) {
-            if (window.hoveredFeature !== null) {
-                window.hoveredFeature.setStyle(undefined);
-                window.hoveredFeature = null;
-            }
-
+        // check that a map click won't trigger a forecast,
+        // otherwise we don't allow any OpenLayers features to be hovered
+        if (window.ENABLE_FORECAST == false) {
+            // reset cursor to default
+            document.body.style.cursor = 'default';
+            // remove hover styling for currently hovered vessel
+            removeHoverStyles();
+            // check each feature at hovered pixel
             window.ol_map.forEachFeatureAtPixel(e.pixel, function(f) {
-                if (window.selectedFeature != f) {
-                    window.hoveredFeature = f;
-                    if (window.hoveredFeature.get('type') == 'vessel') {
-                        f.setStyle(vesselHoverStyle);
+                // change cursor to indicate some feature is being moused over
+                document.body.style.cursor = 'pointer';
+                // ensure only one feature is hovered at a time
+                removeHoverStyles();
+                // get the type of the selected feature
+                var type = f.get('type');
+                if (type == 'vessel') {
+                    if (window.selectedVessel != f) {
+                        // only set hover style on this vessel
+                        // if it is not already currently selected
+                        window.hoveredVessel = f;
+                        window.hoveredVessel.setStyle(vesselHoverStyle);
+                    }
+                } else if (type == 'forecast') {
+                    if (window.selectedForecast != f) {
+                        // only set hover style on this forecast
+                        // if it is not already currently selected
+                        window.hoveredForecast = f;
+                        window.hoveredForecast.setStyle(forecastHoverStyle);
                     }
                 }
-                return true;
             });
-            // if (window.hoveredFeature) {
-            //     console.log('Hovering:', window.selectedFeature.get('name'));
-            //     console.log(window.selectedFeature);
-            //     console.log()
-            // }
         }
     });
 

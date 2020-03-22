@@ -77,10 +77,10 @@ body {
   border-radius: 10px;
 }
 .remove:hover {
-  background: #ff7f7f;
+  background: rgba(210, 32, 31, 0.8);
 }
 .remove:active {
-  background: #ff3232;
+  background: rgba(210, 32, 31, 1.0);
 }
 #getVesselForecast,
 #vesselPopup .remove {

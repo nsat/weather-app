@@ -5,6 +5,11 @@ window.addEventListener('load', function() {
     // initialize the OpenLayers base map
     createMap();
 
+    // global variables for specifying the forecast time bundles
+    window.MEDIUM_RANGE_FORECAST = 'medium_range_std_freq';
+    window.SHORT_RANGE_FORECAST = 'short_range_high_freq';
+    // global variable for toggling get-forecast-on-map-click
+    window.ENABLE_FORECAST = false;
     // set a global variable for easy access of URL parameters.
     // in particular, the weather graphs support different units
     // which can be configured with URL parameters.
@@ -58,21 +63,21 @@ window.addEventListener('load', function() {
             // where clicking on the map will request a point forecast
             document.body.style.cursor = 'crosshair';
             // enable the forecast flag
-            ENABLE_FORECAST = true;
+            window.ENABLE_FORECAST = true;
         } else {
             // unpress the button if it's already activated
             this.className = '';
             // reset the cursor to default
             document.body.style.cursor = 'default';
             // disable the forecast flag
-            ENABLE_FORECAST = false;
+            window.ENABLE_FORECAST = false;
         }
     };
 
     // map click handler applied when a user is selecting a point for weather forecast
     document.getElementById('map').onclick = function(evt) {
         // check that user is selecting a point for weather forecast
-        if (ENABLE_FORECAST == true) {
+        if (window.ENABLE_FORECAST == true) {
             // set cursor to spinning wheel immediately to show that the request has gone through.
             // we will set the cursor back to normal when the forecast API response is received.
             document.body.style.cursor = 'progress';
@@ -81,12 +86,59 @@ window.addEventListener('load', function() {
             // so we can simply grab the content of the DOM element displaying those coordinates
             var coordinate = document.getElementById('mouseCoordinates').textContent;
             // parse the coordinate string by removing whitespace and splitting into an array with lat and lon
-            coordinate = coordinate.replace(' ','').split(',')
+            coordinate = coordinate.replace(' ','').split(',');
+            // transform the coordinates from standard lat-lon to the projection OpenLayers expects
+            var coords = ol.proj.transform(coordinate, 'EPSG:4326', 'EPSG:3857')
+            // create the Forecast point feature
+            var geometry = new ol.geom.Point(coords);
+            var forecastPoint = new ol.Feature({
+                geometry: geometry,
+                type: 'forecast'
+            });
+            // set an ID for this feature
+            // so we can add the forecast data as a property once the API response comes through
+            forecastPoint.setId(String(coordinate));
+            // add the AOI feature to the existing Forecast layer
+            window.forecast_source.addFeature( forecastPoint );
             // pass the [lon, lat] array in to our function for making a Point Forecast API request
             // and specify 6-hourly forecast for 7 days by default
-            getPointForecast(coordinate, 'medium_range_std_freq');
+            getPointForecast(coordinate, window.MEDIUM_RANGE_FORECAST);
         }
     };
+
+    // change forecast toggle UI and get new forecast
+    document.getElementById('forecast_switch').addEventListener( 'change', function(evt, elem) {
+        if (elem == null) {
+            elem = evt.target;
+        }
+        // the forecast toggle is not visible unless a forecast is being displayed
+        // so we first need to get the feature ID of the current forecast
+        // which happens to be a stringified version of the [lon,lat] array
+        var forecast_feature_id = window.FORECAST_COORDINATE;
+        var forecast_feature = window.forecast_source.getFeatureById(forecast_feature_id);
+        // check state of toggle switch
+        if (elem.checked) {
+            // change from 7day forecast to 24hr forecast
+            document.getElementById('day').className = 'selected';
+            document.getElementById('week').className = '';
+            // 24hr forecast data is already retrieved and stored
+            // so we just need to build the graphs for it
+            displayForecastData(
+                forecast_feature.get(window.SHORT_RANGE_FORECAST),
+                forecast_feature_id
+            );
+        } else {
+            // change from 24hr forecast to 7day forecast
+            document.getElementById('day').className = '';
+            document.getElementById('week').className = 'selected';
+            // 7day forecast data is already retrieved and stored
+            // so we just need to build the graphs for it
+            displayForecastData(
+                forecast_feature.get(window.MEDIUM_RANGE_FORECAST),
+                forecast_feature_id
+            );
+        }
+    });
 
     // function for closing the Weather Point Forecast graphs popup...
     function closeForecastPopup() {
@@ -98,6 +150,11 @@ window.addEventListener('load', function() {
         document.getElementById('day').className = '';
         document.getElementById('week').className = 'selected';
         document.getElementById('forecast_switch').checked = false;
+        // un-select the forecast since it's no longer being inspected
+        if (window.selectedForecast) {
+            window.selectedForecast.setStyle(undefined);
+            window.selectedForecast = null;
+        }
     }
     // ...when the user clicks on the X button of the weather graphs popup...
     document.getElementById('closeWeatherStats').onclick = function() {
@@ -121,7 +178,7 @@ window.addEventListener('load', function() {
         // un-press the forecast button if it's already activated
         document.getElementById('requestForecast').className = '';
         // disable the global forecast flag / point forecast on map click
-        ENABLE_FORECAST = false;
+        window.ENABLE_FORECAST = false;
         // return the cursor to default state
         document.body.style.cursor = 'default';
         // ensure the vessels button isn't already pressed
@@ -153,25 +210,16 @@ window.addEventListener('load', function() {
             drawSource.on('addfeature', function(evt){
                 var feature = evt.feature;
                 var drawCoords = feature.getGeometry().getCoordinates()[0];
-                // draw the bounding box on the map
-                // as its own unique OpenLayers map layer
-                createMapLayer({
-                    'type': 'FeatureCollection',
-                    'properties': {
-                        // specify the type as a bounding box
-                        // so we can distinguish it from vessel features
-                        // and ignore mouse events on the box
-                        'type': 'bbox'
-                    },
-                    'features': [{
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Polygon',
-                            // boxCoords are in EPSG:3857
-                            'coordinates': [ drawCoords ]
-                        }
-                    }]
+                // create the Area Of Interest polygon feature
+                var aoiPolygon = new ol.Feature({
+                    geometry: feature.getGeometry(),
+                    // specify the type as an Area Of Interest polygon
+                    // so we can distinguish it from vessel features
+                    // and ignore mouse events on the AOI
+                    type: 'aoi'
                 });
+                // add the AOI feature to the existing AOI layer
+                window.aoi_source.addFeature( aoiPolygon );
                 // only request vessels in the area if we're in the Maritime context
                 if (window.urlParams.get('bundles') != 'agricultural') {
                     // request 500 vessels within this polygon
@@ -181,13 +229,20 @@ window.addEventListener('load', function() {
                 window.ol_map.removeInteraction(drawControl);
                 // return the trigger button to it's normal state
                 self.className = '';
+                // reset the global draw_tool variable to null
                 window.draw_tool = null;
+                // reset the cursor to default
                 document.body.style.cursor = 'default';
             });
-            window.draw_tool = drawControl
+            // set the global raw tool variable
+            // so we can check for context in other event handlers
+            window.draw_tool = drawControl;
+            // add the draw tool interaction to the OpenLayers map
             window.ol_map.addInteraction(window.draw_tool);
         } else {
+            // remove the draw tool interaction from the OpenLayers map
             window.ol_map.removeInteraction(window.draw_tool);
+            // un-press the button since it's currently pressed
             self.className = '';
         }
     });
@@ -198,27 +253,57 @@ window.addEventListener('load', function() {
         // hide button for getting vessels
         document.getElementById('requestVessels').textContent = 'Draw Polygon Area';
     } else {
-
-        // maritime-specific event handlers:
-
+        // Maritime-specific event handlers:
+        //
         // enable the vessel info popup to be dragged around on the screen
         makeElementDraggable(document.getElementById('vesselPopup'));
-
+        // close the vessel info popup when the X button is clicked
         document.getElementById('closeVesselPopup').addEventListener('click', function() {
             document.getElementById('vesselPopup').style.display = 'none';
             document.getElementById('vesselInfo').innerHTML = '';
-            if (window.selectedFeature) {
-                window.selectedFeature.setStyle(undefined);
-                window.selectedFeature = null;
+            // un-select the vessel since it's no longer being inspected
+            if (window.selectedVessel) {
+                window.selectedVessel.setStyle(undefined);
+                window.selectedVessel = null;
             }
         });
-
+        // get the weather point forecast for this vessel's last known position
         document.getElementById ('getVesselForecast').onclick = function() {
-            var vessel_data = window.selectedFeature.get('data');
+            var vessel_data = window.selectedVessel.get('data');
             var coordinate = vessel_data['last_known_position']['geometry']['coordinates'];
-            this.style.cursor = 'progress';
-            document.body.style.cursor = 'progress';
-            getPointForecast(coordinate, 'medium_range_std_freq');
-        }
+            // check if forecast feature already exists for this coordinate
+            var forecast_feature_id = String(coordinate);
+            var forecast_feature = window.forecast_source.getFeatureById(forecast_feature_id);
+            if (forecast_feature) {
+                displayForecastData(
+                    forecast_feature.get(window.MEDIUM_RANGE_FORECAST),
+                    forecast_feature_id
+                );
+            } else {
+                // transform the coordinates from standard lat-lon to the projection OpenLayers expects
+                var coords = ol.proj.transform(coordinate, 'EPSG:4326', 'EPSG:3857')
+                // create the Forecast point feature
+                var geometry = new ol.geom.Point(coords);
+                var forecastPoint = new ol.Feature({
+                    geometry: geometry,
+                    // differentiate between normal forecast feature (which we style on the map)
+                    // and a vessel forecast feature (which stays invisible,
+                    // so it doesn't interfere with the vessel rendering)
+                    type: 'vessel_forecast'
+                });
+                // set an ID for this feature
+                // so we can add the forecast data as a property once the API response comes through
+                forecastPoint.setId(forecast_feature_id);
+                // add the AOI feature to the existing Forecast layer
+                window.forecast_source.addFeature( forecastPoint );
+                // set cursor to spinning wheel immediately to show that the request has gone through.
+                // we will set the cursor back to normal when the forecast API response is received.
+                this.style.cursor = 'progress';
+                document.body.style.cursor = 'progress';
+                // pass the [lon, lat] array in to our function for making a Point Forecast API request
+                // and specify 6-hourly forecast for 7 days by default
+                getPointForecast(coordinate, window.MEDIUM_RANGE_FORECAST);
+            }
+        };
     }
 });

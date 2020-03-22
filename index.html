@@ -24,12 +24,12 @@
     <!-- Custom Weather Stats JS -->
     <script type="text/javascript" src="js/weather/configure_graphs.js"></script>
     <script type="text/javascript" src="js/weather/parse_data.js"></script>
-    <script type="text/javascript" src="js/weather/get_forecast.js"></script>
-    <script type="text/javascript" src="js/weather/change_forecast.js"></script>
+    <script type="text/javascript" src="js/weather/create_graphs.js"></script>
+    <script type="text/javascript" src="js/weather/get_spire_forecast.js"></script>
     <!-- Custom Map JS -->
     <script type="text/javascript" src="js/map_maker.js"></script>
     <!-- Custom Vessels JS (requires map functions to draw vessels on map) -->
-    <script type="text/javascript" src="js/get_vessels.js"></script>
+    <script type="text/javascript" src="js/get_spire_vessels.js"></script>
     <!-- Custom JS executed when the page and all DOM elements have loaded -->
     <script type="text/javascript" src="js/on_load.js"></script>
   </head>
@@ -90,8 +90,8 @@
         <!-- maritime -->
         <div id="sea_surface_temp"></div>
         <div id="wave_height"></div>
-        <div id="northward_sea_velocity"></div>
-        <div id="eastward_sea_velocity"></div>
+        <div id="ocean_currents_speed"></div>
+        <div id="ocean_currents_direction"></div>
         <!-- agricultural -->
         <div id="ag_dew_point_temperature"></div>
         <div id="surface_temperature"></div>
@@ -112,12 +112,13 @@
         <div id="soil_temperature_100_200cm"></div>
         <div id="soil_moisture_100_200cm"></div>
         <!-- basic -->
-        <div id="ne_wind"></div>
+        <div id="wind_speed"></div>
+        <div id="wind_direction"></div>
         <div id="wind_gust"></div>
+        <div id="precip"></div>
         <div id="air_temp"></div>
         <div id="dew_point_temp"></div>
         <div id="rel_hum"></div>
-        <div id="precip"></div>
         <div id="air_press_sea_level"></div>
       </div>
     </div>

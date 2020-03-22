@@ -26,7 +26,7 @@ function requestVessels(number, boxCoords) {
         uri += '&last_known_position_within=' + encoded;
     }
     // print the full API request to the JS console
-    console.log('GET', uri)
+    console.log('Spire Vessels API: GET', uri)
     // build the HTTP header for Authorization 
     var auth_header = {'Authorization': 'Bearer ' + window.TOKEN};
     // make the API request with the specified auth header
@@ -39,6 +39,8 @@ function requestVessels(number, boxCoords) {
         .then((response) => {
             // print the API response to the JS console
             console.log('Vessels API Response:', response);
+            // reset cursor from spinning wheel to default
+            document.body.style.cursor = 'default';
             // check if the API returned a fault/error
             if (response['fault']) {
                 // assume invalid API key and prompt re-entry
@@ -52,10 +54,10 @@ function requestVessels(number, boxCoords) {
                 var geojson = convertResponseToGeoJson(response);
                 // create a new OpenLayers map layer
                 // from the GeoJSON FeatureCollection of vessels
-                createMapLayer(geojson);
+                createVesselsLayer(geojson);
             }
-            document.body.style.cursor = 'default';
         });
+    // end of Promise for fetch
 }
 
 // convert Routing API response to valid GeoJSON

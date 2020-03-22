@@ -1,4 +1,44 @@
-// change the time format
+// parse the `short_range_high_freq` and `medium_range_std_freq` data
+// out of the `medium_range_high_freq` API response
+function get_data_by_time_bundle(data) {
+    // get the hourly values for the first day
+    var short_range = data.slice(0,25);
+    // only get the 6-hourly values
+    // for the first 24 hours
+    var first_day_6_hourly = [];
+    first_day_6_hourly.push(data[0]);
+    // if the full forecast is still processing,
+    // the API response will not contain all forecast values.
+    // therefore, we need robustly check that the data exists
+    // before we try to retrieve it from the array,
+    // otherwise we will get errors.
+    if (data[6]) {
+        first_day_6_hourly.push(data[6]);
+        if (data[12]) {
+            first_day_6_hourly.push(data[12]);
+            if (data[18]) {
+                first_day_6_hourly.push(data[18]);
+                if (data[24]) {
+                    first_day_6_hourly.push(data[24]);
+                }
+            }
+        }
+    }
+    // get the remaining 6 days worth of 6-hourly values if they exist.
+    // this is safe outside of a conditional because
+    // JavaScript's slice method will simply return an empty array
+    // if the specified array indices are not available
+    var last_6_days = data.slice(25,50);
+    // concatenate all 6-hourly values
+    var medium_range = first_day_6_hourly.concat(last_6_days);
+    // return the forecast data separated by time bundles
+    return {
+        'short_range_high_freq': short_range,
+        'medium_range_std_freq': medium_range
+    }
+}
+
+// change the time format to what the Vega graphs library expects
 function get_vega_time(d) {
     var datestring = d.split("T");
     var time = datestring[1].split(",")[0].split("+")[0];
@@ -6,35 +46,43 @@ function get_vega_time(d) {
 }
 
 // temperature scale conversions
-function parse_temperature(data, tempscale) {
+function get_temperature(data, tempscale) {
     var temp;
     var temp_kelvin = data;
     if (tempscale == 'F') {
         temp = (temp_kelvin - 273.15) * 9/5 + 32; // Kelvin to Fahrenheit
     } else if (tempscale == 'K') {
-        temp = temp_kelvin; // Kelvin
+        temp = temp_kelvin; // API response is already in Kelvin
     } else {
         temp = temp_kelvin - 273.15; // Kelvin to Celsius
     }
     return temp;
 }
 
-// combine eastward_wind and northward_wind vector components
-function parse_and_combine_velocity_vectors(u, v) {
-    var dir = '';
-    if (Math.abs(u) < 0.001 && Math.abs(v) < 0.001) {
-        dir = 0;
+// get wind (or ocean currents) speed from U and V velocity components
+function get_speed_from_u_v(u, v) {
+    return Math.sqrt(Math.pow(u, 2) + Math.pow(v, 2))
+}
+
+// get wind (or ocean currents) direction from U and V velocity components
+function get_direction_from_u_v(u, v) {
+    // Meteorological wind direction
+    //   90° corresponds to wind from east,
+    //   180° from south
+    //   270° from west
+    //   360° wind from north.
+    //   0° is used for no wind.
+    if ((u, v) == (0.0, 0.0)) {
+        return 0.0
     } else {
-        dir = Math.round(Math.sqrt(Math.pow(u, 2) + Math.pow(v, 2)));
-        //dir = Math.round(Math.sqrt(Math.pow(u, 2) + Math.pow(v, 2))) + 'mph, direction ' + Math.round(Math.atan2(u, v) * ((180 / Math.PI) + 180));
+        return (180.0 / Math.PI) * Math.atan2(u, v) + 180.0;
     }
-    return dir;
 }
 
 // subtract previous data value from current value
-// since raw value is accumulated over all time
+// because the response value is accumulated since the start of the forecast
 // and we want each bar in the graph to be the value for that time window only
-function parse_accumulated_value(data, name, i) {
+function get_differenced_total_value(data, name, i) {
     var curval;
     if (i != 0) {
         var previous = data[i - 1].values[name];

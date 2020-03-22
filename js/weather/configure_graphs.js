@@ -138,21 +138,11 @@ function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold
 	                        "y2": {
 	                            "field": "ThresholdValueB",
 	                            "type": "quantitative"
-	                        },
-	                        "color": {
-	                            "value": "#fff"// "#e45755" // red
 	                        }
 	                    }
 	                },
-	            // this is the text label for the horizontal threshold line 
 	                {
-	                    "mark": {
-	                        "type": "text",
-	                        "align": "right",
-	                        "baseline": "bottom",
-	                        "dx": -2,
-	                        "dy": -2
-	                    },
+	                    "mark": "rule",
 	                    "encoding": {
 	                        "x": {
 	                            "value": "width"
@@ -163,13 +153,6 @@ function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold
 	                            "axis": {
 	                                "title": y_axis_title
 	                            }
-	                        },
-	                        "text": {
-	                            "field": "Threshold",
-	                            "type": "ordinal"
-	                        },
-	                        "color": {
-	                            "value": "#fff" // "#8b0000" // dark red
 	                        }
 	                    }
 	                }
