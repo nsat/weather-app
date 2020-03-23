@@ -301,42 +301,50 @@ function displayForecastData(data, lonlatString) {
     }
 
     if (window.MARITIME) {
-        embed_vega_spec(
-            build_vega_spec(
-                'Sea Surface Temperature (' + tempscale + ')',
-                { 'values': sea_surface_temp_vals },
-                WARMEST_WATER - 5, // warn threshold value
-                WARMEST_WATER - 2 // alert threshold value
-            ),
-            '#sea_surface_temp'
-        );
-        embed_vega_spec(
-            build_vega_spec(
-                'Significant Wave Height (m)',
-                { 'values': wave_height_vals },
-                4, // warn threshold value
-                5 // alert threshold value
-            ),
-            '#wave_height'
-        );
-        embed_vega_spec(
-            build_vega_spec(
-                'Ocean Currents Speed (m/s)',
-                { 'values': ocean_currents_speed_vals },
-                0.15, // warn threshold value
-                0.2 // alert threshold value
-            ),
-            '#ocean_currents_speed'
-        );
-        embed_vega_spec(
-            build_vega_spec(
-                'Ocean Currents Direction (Degrees)',
-                { 'values': ocean_currents_dir_vals },
-                null, // no alert
-                null // no alert
-            ),
-            '#ocean_currents_direction'
-        );
+        if ((!isNaN(sea_surface_temp_vals[0]['Value']) && !isNaN(sea_surface_temp_vals[0]['Value'])) &&
+            (!isNaN(wave_height_vals[0]['Value']) && !isNaN(wave_height_vals[0]['Value'])) &&
+            (!isNaN(ocean_currents_speed_vals[0]['Value']) && !isNaN(ocean_currents_speed_vals[0]['Value'])) &&
+            (!isNaN(ocean_currents_dir_vals[0]['Value']) && !isNaN(ocean_currents_dir_vals[0]['Value']))) {
+            document.getElementById('processing_msg').style.display = 'none'
+            embed_vega_spec(
+                build_vega_spec(
+                    'Sea Surface Temperature (' + tempscale + ')',
+                    { 'values': sea_surface_temp_vals },
+                    WARMEST_WATER - 5, // warn threshold value
+                    WARMEST_WATER - 2 // alert threshold value
+                ),
+                '#sea_surface_temp'
+            );
+            embed_vega_spec(
+                build_vega_spec(
+                    'Significant Wave Height (m)',
+                    { 'values': wave_height_vals },
+                    4, // warn threshold value
+                    5 // alert threshold value
+                ),
+                '#wave_height'
+            );
+            embed_vega_spec(
+                build_vega_spec(
+                    'Ocean Currents Speed (m/s)',
+                    { 'values': ocean_currents_speed_vals },
+                    0.15, // warn threshold value
+                    0.2 // alert threshold value
+                ),
+                '#ocean_currents_speed'
+            );
+            embed_vega_spec(
+                build_vega_spec(
+                    'Ocean Currents Direction (Degrees)',
+                    { 'values': ocean_currents_dir_vals },
+                    null, // no alert
+                    null // no alert
+                ),
+                '#ocean_currents_direction'
+            );
+        } else {
+            document.getElementById('processing_msg').style.display = 'block';
+        }
     }
 
     if (window.AGRICULTURAL) {
