@@ -19,7 +19,7 @@
     <script type="text/javascript" src="lib/draggable_element.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <link rel="stylesheet" type="text/css" href="css/weather/weatherstats.css" />
+    <link rel="stylesheet" type="text/css" href="css/weather/weatherpopup.css" />
     <link rel="stylesheet" type="text/css" href="css/weather/toggleswitch.css" />
     <!-- Custom Weather Stats JS -->
     <script type="text/javascript" src="js/weather/configure_graphs.js"></script>
@@ -52,7 +52,7 @@
       note: this button's text will change for the Agricultural setting -->
       <button id="drawPolygonArea">Get 500 Vessels in Area</button>
       <!-- button to trigger Click-Map-For-Point-Forecast feature -->
-      <button id="requestForecast">Get Weather Point Forecast</button>
+      <button id="requestForecast">Get Spire Weather Forecast</button>
     </div>
     <!-- the map coordinates at the mouse's current position
     displayed in the top right of the map element (lon, lat) -->
@@ -85,10 +85,10 @@
     <!--------------------------->
     <!-- Weather Graphs Popup  -->
     <!--------------------------->
-    <div id="weatherStats">
+    <div id="weatherPopup">
       <h1 id="forecast_title">Spire Weather Forecast</h1>
       <h4 id="forecast_point_label"></h4>
-      <button id="closeWeatherStats" class="remove">
+      <button id="closeWeatherPopup" class="remove">
         X
       </button>
       <div id="toggle_forecast">

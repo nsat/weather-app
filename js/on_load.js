@@ -143,7 +143,7 @@ window.addEventListener('load', function() {
     // function for closing the Weather Point Forecast graphs popup...
     function closeForecastPopup() {
         // hide the weather graphs popup
-        document.getElementById('weatherStats').style.display = 'none';
+        document.getElementById('weatherPopup').style.display = 'none';
         // hide the gray page overlay
         document.getElementById('grayPageOverlay').style.display = 'none';
         // reset the day/week toggle switch so it's initiated properly for the next forecast
@@ -157,7 +157,7 @@ window.addEventListener('load', function() {
         }
     }
     // ...when the user clicks on the X button of the weather graphs popup...
-    document.getElementById('closeWeatherStats').onclick = function() {
+    document.getElementById('closeWeatherPopup').onclick = function() {
         // close the forecast popup
         closeForecastPopup();
     }

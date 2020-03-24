@@ -16,7 +16,7 @@ function createMap(geojsonObject) {
     document.getElementById('map').innerHTML = '';
 
     // track map coordinates at the cursor's current position
-    var mousePositionControl = new ol.control.MousePosition({
+    window.mousePositionControl = new ol.control.MousePosition({
         coordinateFormat: ol.coordinate.createStringXY(4),
         projection: 'EPSG:4326',
         // comment the following two lines to have the mouse position
@@ -30,7 +30,7 @@ function createMap(geojsonObject) {
     window.forecast_source = new ol.source.Vector({});
     // create the OpenLayers map and store it in a global variable
     window.ol_map = new ol.Map({
-        controls: ol.control.defaults().extend([mousePositionControl]),
+        controls: ol.control.defaults().extend([window.mousePositionControl]),
         layers: [
             new ol.layer.Tile({
                 // free OpenStreetMap tileset
