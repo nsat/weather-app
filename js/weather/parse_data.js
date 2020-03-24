@@ -9,7 +9,7 @@ function get_data_by_time_bundle(data) {
     first_day_6_hourly.push(data[0]);
     // if the full forecast is still processing,
     // the API response will not contain all forecast values.
-    // therefore, we need robustly check that the data exists
+    // therefore, we need to robustly check that the data exists
     // before we try to retrieve it from the array,
     // otherwise we will get errors.
     if (data[6]) {

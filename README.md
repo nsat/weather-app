@@ -19,3 +19,7 @@ Specify `bundles=agricultural` as a URL parameter
 https://elliott-spire.github.io/weather-app/?bundles=agricultural
 
 For descriptions and videos covering Agricultural functionality, please [click here](https://6779491.hs-sites.com/knowledge/how-can-spire-agricultural-weather-data-be-used-in-a-web-app).
+
+# Developers
+
+To start understanding the code, the best entry points are `index.html` and `js/on_load.js`

@@ -1,8 +1,8 @@
 // use Spire Maritime's Vessels API
 // to get the latest positions of N number of vessels
 function requestVessels(number, boxCoords) {
-    var uri = 'https://api.sense.spire.com/vessels/';
-    uri += '?limit=' + number;
+    var uri = 'https://api.sense.spire.com/vessels/?sort=-timestamp';
+    uri += '&limit=' + number;
     if (boxCoords) {
         // convert each coordinate pair to a different projection
         // since OpenLayers uses EPSG:3857 projection
