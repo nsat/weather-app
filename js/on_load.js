@@ -74,38 +74,6 @@ window.addEventListener('load', function() {
         }
     };
 
-    // map click handler applied when a user is selecting a point for weather forecast
-    document.getElementById('map').onclick = function(evt) {
-        // check that user is selecting a point for weather forecast
-        if (window.ENABLE_FORECAST == true) {
-            // set cursor to spinning wheel immediately to show that the request has gone through.
-            // we will set the cursor back to normal when the forecast API response is received.
-            document.body.style.cursor = 'progress';
-            document.getElementById('forecast_switch').style.cursor = 'progress';
-            // we are already auto-storing the latitude/longitude coordinates of the current mouse position
-            // so we can simply grab the content of the DOM element displaying those coordinates
-            var coordinate = document.getElementById('mouseCoordinates').textContent;
-            // parse the coordinate string by removing whitespace and splitting into an array with lat and lon
-            coordinate = coordinate.replace(' ','').split(',');
-            // transform the coordinates from standard lat-lon to the projection OpenLayers expects
-            var coords = ol.proj.transform(coordinate, 'EPSG:4326', 'EPSG:3857')
-            // create the Forecast point feature
-            var geometry = new ol.geom.Point(coords);
-            var forecastPoint = new ol.Feature({
-                geometry: geometry,
-                type: 'forecast'
-            });
-            // set an ID for this feature
-            // so we can add the forecast data as a property once the API response comes through
-            forecastPoint.setId(String(coordinate));
-            // add the AOI feature to the existing Forecast layer
-            window.forecast_source.addFeature( forecastPoint );
-            // pass the [lon, lat] array in to our function for making a Point Forecast API request
-            // and specify 6-hourly forecast for 7 days by default
-            getPointForecast(coordinate, window.MEDIUM_RANGE_FORECAST);
-        }
-    };
-
     // change forecast toggle UI and get new forecast
     document.getElementById('forecast_switch').addEventListener( 'change', function(evt, elem) {
         if (elem == null) {

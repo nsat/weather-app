@@ -59,7 +59,7 @@ function createMap(geojsonObject) {
     // keep track of hovered/selected vessel
     window.selectedVessel = null;
     window.hoveredVessel = null;
-    // click event listener
+    // map click/touch event listener
     window.ol_map.on('click', function(e) {
         // check that a map click won't trigger a forecast,
         // otherwise we don't allow any OpenLayers features to be selected
@@ -102,6 +102,31 @@ function createMap(geojsonObject) {
                 }
                 return true;
             });
+        } else {
+            // window.ENABLE_FORECAST is set to true.
+            // set cursor to spinning wheel immediately to show that the request has gone through.
+            // we will set the cursor back to normal when the forecast API response is received.
+            document.body.style.cursor = 'progress';
+            document.getElementById('forecast_switch').style.cursor = 'progress';
+            // we are already auto-storing the latitude/longitude coordinates of the current mouse position
+            // so we can simply grab the content of the DOM element displaying those coordinates
+            var ol_coords = e.coordinate;
+            // create the Forecast point feature
+            var geometry = new ol.geom.Point(ol_coords);
+            var forecastPoint = new ol.Feature({
+                geometry: geometry,
+                type: 'forecast'
+            });
+            // transform the coordinates from OpenLayers projection to standard lat-lon
+            var coords = ol.proj.transform(ol_coords, 'EPSG:3857', 'EPSG:4326');
+            // set an ID for this feature
+            // so we can add the forecast data as a property once the API response comes through
+            forecastPoint.setId(String(coords));
+            // add the AOI feature to the existing Forecast layer
+            window.forecast_source.addFeature( forecastPoint );
+            // pass the [lon, lat] array in to our function for making a Point Forecast API request
+            // and specify 6-hourly forecast for 7 days by default
+            getPointForecast(coords, window.MEDIUM_RANGE_FORECAST);
         }
     });
 
@@ -118,7 +143,7 @@ function createMap(geojsonObject) {
         }
     }
 
-    // hover event listener
+    // mouse hover event listener
     window.ol_map.on('pointermove', function(e) {
         // check that a map click won't trigger a forecast,
         // otherwise we don't allow any OpenLayers features to be hovered
