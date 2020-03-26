@@ -41,9 +41,6 @@ function displayForecastData(data, lonlatString) {
     var soil_temperature_100_200cm_vals = [];
     var soil_moisture_100_200cm_vals = [];
 
-    // for demo purposes, see below
-    var WARMEST_WATER = 0;
-
     // check URL parameter to set the temperature scale
     var tempscale = window.urlParams.get('tempscale');
     if (tempscale == null) {
@@ -104,17 +101,9 @@ function displayForecastData(data, lonlatString) {
         if (window.MARITIME) {
             // add Maritime Bundle variables
 
-            // since this is a demo,
-            // keep track of highest number
-            // to ensure at least one graph shows warning and alert colors
-            var sea_temp = get_temperature(data[i].values.sea_surface_temperature, tempscale);
-            if (WARMEST_WATER < sea_temp) {
-                WARMEST_WATER = sea_temp;
-            }
-
             sea_surface_temp_vals.push({
                 'Time': valid_time_vega_format,
-                'Value': sea_temp
+                'Value': get_temperature(data[i].values.sea_surface_temperature, tempscale)
             });
             wave_height_vals.push({
                 'Time': valid_time_vega_format,
@@ -310,8 +299,8 @@ function displayForecastData(data, lonlatString) {
                 build_vega_spec(
                     'Sea Surface Temperature (' + tempscale + ')',
                     { 'values': sea_surface_temp_vals },
-                    WARMEST_WATER - 5, // warn threshold value
-                    WARMEST_WATER - 2 // alert threshold value
+                    null, // no alert
+                    null // no alert
                 ),
                 '#sea_surface_temp'
             );
@@ -343,6 +332,7 @@ function displayForecastData(data, lonlatString) {
                 '#ocean_currents_direction'
             );
         } else {
+            // TODO: make new API request only retrieving Maritime bundle data
             document.getElementById('processing_msg').style.display = 'block';
         }
     }
