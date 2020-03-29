@@ -58,147 +58,224 @@ function displayForecastData(data, lonlatString) {
 
         if (window.BASIC) {
             // add Basic Bundle variables
-            air_temp_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values.air_temperature, tempscale)
-            });
-            dew_point_temp_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values.dew_point_temperature, tempscale)
-            });
-            wind_speed_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_speed_from_u_v(
-                    data[i].values.eastward_wind,
-                    data[i].values.northward_wind
-                ),
-            });
-            wind_dir_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_direction_from_u_v(
-                    data[i].values.eastward_wind,
-                    data[i].values.northward_wind
-                ),
-            });
-            rel_hum_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values.relative_humidity
-            });
-            air_press_sea_level_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values.air_pressure_at_sea_level
-            });
-            wind_gust_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values.wind_gust
-            });
-            precip_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_differenced_total_value(data, 'precipitation_amount', i)
-            });
+
+            var air_temp = data[i].values.air_temperature;
+            if (air_temp) {
+                air_temp_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(air_temp, tempscale)
+                });
+            }
+            var dp_temp = data[i].values.dew_point_temperature;
+            if (dp_temp) {
+                dew_point_temp_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(dp_temp, tempscale)
+                });
+            }
+            var u = data[i].values.eastward_wind;
+            var v = data[i].values.northward_wind;
+            if (u && v) {
+                wind_speed_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_speed_from_u_v(u, v)
+                });
+                wind_dir_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_direction_from_u_v(u, v)
+                });
+            }
+            var rel_hum = data[i].values.relative_humidity;
+            if (rel_hum) {
+                rel_hum_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': rel_hum
+                });
+            }
+            var air_press = data[i].values.air_pressure_at_sea_level;
+            if (air_press) {
+                air_press_sea_level_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': air_press
+                });
+            }
+            var wind_gust = data[i].values.wind_gust;
+            if (wind_gust) {
+                wind_gust_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': wind_gust
+                });
+            }
+            var precip = data[i].values.precipitation_amount;
+            if (precip) {
+                precip_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_differenced_total_value(data, 'precipitation_amount', i)
+                });
+            }
         }
 
         if (window.MARITIME) {
             // add Maritime Bundle variables
 
-            sea_surface_temp_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values.sea_surface_temperature, tempscale)
-            });
-            wave_height_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values.sea_surface_wave_significant_height
-            });
-            ocean_currents_speed_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_speed_from_u_v(
-                    data[i].values.eastward_sea_water_velocity,
-                    data[i].values.northward_sea_water_velocity
-                ),
-            });
-            ocean_currents_dir_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_direction_from_u_v(
-                    data[i].values.eastward_sea_water_velocity,
-                    data[i].values.northward_sea_water_velocity
-                ),
-            });
+            var sea_temp = data[i].values.sea_surface_temperature;
+            if (sea_temp) {
+                sea_surface_temp_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(sea_temp, tempscale)
+                });
+            }
+            var wave_height = data[i].values.sea_surface_wave_significant_height;
+            if (wave_height) {
+                wave_height_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': wave_height
+                });
+            }
+            var u = data[i].values.eastward_sea_water_velocity;
+            var v = data[i].values.northward_sea_water_velocity;
+            if (u && v) {
+                ocean_currents_speed_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_speed_from_u_v(u, v)
+                });
+                ocean_currents_dir_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_direction_from_u_v(u, v)
+                });
+            }
         }
 
         if (window.AGRICULTURAL) {
             // add Agricultural Bundle variables
-            ag_dew_point_temperature_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values.dew_point_temperature, tempscale)
-            });
-            surface_temperature_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values.surface_temperature, tempscale)
-            });
-            specific_humidity_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values.specific_humidity
-            });
-            sensible_heat_flux_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values.sensible_heat_flux
-            });
-            latent_heat_flux_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values.latent_heat_flux
-            });
-            surface_net_downward_shortwave_flux_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_differenced_total_value(data, 'surface_net_downward_shortwave_flux', i)
-            });
-            surface_net_downward_longwave_flux_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_differenced_total_value(data, 'surface_net_downward_longwave_flux', i)
-            });
-            surface_net_upward_shortwave_flux_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_differenced_total_value(data, 'surface_net_upward_shortwave_flux', i)
-            });
-            surface_net_upward_longwave_flux_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_differenced_total_value(data, 'surface_net_upward_longwave_flux', i)
-            });
-            net_upward_longwave_flux_at_top_of_atmosphere_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_differenced_total_value(data, 'net_upward_longwave_flux_at_top_of_atmosphere', i)
-            });
-            soil_temperature_0_10cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values['soil_temperature_0-10cm'], tempscale)
-            });
-            soil_temperature_10_40cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values['soil_temperature_10-40cm'], tempscale)
-            });
-            soil_temperature_40_100cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values['soil_temperature_40-100cm'], tempscale)
-            });
-            soil_temperature_100_200cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': get_temperature(data[i].values['soil_temperature_100-200cm'], tempscale)
-            });
-            soil_moisture_0_10cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values['soil_moisture_0-10cm']
-            });
-            soil_moisture_10_40cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values['soil_moisture_10-40cm']
-            });
-            soil_moisture_40_100cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values['soil_moisture_40-100cm']
-            });
-            soil_moisture_100_200cm_vals.push({
-                'Time': valid_time_vega_format,
-                'Value': data[i].values['soil_moisture_100-200cm']
-            });
+
+            var dp_temp = data[i].values.dew_point_temperature;
+            if (dp_temp) {
+                ag_dew_point_temperature_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(dp_temp, tempscale)
+                });
+            }
+
+            var sur_temp = data[i].values.surface_temperature;
+            if (sur_temp) {
+                surface_temperature_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(sur_temp, tempscale)
+                });
+            }
+            var spec_hum = data[i].values.specific_humidity;
+            if (spec_hum) {
+                specific_humidity_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': spec_hum
+                });
+            }
+            var sh_flux = data[i].values.sensible_heat_flux;
+            if (sh_flux) {
+                sensible_heat_flux_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': sh_flux
+                });
+            }
+            var lh_flux = data[i].values.latent_heat_flux;
+            if (lh_flux) {
+                latent_heat_flux_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': lh_flux
+                });
+            }
+            var ds_flux = data[i].values.surface_net_downward_shortwave_flux;
+            if (ds_flux) {
+                surface_net_downward_shortwave_flux_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_differenced_total_value(data, 'surface_net_downward_shortwave_flux', i)
+                });
+            }
+            var dl_flux = data[i].values.surface_net_downward_longwave_flux;
+            if (dl_flux) {
+                surface_net_downward_longwave_flux_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_differenced_total_value(data, 'surface_net_downward_longwave_flux', i)
+                });
+            }
+            var us_flux = data[i].values.surface_net_upward_shortwave_flux;
+            if (us_flux) {
+                surface_net_upward_shortwave_flux_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_differenced_total_value(data, 'surface_net_upward_shortwave_flux', i)
+                });
+            }
+            var ul_flux = data[i].values.surface_net_upward_longwave_flux;
+            if (ul_flux) {
+                surface_net_upward_longwave_flux_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_differenced_total_value(data, 'surface_net_upward_longwave_flux', i)
+                });
+            }
+            var ul_flux_atmo = data[i].values.net_upward_longwave_flux_at_top_of_atmosphere;
+            if (ul_flux_atmo) {
+                net_upward_longwave_flux_at_top_of_atmosphere_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_differenced_total_value(data, 'net_upward_longwave_flux_at_top_of_atmosphere', i)
+                });
+            }
+            var soil_temp_0_10cm = data[i].values['soil_temperature_0-10cm'];
+            if (soil_temp_0_10cm) {
+                soil_temperature_0_10cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(soil_temp_0_10cm, tempscale)
+                });
+            }
+            var soil_temp_10_40cm = data[i].values['soil_temperature_10-40cm'];
+            if (soil_temp_10_40cm) {
+                soil_temperature_10_40cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(soil_temp_10_40cm, tempscale)
+                });
+            }
+            var soil_temp_40_100cm = data[i].values['soil_temperature_40-100cm'];
+            if (soil_temp_40_100cm) {
+                soil_temperature_40_100cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(soil_temp_40_100cm, tempscale)
+                });
+            }
+            var soil_temp_100_200cm = data[i].values['soil_temperature_100-200cm'];
+            if (soil_temp_100_200cm) {
+                soil_temperature_100_200cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': get_temperature(soil_temp_100_200cm, tempscale)
+                });
+            }
+            var soil_moisture_0_10cm = data[i].values['soil_moisture_0-10cm'];
+            if (soil_moisture_0_10cm) {
+                soil_moisture_0_10cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': soil_moisture_0_10cm
+                });
+            }
+            var soil_moisture_10_40cm = data[i].values['soil_moisture_10-40cm'];
+            if (soil_moisture_10_40cm) {
+                soil_moisture_10_40cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': soil_moisture_10_40cm
+                });
+            }
+            var soil_moisture_40_100cm = data[i].values['soil_moisture_40-100cm'];
+            if (soil_moisture_40_100cm) {
+                soil_moisture_40_100cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': soil_moisture_40_100cm
+                });
+            }
+            var soil_moisture_100_200cm = data[i].values['soil_moisture_100-200cm'];
+            if (soil_moisture_100_200cm) {
+                soil_moisture_100_200cm_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': soil_moisture_100_200cm
+                });
+            }
         }
     }
 
@@ -208,7 +285,10 @@ function displayForecastData(data, lonlatString) {
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    if (window.BASIC) {
+    if (window.BASIC &&
+        // check that basic data has actually been returned
+        air_temp_vals.length > 0 && wind_speed_vals.length > 0) {
+        // add the basic graphs
         embed_vega_spec(
             build_vega_spec(
                 'Air Temperature (' + tempscale + ')',
@@ -218,21 +298,6 @@ function displayForecastData(data, lonlatString) {
             ),
             '#air_temp'
         );
-        if (AGRICULTURAL == false) {
-            // Dewpoint Temperature (2 Meters AGL) is used in both Basic and Agricultural bundles
-            // so exclude it from the Basic graphs if Agricultural is already specified
-            embed_vega_spec(
-                build_vega_spec(
-                    'Dew Point Temperature (' + tempscale + ')',
-                    { 'values': dew_point_temp_vals },
-                    7, // warn threshold value
-                    9 // alert threshold value
-                ),
-                '#dew_point_temp'
-            );
-        } else {
-            document.getElementById('dew_point_temp').style.display = 'none';
-        }
         embed_vega_spec(
             build_vega_spec(
                 'Wind Speed (m/s)',
@@ -287,57 +352,27 @@ function displayForecastData(data, lonlatString) {
             ),
             '#wind_gust'
         );
-    }
-
-    if (window.MARITIME) {
-        if ((!isNaN(sea_surface_temp_vals[0]['Value']) && !isNaN(sea_surface_temp_vals[0]['Value'])) &&
-            (!isNaN(wave_height_vals[0]['Value']) && !isNaN(wave_height_vals[0]['Value'])) &&
-            (!isNaN(ocean_currents_speed_vals[0]['Value']) && !isNaN(ocean_currents_speed_vals[0]['Value'])) &&
-            (!isNaN(ocean_currents_dir_vals[0]['Value']) && !isNaN(ocean_currents_dir_vals[0]['Value']))) {
-            document.getElementById('processing_msg').style.display = 'none'
+        if (AGRICULTURAL == false) {
+            // Dewpoint Temperature (2 Meters AGL) is used in both Basic and Agricultural bundles
+            // so exclude it from the Basic graphs if Agricultural is already specified
             embed_vega_spec(
                 build_vega_spec(
-                    'Sea Surface Temperature (' + tempscale + ')',
-                    { 'values': sea_surface_temp_vals },
-                    null, // no alert
-                    null // no alert
+                    'Dew Point Temperature (' + tempscale + ')',
+                    { 'values': dew_point_temp_vals },
+                    7, // warn threshold value
+                    9 // alert threshold value
                 ),
-                '#sea_surface_temp'
-            );
-            embed_vega_spec(
-                build_vega_spec(
-                    'Significant Wave Height (m)',
-                    { 'values': wave_height_vals },
-                    4, // warn threshold value
-                    5 // alert threshold value
-                ),
-                '#wave_height'
-            );
-            embed_vega_spec(
-                build_vega_spec(
-                    'Ocean Currents Speed (m/s)',
-                    { 'values': ocean_currents_speed_vals },
-                    0.15, // warn threshold value
-                    0.2 // alert threshold value
-                ),
-                '#ocean_currents_speed'
-            );
-            embed_vega_spec(
-                build_vega_spec(
-                    'Ocean Currents Direction (Degrees)',
-                    { 'values': ocean_currents_dir_vals },
-                    null, // no alert
-                    null // no alert
-                ),
-                '#ocean_currents_direction'
+                '#dew_point_temp'
             );
         } else {
-            // TODO: make new API request only retrieving Maritime bundle data
-            document.getElementById('processing_msg').style.display = 'block';
+            document.getElementById('dew_point_temp').style.display = 'none';
         }
     }
 
-    if (window.AGRICULTURAL) {
+    if (window.AGRICULTURAL &&
+        // check that agricultural data has actually been returned
+        ag_dew_point_temperature_vals.length > 0 && surface_temperature_vals.length > 0) {
+        // add the agricultural graphs
         embed_vega_spec(
             build_vega_spec(
                 'Dew Point Temperature (' + tempscale + ')',
@@ -499,6 +534,48 @@ function displayForecastData(data, lonlatString) {
                 0.8 // alert threshold value
             ),
             '#soil_moisture_100_200cm'
+        );
+    }
+
+    if (window.MARITIME &&
+        // check that maritime data has actually been returned
+        sea_surface_temp_vals.length > 0 && wave_height_vals.length > 0) {
+        // add the maritime graphs
+        embed_vega_spec(
+            build_vega_spec(
+                'Sea Surface Temperature (' + tempscale + ')',
+                { 'values': sea_surface_temp_vals },
+                null, // no alert
+                null // no alert
+            ),
+            '#sea_surface_temp'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Significant Wave Height (m)',
+                { 'values': wave_height_vals },
+                4, // warn threshold value
+                5 // alert threshold value
+            ),
+            '#wave_height'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Ocean Currents Speed (m/s)',
+                { 'values': ocean_currents_speed_vals },
+                0.15, // warn threshold value
+                0.2 // alert threshold value
+            ),
+            '#ocean_currents_speed'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Ocean Currents Direction (Degrees)',
+                { 'values': ocean_currents_dir_vals },
+                null, // no alert
+                null // no alert
+            ),
+            '#ocean_currents_direction'
         );
     }
 

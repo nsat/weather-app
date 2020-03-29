@@ -92,3 +92,23 @@ function get_differenced_total_value(data, name, i) {
     }
     return curval;
 }
+
+// check that both Maritime and Basic data variables exist in the data
+// since the forecast update schedule is slightly different
+// and it is possible for us to get brand new Basic data returned before Maritime is ready
+// in which case we need to fetch the most recent Maritime bundle data explicitly
+function maritime_variables_exist(data) {
+    if (data[0].values.sea_surface_temperature &&
+        data[0].values.sea_surface_wave_significant_height &&
+        data[0].values.eastward_sea_water_velocity &&
+        data[0].values.northward_sea_water_velocity) {
+        // maritime variables exist in the returned data
+        // so we are all good to proceed
+        return true;
+    } else {
+        // maritime variables do not exist in the returned data
+        // so we must make a new API call explicitly requesting
+        // only the maritime bundle
+        return false;
+    }
+}
