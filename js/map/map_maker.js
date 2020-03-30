@@ -4,6 +4,7 @@ function createVesselsLayer(geojson) {
         features: (new ol.format.GeoJSON()).readFeatures(geojson)
     });
     var vectorLayer = new ol.layer.Vector({
+        zIndex: 100,
         className: name,
         source: vectorSource,
         style: vesselStyle
@@ -27,7 +28,17 @@ function createMap(geojsonObject) {
     });
 
     window.aoi_source = new ol.source.Vector({});
+    window.aoi_layer = new ol.layer.Vector({
+        source: window.aoi_source,
+        style: aoiStyle,
+        // zIndex: 100
+    });
     window.forecast_source = new ol.source.Vector({});
+    window.forecast_layer = new ol.layer.Vector({
+        source: window.forecast_source,
+        style: forecastPointStyle,
+        zIndex: 99
+    });
     // create the OpenLayers map and store it in a global variable
     window.ol_map = new ol.Map({
         controls: ol.control.defaults().extend([window.mousePositionControl]),
@@ -36,16 +47,8 @@ function createMap(geojsonObject) {
                 // free OpenStreetMap tileset
                 source: new ol.source.OSM()
             }),
-            new ol.layer.Vector({
-                source: window.aoi_source,
-                style: aoiStyle,
-                // zIndex: 100
-            }),
-            new ol.layer.Vector({
-                source: window.forecast_source,
-                style: forecastPointStyle,
-                // zIndex: 100
-            })
+            window.aoi_layer,
+            window.forecast_layer
         ],
         target: 'map',
         view: new ol.View({

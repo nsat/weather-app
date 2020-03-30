@@ -25,6 +25,7 @@ body {
   background: rgba(0,0,0,0.6);
   z-index: 101;
 }
+#wmsPopup,
 #tokenPopup,
 #vesselPopup {
   background-color: #22293d;
@@ -43,19 +44,23 @@ body {
   -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 }
-#vesselPopup {
+#vesselPopup,
+#wmsPopup {
   z-index: 100;
   cursor: move;
 }
 #vesselInfo {
   cursor: default;
 }
-#tokenPopup {
+#tokenPopup,
+#wmsPopup {
   z-index: 999;
-  display: block;
   text-align: center;
   left: 35%;
   top: 150px;
+}
+#tokenPopup {
+  display: block;
 }
 #tokenForm {
   padding: 30px;
@@ -83,6 +88,7 @@ body {
   background: rgba(210, 32, 31, 1.0);
 }
 #getVesselForecast,
+#wmsPopup .remove,
 #vesselPopup .remove {
   margin: 10px;
 }
@@ -94,6 +100,7 @@ body {
 #vesselInfo {
   margin: 20px;
 }
+#wms_title,
 #vessel_title,
 #token_title {
   color: #FFFFFF;
@@ -177,15 +184,20 @@ body {
   border-radius: 2px 0 0 2px;
 }
 #requestForecast {
+  /*border-radius: 0 2px 2px 0;*/
+}
+#selectWMS {
   border-radius: 0 2px 2px 0;
 }
 #drawPolygonArea,
-#requestForecast {
+#requestForecast,
+#selectWMS {
   padding: 7px;
   border: none;
 }
 #drawPolygonArea.pressed,
-#requestForecast.pressed {
+#requestForecast.pressed,
+#selectWMS.pressed {
   box-shadow: 1px 1px rgba(0,0,0,1.0);
   background-color: rgba(0,60,136,1.0);
 }
@@ -221,4 +233,13 @@ button:active {
 }
 h1 {
   pointer-events: none;
+}
+#wms_select {
+  cursor: pointer;
+  text-align: center;
+  text-align-last: center;
+  background: white;
+  font-weight: bold;
+  width: 384px;
+  height: 40px;
 }

@@ -14,6 +14,13 @@ window.addEventListener('load', function() {
     // in particular, the weather graphs support different units
     // which can be configured with URL parameters.
     window.urlParams = new URLSearchParams(window.location.search);
+    // get today's date
+    var today = new Date();
+    // store the date in the format needed for fetching WMS layers
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0
+    var yyyy = today.getFullYear();
+    window.TODAY = yyyy + mm + dd;
 
     // handler for token input form submission
     document.getElementById('tokenForm').addEventListener('submit', function(evt) {
@@ -45,6 +52,33 @@ window.addEventListener('load', function() {
             // hide the gray page overlay
             document.getElementById('grayPageOverlay').style.display = 'none';
         }
+    });
+
+    // toggle popup for selecting a WMS layer
+    document.getElementById('selectWMS').addEventListener('click', function() {
+        if (document.getElementById('selectWMS').className != 'pressed') {
+            document.getElementById('wmsPopup').style.display = 'block';
+            document.getElementById('selectWMS').className = 'pressed';
+        } else {
+            document.getElementById('wmsPopup').style.display = 'none';
+            document.getElementById('selectWMS').className = '';
+        }
+    });
+
+    // enable the vessel info popup to be dragged around on the screen
+    makeElementDraggable(document.getElementById('wmsPopup'));
+
+    // add the WMS layer when it is selected from the dropdown
+    document.getElementById('wms_select').addEventListener('change', function() {
+        var e = document.getElementById('wms_select');
+        var layer = e.options[e.selectedIndex].value;
+        addWMSLayer(layer);
+    });
+
+    // close the WMS popup when the X button is clicked
+    document.getElementById('closeWMSPopup').addEventListener('click', function() {
+        document.getElementById('wmsPopup').style.display = 'none';
+        document.getElementById('selectWMS').className = '';
     });
 
     // button handler for enabling point forecast on map click

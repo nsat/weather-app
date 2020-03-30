@@ -30,6 +30,7 @@
     <script type="text/javascript" src="js/map/enable_map_download.js"></script>
     <script type="text/javascript" src="js/map/feature_styles.js"></script>
     <script type="text/javascript" src="js/map/map_maker.js"></script>
+    <script type="text/javascript" src="js/map/wms_layers.js"></script>
     <!-- Custom Vessels JS (requires map functions to draw vessels on map) -->
     <script type="text/javascript" src="js/get_spire_vessels.js"></script>
     <!-- Custom JS executed when the page and all DOM elements have loaded -->
@@ -52,7 +53,9 @@
       note: this button's text will change for the Agricultural setting -->
       <button id="drawPolygonArea">Get 500 Vessels in Area</button>
       <!-- button to trigger Click-Map-For-Point-Forecast feature -->
-      <button id="requestForecast">Get Spire Weather Forecast</button>
+      <button id="requestForecast">Get Weather Forecast</button>
+      <!-- button to trigger popup for selecting WMS layer -->
+      <button id="selectWMS">Get WMS Layer</button>
     </div>
     <!-- the map coordinates at the mouse's current position
     displayed in the top right of the map element (lon, lat) -->
@@ -81,6 +84,50 @@
         X
       </button>
       <div id="vesselInfo"></div>
+    </div>
+    <!----------------------->
+    <!-- WMS Layers Popup  -->
+    <!----------------------->
+    <div id="wmsPopup">
+      <h1 id="wms_title">Spire Weather WMS Layers</h1>
+      <button id="closeWMSPopup" class="remove">
+        X
+      </button>
+      <div class="wms_dropdown" style="width:200px;">
+        <select id='wms_select'>
+          <option value='none'>None</option>
+          <!-- maritime -->
+          <option value='sof-d.maritime/YYYYMMDD/HH/swh:m'>Significant Wave Height (combined wind waves+swell; meters)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/swh:ft'>Significant Wave Height (combined wind waves+swell; feet)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/oc:kt'>Ocean Current (knots)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/oc:ms'>Ocean Current (m/s)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/ocv:kt'>Ocean current northward component (knots)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/ocv:ms'>Ocean current northward component (m/s)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/ocu:kt'>Ocean current eastward component (knots)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/ocu:ms'>Ocean current eastward component (m/s)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/sst:K'>Sea-Surface Temperature (K)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/sst:C'>Sea-Surface Temperature (C)</option>
+          <option value='sof-d.maritime/YYYYMMDD/HH/sst:F'>Sea-Surface Temperature (F)</option>
+          <!-- basic -->
+          <option value='sof-d/YYYYMMDD/HH/tp:mm'>Total Precipitation (mm)</option>
+          <option value='sof-d/YYYYMMDD/HH/gust:kt'>Wind Gust (knots)</option>
+          <option value='sof-d/YYYYMMDD/HH/gust:ms'>Wind Gust (m/s)</option>
+          <option value='sof-d/YYYYMMDD/HH/sfcwind:kt'>10-Meter Wind (knots)</option>
+          <option value='sof-d/YYYYMMDD/HH/sfcwind:ms'>10-Meter Wind (m/s)</option>
+          <option value='sof-d/YYYYMMDD/HH/10v:kt'>10-Meter V-Wind Component (knots)</option>
+          <option value='sof-d/YYYYMMDD/HH/10v:ms'>10-Meter V-Wind Component (m/s)</option>
+          <option value='sof-d/YYYYMMDD/HH/10u:kt'>10-Meter U-Wind Component (knots)</option>
+          <option value='sof-d/YYYYMMDD/HH/10u:ms'>10-Meter U-Wind Component (m/s)</option>
+          <option value='sof-d/YYYYMMDD/HH/t2m:K'>2-Meter Air Temperature (K)</option>
+          <option value='sof-d/YYYYMMDD/HH/t2m:C'>2-Meter Air Temperature (C)</option>
+          <option value='sof-d/YYYYMMDD/HH/t2m:F'>2-Meter Air Temperature (F)</option>
+          <option value='sof-d/YYYYMMDD/HH/2d:K'>2-Meter Dewpoint Temperature (K)</option>
+          <option value='sof-d/YYYYMMDD/HH/2d:C'>2-Meter Dewpoint Temperature (C)</option>
+          <option value='sof-d/YYYYMMDD/HH/2d:F'>2-Meter Dewpoint Temperature (F)</option>
+          <option value='sof-d/YYYYMMDD/HH/r'>2-Meter Relative Humidity</option>
+          <option value='sof-d/YYYYMMDD/HH/pmsl:hPa'>Mean Sea-Level Pressure (hPa)</option>
+        </select>
+      </div>
     </div>
     <!--------------------------->
     <!-- Weather Graphs Popup  -->
