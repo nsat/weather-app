@@ -6,7 +6,9 @@ window.addEventListener('load', function() {
     createMap();
 
     // initiate variable for storing WMS capabilities
-    window.WMSXML = {};
+    window.Full_WMS_XML = {};
+    window.Latest_WMS = {};
+    window.WMS_Animation_Index = 0;
     // global variables for specifying the forecast time bundles
     window.MEDIUM_RANGE_FORECAST = 'medium_range_std_freq';
     window.SHORT_RANGE_FORECAST = 'short_range_high_freq';
