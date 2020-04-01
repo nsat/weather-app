@@ -5,14 +5,15 @@ window.addEventListener('load', function() {
     // initialize the OpenLayers base map
     createMap();
 
+    // initiate variable for storing WMS capabilities
+    window.WMSXML = {};
     // global variables for specifying the forecast time bundles
     window.MEDIUM_RANGE_FORECAST = 'medium_range_std_freq';
     window.SHORT_RANGE_FORECAST = 'short_range_high_freq';
     // global variable for toggling get-forecast-on-map-click
     window.ENABLE_FORECAST = false;
-    // set a global variable for easy access of URL parameters.
-    // in particular, the weather graphs support different units
-    // which can be configured with URL parameters.
+    // set a global variable for easy access of URL parameters
+    // which are used for various configuration options
     window.urlParams = new URLSearchParams(window.location.search);
     // get today's date
     var today = new Date();
@@ -35,6 +36,10 @@ window.addEventListener('load', function() {
             // disable the popup and app overlay for now since `token` value is not null
             document.getElementById('tokenPopup').style.display = 'none';
             document.getElementById('grayPageOverlay').style.display = 'none';
+            // make async requests for the WMS capabilities
+            // of the currently available bundles
+            getWMSCapabilities('basic');
+            getWMSCapabilities('maritime');
         }
     });
 
