@@ -1,13 +1,14 @@
 // add the selected WMS layer to the map
 // after removing the current one
-function addWMSLayer(layer_name, hour='00', style=null) {
-	if (window.CurrentWMSLayer || layer_name == 'none') {
+function addWMSLayer(layer_name, style, layer_index) {
+	if (window.Current_WMS_Layer[layer_index] || layer_name == 'none') {
 		// remove existing WMS layer
-		window.ol_map.removeLayer(window.CurrentWMSLayer);
+		window.ol_map.removeLayer(window.Current_WMS_Layer[layer_index]);
+		window.Current_WMS_Layer[layer_index] = null;
 	}
 	if (layer_name != 'none') {
 		// build the WMS layer configuration
-		var layer = buildWMSLayer(layer_name, hour, style)
+		var layer = buildWMSLayer(layer_name, style, layer_index)
 		// add the WMS layer to the OpenLayers map
 		window.ol_map.addLayer(layer);
 	}
@@ -15,7 +16,8 @@ function addWMSLayer(layer_name, hour='00', style=null) {
 
 // configure a new WMS layer
 // for reference: https://openlayers.org/en/latest/examples/wms-time.html
-function buildWMSLayer(layer_name, hour, style) {
+function buildWMSLayer(layer_name, style, layer_index) {
+	console.log("Building WMS layer:", layer_name, style);
 	var bundle = 'basic';
 	// check the layer name for the string 'maritime'
 	// in which case we will need to specify the bundle
@@ -23,9 +25,6 @@ function buildWMSLayer(layer_name, hour, style) {
 	if (layer_name.indexOf('maritime') != -1) {
 		bundle = 'maritime';
 	}
-	// replace the dummy values with real time values
-	layer_name = layer_name.replace('YYYYMMDD', window.TODAY);
-	layer_name = layer_name.replace('HH', hour);
 	// build the URL for the API request
 	var url = 'https://api.wx.spire.com/ows/wms/?bundle=' + bundle + '&spire-api-key=' + window.TOKEN;
 	// build the parameters object
@@ -36,7 +35,7 @@ function buildWMSLayer(layer_name, hour, style) {
 		params['STYLES'] = style;
 	}
 	// configure the WMS layer
-	window.CurrentWMSLayer = new ol.layer.Tile({
+	window.Current_WMS_Layer[layer_index] = new ol.layer.Tile({
 		// extent: [-13884991, 2870341, -7455066, 6338219],
 		zIndex: 0,
 		opacity: 0.6, // TODO: allow user to change opacity
@@ -47,7 +46,7 @@ function buildWMSLayer(layer_name, hour, style) {
 		//transition: 0 // disable fade-in
 		})
 	});
-	return window.CurrentWMSLayer;
+	return window.Current_WMS_Layer[layer_index];
 }
 
 function setWMSTime() {
@@ -57,7 +56,10 @@ function setWMSTime() {
 	// }
 	var time = window.WMS_Animation_Current_Time;
 	console.log('WMS time being set to:', time);
-	window.CurrentWMSLayer.getSource().updateParams({'TIME': time });
+	// Q: is it dangerous to assume the same times exist for both layer?
+	// A: probably, yes.
+	window.Current_WMS_Layer['0'].getSource().updateParams({'TIME': time });
+	window.Current_WMS_Layer['1'].getSource().updateParams({'TIME': time });
 }
 
 var stopWMS = function() {
@@ -69,8 +71,8 @@ var stopWMS = function() {
 
 var playWMS = function() {
 	stop();
-	var frameRate = 0.3; // frames per second
-	// var frameRate = 0.5; // frames per second
+	var frameRate = 0.2; // 1 frame per 5 seconds
+	// var frameRate = 0.5; // 1 frame per 2 seconds
 	window.WMS_Animation = window.setInterval(function() {
 		var index = window.WMS_Animation_Index;
 		var times = window.WMS_Animation_Times;
@@ -83,7 +85,6 @@ var playWMS = function() {
 		}
 	}, 1000 / frameRate);
 };
-
 
 function datestringToEpoch(ds) {
 	var year = ds.substring(0, 4);
@@ -102,6 +103,12 @@ function getWMSCapabilities(bundle) {
 	uri += '&spire-api-key=' + window.TOKEN;
 	fetch(uri)
 		.then(function(response) {
+			if (response.status == 401) {
+				document.getElementById('grayPageOverlay').style.display = 'block';
+                document.getElementById('tokenPopup').style.display = 'block';
+                // notify the user that the API response failed
+                alert('API response failed for the Weather WMS API.\nPlease enter a valid API key or contact cx@spire.com')
+			}
 			// return the API response text
 			// when it is received
 			return response.text();
@@ -167,18 +174,21 @@ function getWMSCapabilities(bundle) {
 									var styleOptions = variable.getElementsByTagName('Style');
 									// convert HTMLCollection to JS array for easier iteration
 									var styles = Array.prototype.slice.call( styleOptions );
-									var styleNames = [];
+									var stylesAndLegends = {};
 									// get the name of each style for this variable
 									styles.forEach(function(style) {
 										var styleName = style.getElementsByTagName('Name')[0].textContent;
-										styleNames.push(styleName);
+										var legend = style.getElementsByTagName('LegendURL')[0];
+										var legendURL = legend.getElementsByTagName('OnlineResource')[0].getAttribute('xlink:href');
+										stylesAndLegends[styleName] = legendURL + '&spire-api-key=' + window.TOKEN;
 									});
 									// keep track of the available variables for this hour in our global object
 									window.Full_WMS_XML[bundle][dateText][hourText][displayName] = {
 										'name': name,
 										'title': displayName,
-										'styles': styleNames,
-										'times': times
+										'styles': stylesAndLegends,
+										'times': times,
+										'bundle': bundle
 									};
 								}
 							});
@@ -189,23 +199,86 @@ function getWMSCapabilities(bundle) {
 			var latest_forecast = window.Full_WMS_XML[bundle][latest_date['text']];
 			var issuance_times = Object.keys(latest_forecast);
 			var forecast = null;
-			// get the most recent issuance time of the latest forecast
+			// in the following set of conditionals,
+			// we get the most recent issuance time of the latest forecast.
+			// if there are not 50 or more available forecasted times,
+			// data is still being processed,
+			// so we move on to find the next complete forecast
 			if (issuance_times.indexOf('18') != -1) {
-				// get the forecast issued at 18:00
-				forecast = latest_forecast['18'];
-			} else if (issuance_times.indexOf('12') != -1) {
-				// get the forecast issued at 12:00
-				forecast = latest_forecast['12'];
-			} else if (issuance_times.indexOf('06') != -1) {
-				// get the forecast issued at 06:00
-				forecast = latest_forecast['06'];
-			} else if (issuance_times.indexOf('00') != -1) {
-				// get the forecast issued at 00:00
-				forecast = latest_forecast['00'];
+				var latest = latest_forecast['18'];
+				// get the array of available times for the first layer
+				var times = Object.values(latest)[0]['times'];
+				if (times.length >= 50) {
+					// use the forecast issued at 18:00
+					forecast = latest;
+				}
 			}
-			// this is the object we will use to build the UI,
-			// thereby showing the available options for the latest forecast
-			window.Latest_WMS[bundle] = forecast;
+			if (forecast == null && issuance_times.indexOf('12') != -1) {
+				var latest = latest_forecast['12'];
+				// get the array of available times for the first layer
+				var times = Object.values(latest)[0]['times'];
+				if (times.length >= 50) {
+					// use the forecast issued at 12:00
+					forecast = latest;
+				}
+			}
+			if (forecast == null && issuance_times.indexOf('06') != -1) {
+				var latest = latest_forecast['06'];
+				// get the array of available times for the first layer
+				var times = Object.values(latest)[0]['times'];
+				if (times.length >= 50) {
+					// use the forecast issued at 06:00
+					forecast = latest;
+				}
+			}
+			if (forecast == null && issuance_times.indexOf('00') != -1) {
+				var latest = latest_forecast['00'];
+				// get the array of available times for the first layer
+				var times = Object.values(latest)[0]['times'];
+				if (times.length >= 50) {
+					// use the forecast issued at 00:00
+					forecast = latest;
+				}
+			}
+			// add the WMS options to the global window.Latest_WMS object
+			// which we will use to build the UI configurator
+			var options = Object.keys(forecast);
+			options.forEach(function(opt) {
+				window.Latest_WMS[opt] = forecast[opt];
+			});
+			// check if 2 keys are present (current total bundles supported)
+			// 1 for Basic and 1 for Maritime
+			if (Object.keys(window.Full_WMS_XML).length == 2) {
+				buildWMSConfigUI();
+			}
 		});
 		// end of fetch promise
+}
+
+function buildWMSConfigUI() {
+	console.log("Building WMS configuration UI.")
+	var dropdownA = document.getElementById('wms_layer_select_0');
+	var dropdownB = document.getElementById('wms_layer_select_1');
+	// clear the dropdowns to get rid of "Loading" message option
+	dropdownA.innerHTML = null;
+	dropdownB.innerHTML = null;
+	// initiate both dropdowns with an option for none
+	var null_option = document.createElement('OPTION');
+	null_option.value = 'none';
+	null_option.textContent = 'None';
+	// initiate first dropdown with null option
+	dropdownA.appendChild(null_option);
+	// copy null option and initiate second dropdown
+	dropdownB.appendChild(null_option.cloneNode(true));
+	// build the dropdown contents
+	var layer_titles = Object.keys(window.Latest_WMS);
+	layer_titles.forEach(function(display_name) {
+		var option = document.createElement('OPTION');
+		option.value = display_name;
+		option.textContent = display_name;
+		// add option to first dropdown
+		dropdownA.appendChild(option);
+		// copy option and initiate second dropdown
+		dropdownB.appendChild(option.cloneNode(true));
+	});
 }

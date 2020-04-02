@@ -8,6 +8,7 @@ window.addEventListener('load', function() {
     // initiate variable for storing WMS capabilities
     window.Full_WMS_XML = {};
     window.Latest_WMS = {};
+    window.Current_WMS_Layer = {};
     window.WMS_Animation_Index = 0;
     // global variables for specifying the forecast time bundles
     window.MEDIUM_RANGE_FORECAST = 'medium_range_std_freq';
@@ -75,11 +76,97 @@ window.addEventListener('load', function() {
     // enable the vessel info popup to be dragged around on the screen
     makeElementDraggable(document.getElementById('wmsPopup'));
 
-    // add the WMS layer when it is selected from the dropdown
-    document.getElementById('wms_select').addEventListener('change', function() {
-        var e = document.getElementById('wms_select');
-        var layer = e.options[e.selectedIndex].value;
-        addWMSLayer(layer);
+    // configure the styles dropdown based on the selected WMS layers
+    function selectWMSAndPopulateStyles(num) {
+        var style = null;
+        var layer_selector = document.getElementById('wms_layer_select_' + num);
+        var layer_title = layer_selector.options[layer_selector.selectedIndex].value;
+        if (layer_title == 'none') {
+            // get the style selector
+            var style_selector = document.getElementById('wms_style_select_' + num);
+            // clear the style selector contents
+            style_selector.innerHTML = null;
+            // make sure the style selector is no longer visible
+            document.getElementById('wms_config_style_' + num).style.display = 'none';
+        } else {
+            // get the styles associated with the selected layer
+            var styles = window.Latest_WMS[layer_title]['styles'];
+            // get the style selector
+            var style_selector = document.getElementById('wms_style_select_' + num);
+            // clear the style selector contents
+            style_selector.innerHTML = null;
+            // make sure the style selector is visible
+            document.getElementById('wms_config_style_' + num).style.display = 'inline-block';
+            // build the style dropdown contents
+            var style_names = Object.keys(styles);
+            style_names.forEach(function(name) {
+                var option = document.createElement('OPTION');
+                option.value = name;
+                option.textContent = name;
+                // add option to dropdown
+                style_selector.appendChild(option);
+            });
+            // select the last listed style by default for the second "overlay" dropdown
+            // since it is meant to be a contour line on top of the first "base" dropdown
+            // if (num == '1') {
+            //     style_selector.selectedIndex = style_selector.options.length - 1;
+            // }
+            style = style_selector.options[style_selector.selectedIndex].value;
+        }
+        var layer_name = window.Latest_WMS[layer_title]['name'];
+        return [
+            layer_name,
+            style
+        ];
+    }
+
+    // configure the styles dropdown based on the selected WMS layers
+    function selectNewStyleForWMS(num) {
+        // get selected layer 
+        var layer_selector = document.getElementById('wms_layer_select_' + num);
+        var layer_title = layer_selector.options[layer_selector.selectedIndex].value;
+        var layer_name = window.Latest_WMS[layer_title]['name'];
+        // get selected style
+        var style_selector = document.getElementById('wms_style_select_' + num);
+        var style = style = style_selector.options[style_selector.selectedIndex].value;
+        return [
+            layer_name,
+            style
+        ];
+    }
+
+    // add the first WMS layer when a Layer is selected from the first Layer dropdown
+    document.getElementById('wms_layer_select_0').addEventListener('change', function() {
+        var layer_index = '0';
+        var selections = selectWMSAndPopulateStyles(layer_index);
+        var layer_name = selections[0];
+        var style = selections[1];
+        addWMSLayer(layer_name, style, layer_index);
+    });
+    // add the first WMS layer when a Style is selected from the first Style dropdown
+    document.getElementById('wms_style_select_0').addEventListener('change', function() {
+        var layer_index = '0';
+        var selections = selectNewStyleForWMS(layer_index);
+        var layer_name = selections[0];
+        var style = selections[1];
+        addWMSLayer(layer_name, style, layer_index);
+    });
+
+    // add the second WMS layer when a Layer is selected from the second Layer dropdown
+    document.getElementById('wms_layer_select_1').addEventListener('change', function() {
+        var layer_index = '1';
+        var selections = selectWMSAndPopulateStyles(layer_index);
+        var layer_name = selections[0];
+        var style = selections[1];
+        addWMSLayer(layer_name, style, layer_index);
+    });
+    // add the second WMS layer when a Style is selected from the second Style dropdown
+    document.getElementById('wms_style_select_1').addEventListener('change', function() {
+        var layer_index = '1';
+        var selections = selectNewStyleForWMS(layer_index);
+        var layer_name = selections[0];
+        var style = selections[1];
+        addWMSLayer(layer_name, style, layer_index);
     });
 
     // close the WMS popup when the X button is clicked

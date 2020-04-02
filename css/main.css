@@ -202,7 +202,9 @@ body {
   background-color: rgba(0,60,136,1.0);
 }
 #getVesselForecast,
-#submitToken {
+#submitToken,
+#wms_play,
+#wms_stop {
   padding: 7px;
 }
 #submitToken,
@@ -234,12 +236,42 @@ button:active {
 h1 {
   pointer-events: none;
 }
-#wms_select {
+.wms_config {
+  padding: 10px;
+}
+.wms_layer_select {
+  font-weight: bold;
+  height: 40px;
+  width: 384px;
   cursor: pointer;
   text-align: center;
   text-align-last: center;
   background: white;
-  font-weight: bold;
+  margin-bottom: 5px;
+}
+.wms_style_select {
+  font-style: italic;
+  height: 20px;
   width: 384px;
-  height: 40px;
+  cursor: pointer;
+  text-align: center;
+  text-align-last: center;
+  background: white;
+  display: inline-block;
+}
+.wms_dd_name {
+  font-weight: bold;
+  color: white;
+  text-align: left;
+  margin-bottom: 5px;
+}
+.wms_config_style {
+  font-weight: normal;
+  display: none;
+  color: #eeeeee;
+  font-size: 80%;
+  margin-bottom: 20px;
+}
+#wms_time_controls {
+  margin-top: 20px;
 }
