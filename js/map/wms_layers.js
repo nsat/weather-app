@@ -1,22 +1,32 @@
 // add the selected WMS layer to the map
 // after removing the current one
-function addWMSLayer(layer_name, style, layer_index) {
+function addWMSLayer(layer_name, style, layer_index, times) {
 	if (window.Current_WMS_Layer[layer_index] || layer_name == 'none') {
 		// remove existing WMS layer
 		window.ol_map.removeLayer(window.Current_WMS_Layer[layer_index]);
 		window.Current_WMS_Layer[layer_index] = null;
+		window.WMS_Animation_Times = null;
 	}
 	if (layer_name != 'none') {
+		// set the available times
+		window.WMS_Animation_Times = times;
+		document.getElementById('wms_time_slider').max = times.length;
+		var closest_time = times[0];
 		// build the WMS layer configuration
-		var layer = buildWMSLayer(layer_name, style, layer_index)
+		var layer = buildWMSLayer(layer_name, style, layer_index, closest_time);
 		// add the WMS layer to the OpenLayers map
 		window.ol_map.addLayer(layer);
+		// display the current WMS time
+		changeWMSTimeDisplay(closest_time);
+		document.getElementById('wms_time_controls').style.display = 'block';
+		// make crop button visible
+		document.getElementById('cropWMSExtent').style.display = 'block';
 	}
 }
 
 // configure a new WMS layer
 // for reference: https://openlayers.org/en/latest/examples/wms-time.html
-function buildWMSLayer(layer_name, style, layer_index) {
+function buildWMSLayer(layer_name, style, layer_index, time) {
 	console.log("Building WMS layer:", layer_name, style);
 	var bundle = 'basic';
 	// check the layer name for the string 'maritime'
@@ -29,37 +39,78 @@ function buildWMSLayer(layer_name, style, layer_index) {
 	var url = 'https://api.wx.spire.com/ows/wms/?bundle=' + bundle + '&spire-api-key=' + window.TOKEN;
 	// build the parameters object
 	var params = {
-		'LAYERS': layer_name
+		'LAYERS': layer_name,
+		'STYLES': style,
+		'TIME': time
 	};
-	if (style) {
-		params['STYLES'] = style;
-	}
 	// configure the WMS layer
-	window.Current_WMS_Layer[layer_index] = new ol.layer.Tile({
-		// extent: [-13884991, 2870341, -7455066, 6338219],
+	// window.Current_WMS_Layer[layer_index] = new ol.layer.Image({
+	var layer = new ol.layer.Tile({
 		zIndex: 0,
-		opacity: 0.6, // TODO: allow user to change opacity
+		opacity: 0.6,
+		// source: new ol.source.ImageWMS({
 		source: new ol.source.TileWMS({
-		url: url,
-		params: params,
-		serverType: 'mapserver', // 'geoserver'
-		//transition: 0 // disable fade-in
+			url: url,
+			params: params,
+			serverType: 'mapserver', // 'geoserver'
+			//transition: 0 // disable fade-in
 		})
 	});
-	return window.Current_WMS_Layer[layer_index];
+	// if there is already an extent set,
+	// use it for this new layer as well
+	if (window.WMS_Extent) {
+		layer.setExtent(window.WMS_Extent);
+	}
+	// keep track of the current layer in a global variable
+	// in order to quickly reference it later
+	window.Current_WMS_Layer[layer_index] = layer;
+	return layer;
 }
 
-function setWMSTime() {
-	// startDate.setMinutes(startDate.getMinutes() + 15);
-	// if (startDate > new Date()) {
-	//   startDate = threeHoursAgo();
-	// }
-	var time = window.WMS_Animation_Current_Time;
+function setWMSOpacity(opacity) {
+	if (window.Current_WMS_Layer['0']) {
+		window.Current_WMS_Layer['0'].setOpacity(opacity);
+	}
+	if (window.Current_WMS_Layer['1']) {
+		window.Current_WMS_Layer['0'].setOpacity(opacity);
+	}
+}
+
+function setWMSExtent(extent) {
+	if (window.CRS == 'EPSG:3857') {
+		extent = ol.proj.transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
+		window.WMS_Extent = extent;
+	}
+	if (window.Current_WMS_Layer['0']) {
+		window.Current_WMS_Layer['0'].setExtent(extent);
+	}
+	if (window.Current_WMS_Layer['1']) {
+		window.Current_WMS_Layer['1'].setExtent(extent);
+	}
+}
+
+function setWMSTime(time) {
+	if (!time) {
+		time = window.WMS_Animation_Current_Time;
+	}
 	console.log('WMS time being set to:', time);
+	changeWMSTimeDisplay(time);
+	var time_index = window.WMS_Animation_Times.indexOf(time);
+	document.getElementById('wms_time_slider').value = time_index;
+	window.WMS_Animation_Time_Index = time_index;
 	// Q: is it dangerous to assume the same times exist for both layer?
-	// A: probably, yes.
-	window.Current_WMS_Layer['0'].getSource().updateParams({'TIME': time });
-	window.Current_WMS_Layer['1'].getSource().updateParams({'TIME': time });
+	// A: yes, definitely.
+	if (window.Current_WMS_Layer['0']) {
+		window.Current_WMS_Layer['0'].getSource().updateParams({'TIME': time });
+	}
+	if (window.Current_WMS_Layer['1']) {
+		window.Current_WMS_Layer['1'].getSource().updateParams({'TIME': time });
+	}
+}
+
+function changeWMSTimeDisplay(time) {
+	document.getElementById('wms_time_display').innerHTML = time;
+	document.getElementById('time_slider_display').innerHTML = time;
 }
 
 var stopWMS = function() {
@@ -69,19 +120,23 @@ var stopWMS = function() {
 	}
 };
 
-var playWMS = function() {
-	stop();
-	var frameRate = 0.2; // 1 frame per 5 seconds
+var playWMS = function(index) {
+	stopWMS();
+	if (index) {
+		window.WMS_Animation_Time_Index = index;
+	}
+	// var frameRate = 0.2; // 1 frame per 5 seconds
 	// var frameRate = 0.5; // 1 frame per 2 seconds
+	var frameRate = 0.35;
 	window.WMS_Animation = window.setInterval(function() {
-		var index = window.WMS_Animation_Index;
+		var index = window.WMS_Animation_Time_Index;
 		var times = window.WMS_Animation_Times;
 		window.WMS_Animation_Current_Time = times[index];
 		setWMSTime();
 		if (index >= times.length - 1) {
-			window.WMS_Animation_Index = 0;
+			window.WMS_Animation_Time_Index = 0;
 		} else {
-			window.WMS_Animation_Index = index + 1
+			window.WMS_Animation_Time_Index = index + 1
 		}
 	}, 1000 / frameRate);
 };
@@ -235,10 +290,10 @@ function getWMSCapabilities(bundle) {
 				var latest = latest_forecast['00'];
 				// get the array of available times for the first layer
 				var times = Object.values(latest)[0]['times'];
-				if (times.length >= 50) {
-					// use the forecast issued at 00:00
-					forecast = latest;
-				}
+				// if (times.length >= 50) {
+				// TODO: if there are less than 50 times then this is not a full forecast
+				// and it might make sense to grab the last issuance from the previous date
+				forecast = latest;
 			}
 			// add the WMS options to the global window.Latest_WMS object
 			// which we will use to build the UI configurator

@@ -39,13 +39,25 @@ body {
   top: 110px;
   left: 110px;
   max-width: 800px;
-  /*width: 50%;*/
   -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 }
+#wmsTimePopup {
+  overflow: hidden;
+  display: none;
+  position: absolute;
+  font-family: monospace;
+  font-size: 90%;
+  color: #ffffff;
+  text-shadow: 1px 1px rgba(0,0,0,0.7);
+/*  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;*/
+}
 #vesselPopup,
-#wmsPopup {
+#wmsPopup,
+#wmsTimePopup {
   z-index: 100;
   cursor: move;
 }
@@ -53,7 +65,8 @@ body {
   cursor: default;
 }
 #tokenPopup,
-#wmsPopup {
+#wmsPopup,
+#wmsTimePopup {
   z-index: 999;
   text-align: center;
   left: 35%;
@@ -87,11 +100,16 @@ body {
 .remove:active {
   background: rgba(210, 32, 31, 1.0);
 }
+#cropWMSExtent {
+  display: none;
+}
+#cropWMSExtent,
 #getVesselForecast,
 #wmsPopup .remove,
 #vesselPopup .remove {
   margin: 10px;
 }
+#cropWMSExtent,
 #getVesselForecast {
   position: absolute;
   top: 2px;
@@ -108,9 +126,9 @@ body {
   text-decoration: underline;
   font-family: 'serif';
 }
-/*.dragbox {
+.dragbox {
   border: 2px solid rgba(0, 60, 150, 1.0);
-}*/
+}
 #mapBorder {
   pointer-events: none;
   position: absolute;
@@ -186,21 +204,22 @@ body {
 #requestForecast {
   /*border-radius: 0 2px 2px 0;*/
 }
-#selectWMS {
+#configureWMS {
   border-radius: 0 2px 2px 0;
 }
 #drawPolygonArea,
 #requestForecast,
-#selectWMS {
+#configureWMS {
   padding: 7px;
   border: none;
 }
 #drawPolygonArea.pressed,
 #requestForecast.pressed,
-#selectWMS.pressed {
+#configureWMS.pressed {
   box-shadow: 1px 1px rgba(0,0,0,1.0);
   background-color: rgba(0,60,136,1.0);
 }
+#cropWMSExtent,
 #getVesselForecast,
 #submitToken,
 #wms_play,
@@ -273,5 +292,86 @@ h1 {
   margin-bottom: 20px;
 }
 #wms_time_controls {
+  display: none;
+  pointer-events: none;
+}
+#wms_time_slider,
+#wms_time_buttons,
+#time_slider_display,
+#popout_time {
+  pointer-events: all;
+}
+#time_slider_display {
+  cursor: default;
+  display: inline-block;
+}
+#wms_time_slider,
+#wms_time_controls,
+#time_slider_display {
+  color: #ffffff;
   margin-top: 20px;
+}
+#wms_time_slider {
+  width: 100%;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #eeeeee;
+  outline: none;
+  opacity: 0.8;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+.slider:hover {
+  opacity: 1;
+  background: #ffffff;
+}
+.slider::-webkit-slider-thumb {
+  border: 2px solid #ffffff;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 22px;
+  width: 22px;
+  height: 22px;
+  background: rgba(0,60,136,1.0);
+  cursor: pointer;
+  -webkit-box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
+  box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
+}
+.slider::-moz-range-thumb {
+  border: 2px solid #ffffff;
+  border-radius: 22px;
+  width: 22px;
+  height: 22px;
+  background: rgba(0,60,136,1.0);
+  cursor: pointer;
+  -moz-box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
+  box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
+}
+#popout_time {
+  display: inline-block;
+  margin-left: 5px;
+  margin-bottom: -3px;
+  cursor: pointer;
+  background-image: url('../img/pop_out.png');
+  background-repeat: no-repeat;
+  background-size: 15px 15px;
+  height: 15px;
+  width: 15px;
+  /*background-color: rgba(0,0,0,0);*/
+  border: none;
+  outline: none;
+  opacity: 0.5;
+}
+#popout_time:hover {
+  opacity: 0.7;
+}
+#popout_time:active {
+  opacity: 1.0;
+}
+#popout_time.pressed {
+  opacity: 1.0;
 }

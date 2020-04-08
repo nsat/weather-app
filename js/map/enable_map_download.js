@@ -10,10 +10,10 @@ var overlayCanvases = function(cnv1, cnv2, cnv3) {
     var height = cnv1.height;
     newCanvas.width = width;
     newCanvas.height = height;
-    // combine the 2 canvases into a third
+    // combine the canvases into a single composite
     [cnv1, cnv2, cnv3].forEach(function(n) {
         ctx.beginPath();
-        if (n != undefined) {
+        if (n != undefined && n.width != 0 && n.height != 0) {
             ctx.drawImage(n, 0, 0, width, height);
         }
     });

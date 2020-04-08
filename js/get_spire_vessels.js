@@ -10,9 +10,11 @@ function requestVessels(number, boxCoords) {
         var stdCoords = [];
         for (var i=0; i < boxCoords.length; i++) {
             var coords = boxCoords[i];
-            // convert the coordinates to the projection used by the Vessels API
-            var converted = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
-            stdCoords.push(converted);
+            if (window.CRS == 'EPSG:3857') {
+                // convert the coordinates to the projection used by the Vessels API
+                coords = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
+            }
+            stdCoords.push(coords);
         }
         var polygon = {
             'type':'Polygon',
@@ -72,8 +74,10 @@ function convertResponseToGeoJson(resp) {
             var vessel = data[i];
             // get this vessel's last known position coordinates
             var coords = vessel['last_known_position']['geometry']['coordinates'];
-            // convert the coordinates to the projection used by OpenLayers
-            var converted = ol.proj.fromLonLat(coords, 'EPSG:3857');
+            if (window.CRS == 'EPSG:3857') {
+                // convert the coordinates to the projection used by OpenLayers
+                coords = ol.proj.fromLonLat(coords, 'EPSG:3857');
+            }
             // build the GeoJSON feature for this vessel
             // and append it to the array of features for this layer
             features.push({
@@ -91,7 +95,7 @@ function convertResponseToGeoJson(resp) {
                 },
                 'geometry': {
                     'type': 'Point',
-                    'coordinates': converted
+                    'coordinates': coords
                 }
             });
         }

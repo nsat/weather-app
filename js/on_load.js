@@ -1,15 +1,29 @@
 // wait to execute the following code block until the page has fully loaded,
 // ensuring that all HTML elements referenced here have already been created
 window.addEventListener('load', function() {
+    // set the CRS globally for convenience.
+    // we will use this to specify the OpenLayers map CRS
+    // and to determine which transforms are needed
+    // elsewhere in the code
+    window.CRS = 'EPSG:4326';
+    // window.CRS = 'EPSG:3857';
 
     // initialize the OpenLayers base map
     createMap();
 
-    // initiate variable for storing WMS capabilities
+    // initialize variable for storing full WMS capabilities
     window.Full_WMS_XML = {};
+    // initialize variable for storing the WMS options we will
+    // make available to the user for configuration in the UI
     window.Latest_WMS = {};
+    // initialize variable for storing the currently selected
+    // WMS options (for both possible layers, indexed as '0' or '1')
     window.Current_WMS_Layer = {};
-    window.WMS_Animation_Index = 0;
+    // initialize quick lookup for available WMS times of current layers
+    window.WMS_Animation_Times = [];
+    // initialize variable for tracking the current index
+    // of the WMS array of time values, used for animating WMS layers
+    window.WMS_Animation_Time_Index = 0;
     // global variables for specifying the forecast time bundles
     window.MEDIUM_RANGE_FORECAST = 'medium_range_std_freq';
     window.SHORT_RANGE_FORECAST = 'short_range_high_freq';
@@ -18,13 +32,6 @@ window.addEventListener('load', function() {
     // set a global variable for easy access of URL parameters
     // which are used for various configuration options
     window.urlParams = new URLSearchParams(window.location.search);
-    // get today's date
-    var today = new Date();
-    // store the date in the format needed for fetching WMS layers
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0
-    var yyyy = today.getFullYear();
-    window.TODAY = yyyy + mm + dd;
 
     // handler for token input form submission
     document.getElementById('tokenForm').addEventListener('submit', function(evt) {
@@ -63,21 +70,73 @@ window.addEventListener('load', function() {
     });
 
     // toggle popup for selecting a WMS layer
-    document.getElementById('selectWMS').addEventListener('click', function() {
-        if (document.getElementById('selectWMS').className != 'pressed') {
+    document.getElementById('configureWMS').addEventListener('click', function() {
+        if (document.getElementById('configureWMS').className != 'pressed') {
             document.getElementById('wmsPopup').style.display = 'block';
-            document.getElementById('selectWMS').className = 'pressed';
+            document.getElementById('configureWMS').className = 'pressed';
         } else {
             document.getElementById('wmsPopup').style.display = 'none';
-            document.getElementById('selectWMS').className = '';
+            document.getElementById('configureWMS').className = '';
         }
     });
 
-    // enable the vessel info popup to be dragged around on the screen
+    // enable the WMS Config popup to be dragged around on the screen
     makeElementDraggable(document.getElementById('wmsPopup'));
+    // enable the WMS time popup to be dragged around on the screen
+    makeElementDraggable(document.getElementById('wmsTimePopup'));
+    // click handler for playing WMS time forward
+    document.getElementById('wms_play').addEventListener('click', function() {
+        // play WMS time forward
+        // starting at the current time index
+        playWMS();
+    });
+    // click handler for stopping WMS time playback
+    document.getElementById('wms_stop').addEventListener('click', function() {
+        // stop WMS time playback
+        // but do not change the time index
+        stopWMS();
+    });
+    // handler for WMS time slider while it is moving
+    document.getElementById('wms_time_slider').addEventListener('input', function() {
+        if (window.WMS_Animation_Times.length > 0) {
+            // use the integer value of the slider
+            // to set the WMS time index
+            var time = window.WMS_Animation_Times[this.value];
+            changeWMSTimeDisplay(time);
+        } else {
+            // reset slider to starting position
+            // if no WMS times are available
+            this.value = 0;
+        }
+    });
+    // handler for WMS time slider change (after mouse up)
+    document.getElementById('wms_time_slider').addEventListener('change', function() {
+        if (window.WMS_Animation_Times.length > 0) {
+            // use the integer value of the slider
+            // to set the WMS time index
+            setWMSTime(window.WMS_Animation_Times[this.value]);
+        } else {
+            // reset slider to starting position
+            // if no WMS times are available
+            this.value = 0;
+        }
+    });
+    // button for toggling map overlay time display
+    document.getElementById('popout_time').addEventListener('click', function() {
+        if (this.className != 'pressed') {
+            this.className = 'pressed';
+            // make the time popup visible
+            document.getElementById('wmsTimePopup').style.display = 'block';
+        } else {
+            // hide the time popup
+            this.className = '';
+            document.getElementById('wmsTimePopup').style.display = 'none';
+        }
+    });
 
     // configure the styles dropdown based on the selected WMS layers
     function selectWMSAndPopulateStyles(num) {
+        var times = [];
         var style = null;
         var layer_selector = document.getElementById('wms_layer_select_' + num);
         var layer_title = layer_selector.options[layer_selector.selectedIndex].value;
@@ -89,6 +148,8 @@ window.addEventListener('load', function() {
             // make sure the style selector is no longer visible
             document.getElementById('wms_config_style_' + num).style.display = 'none';
         } else {
+            // get the times associated with the selected layer
+            var times = window.Latest_WMS[layer_title]['times'];
             // get the styles associated with the selected layer
             var styles = window.Latest_WMS[layer_title]['styles'];
             // get the style selector
@@ -101,7 +162,12 @@ window.addEventListener('load', function() {
             var style_names = Object.keys(styles);
             style_names.forEach(function(name) {
                 var option = document.createElement('OPTION');
-                option.value = name;
+                if (num == '1' && name.indexOf('nearest') != -1) {
+                    // don't set a value for the default layer style
+                    // for the "overlay" WMS layer
+                } else {
+                    option.value = name;
+                }
                 option.textContent = name;
                 // add option to dropdown
                 style_selector.appendChild(option);
@@ -116,7 +182,8 @@ window.addEventListener('load', function() {
         var layer_name = window.Latest_WMS[layer_title]['name'];
         return [
             layer_name,
-            style
+            style,
+            times
         ];
     }
 
@@ -126,12 +193,15 @@ window.addEventListener('load', function() {
         var layer_selector = document.getElementById('wms_layer_select_' + num);
         var layer_title = layer_selector.options[layer_selector.selectedIndex].value;
         var layer_name = window.Latest_WMS[layer_title]['name'];
+        // get the times associated with the selected layer
+        var times = window.Latest_WMS[layer_title]['times'];
         // get selected style
         var style_selector = document.getElementById('wms_style_select_' + num);
         var style = style = style_selector.options[style_selector.selectedIndex].value;
         return [
             layer_name,
-            style
+            style,
+            times
         ];
     }
 
@@ -141,7 +211,8 @@ window.addEventListener('load', function() {
         var selections = selectWMSAndPopulateStyles(layer_index);
         var layer_name = selections[0];
         var style = selections[1];
-        addWMSLayer(layer_name, style, layer_index);
+        var times = selections[2];
+        addWMSLayer(layer_name, style, layer_index, times);
     });
     // add the first WMS layer when a Style is selected from the first Style dropdown
     document.getElementById('wms_style_select_0').addEventListener('change', function() {
@@ -149,7 +220,8 @@ window.addEventListener('load', function() {
         var selections = selectNewStyleForWMS(layer_index);
         var layer_name = selections[0];
         var style = selections[1];
-        addWMSLayer(layer_name, style, layer_index);
+        var times = selections[2];
+        addWMSLayer(layer_name, style, layer_index, times);
     });
 
     // add the second WMS layer when a Layer is selected from the second Layer dropdown
@@ -158,7 +230,8 @@ window.addEventListener('load', function() {
         var selections = selectWMSAndPopulateStyles(layer_index);
         var layer_name = selections[0];
         var style = selections[1];
-        addWMSLayer(layer_name, style, layer_index);
+        var times = selections[2];
+        addWMSLayer(layer_name, style, layer_index, times);
     });
     // add the second WMS layer when a Style is selected from the second Style dropdown
     document.getElementById('wms_style_select_1').addEventListener('change', function() {
@@ -166,13 +239,63 @@ window.addEventListener('load', function() {
         var selections = selectNewStyleForWMS(layer_index);
         var layer_name = selections[0];
         var style = selections[1];
-        addWMSLayer(layer_name, style, layer_index);
+        var times = selections[2];
+        addWMSLayer(layer_name, style, layer_index, times);
+    });
+
+    // enable box-drawing tool to crop WMS region by setting layer extents
+    document.getElementById('cropWMSExtent').addEventListener('click', function() {
+        var self = this;
+        // unpress the button if it's already activated
+        document.getElementById('cropWMSExtent').className = '';
+        document.body.style.cursor = 'default';
+        // disable point forecast selection in case it's activated
+        ENABLE_FORECAST = false;
+        // check if button is already pressed
+        if (self.className != 'pressed') {
+            self.className = 'pressed';
+            document.body.style.cursor = 'crosshair';
+            document.getElementById('map').style.cursor = 'crosshair';
+            var boxControl = new ol.interaction.DragBox({
+                // condition: ol.events.condition.click,
+                className: 'dragbox',
+                style: new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(0, 0, 255, 0.5)'
+                    }),
+                    stroke: new ol.style.Stroke({color: [0, 255, 255, 1]})
+                })
+            });
+            boxControl.on('boxend', function () {
+                // get extent of user-drawn box
+                var extent = boxControl.getGeometry().getExtent();
+                // set the extent for the WMS layer
+                setWMSExtent(extent);
+                self.className = '';
+                // remove the DragBox control from the map
+                window.ol_map.removeInteraction(window.wms_crop);
+                // return the trigger button to it's normal state
+                window.wms_crop = null;
+                // reset cursor style
+                document.body.style.cursor = 'default';
+                document.getElementById('map').style.cursor = 'default';
+            });
+            window.ol_map.addInteraction(boxControl);
+            window.wms_crop = boxControl;
+        } else {
+            self.className = '';
+            window.ol_map.removeInteraction(window.wms_crop);
+            window.wms_crop = null;
+            // reset cursor style
+            document.body.style.cursor = 'default';
+            document.getElementById('map').style.cursor = 'default';
+        }
     });
 
     // close the WMS popup when the X button is clicked
     document.getElementById('closeWMSPopup').addEventListener('click', function() {
         document.getElementById('wmsPopup').style.display = 'none';
-        document.getElementById('selectWMS').className = '';
+        document.getElementById('configureWMS').className = '';
     });
 
     // button handler for enabling point forecast on map click
@@ -379,8 +502,10 @@ window.addEventListener('load', function() {
                     forecast_feature_id
                 );
             } else {
-                // transform the coordinates from standard lat-lon to the projection OpenLayers expects
-                var coords = ol.proj.transform(coordinate, 'EPSG:4326', 'EPSG:3857')
+                if (window.CRS == 'EPSG:3857') {
+                    // transform the coordinates from standard lat-lon to the projection OpenLayers expects
+                    var coords = ol.proj.transform(coordinate, 'EPSG:4326', 'EPSG:3857')
+                }
                 // create the Forecast point feature
                 var geometry = new ol.geom.Point(coords);
                 var forecastPoint = new ol.Feature({

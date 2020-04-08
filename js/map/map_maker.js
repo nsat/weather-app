@@ -52,6 +52,11 @@ function createMap(geojsonObject) {
         ],
         target: 'map',
         view: new ol.View({
+            // // If the base map projection is set to 4326,
+            // // code will need to change in other places,
+            // // where conversions from 3857 are performed
+            // projection: 'EPSG:4326', // default is EPSG:3857 (web mercator)
+            projection: window.CRS,
             center: [0, 0],
             zoom: 2
         })
@@ -113,15 +118,17 @@ function createMap(geojsonObject) {
             document.getElementById('forecast_switch').style.cursor = 'progress';
             // we are already auto-storing the latitude/longitude coordinates of the current mouse position
             // so we can simply grab the content of the DOM element displaying those coordinates
-            var ol_coords = e.coordinate;
+            var coords = e.coordinate;
             // create the Forecast point feature
-            var geometry = new ol.geom.Point(ol_coords);
+            var geometry = new ol.geom.Point(coords);
             var forecastPoint = new ol.Feature({
                 geometry: geometry,
                 type: 'forecast'
             });
-            // transform the coordinates from OpenLayers projection to standard lat-lon
-            var coords = ol.proj.transform(ol_coords, 'EPSG:3857', 'EPSG:4326');
+            if (window.CRS == 'EPSG:3857') {
+                // transform the coordinates from OpenLayers projection to standard lat-lon
+                coords = ol.proj.transform(ol_coords, 'EPSG:3857', 'EPSG:4326');
+            }
             // set an ID for this feature
             // so we can add the forecast data as a property once the API response comes through
             forecastPoint.setId(String(coords));

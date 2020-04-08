@@ -55,7 +55,7 @@
       <!-- button to trigger Click-Map-For-Point-Forecast feature -->
       <button id="requestForecast">Get Weather Forecast</button>
       <!-- button to trigger popup for selecting WMS layer -->
-      <button id="selectWMS">Configure WMS</button>
+      <button id="configureWMS">Configure WMS</button>
     </div>
     <!-- the map coordinates at the mouse's current position
     displayed in the top right of the map element (lon, lat) -->
@@ -85,6 +85,12 @@
       </button>
       <div id="vesselInfo"></div>
     </div>
+    <!--------------------->
+    <!-- WMS Time Popup  -->
+    <!--------------------->
+    <div id="wmsTimePopup">
+      <h1 id="wms_time_display"></h1>
+    </div>
     <!----------------------->
     <!-- WMS Layers Popup  -->
     <!----------------------->
@@ -93,6 +99,7 @@
       <button id="closeWMSPopup" class="remove">
         X
       </button>
+      <button id="cropWMSExtent">Crop WMS</button>
       <!-- container for WMS dropdown selectors -->
       <div class="wms_dropdown" style="width:200px;">
         <!-- base layer configuration -->
@@ -128,8 +135,15 @@
       </div>
       <!-- controls for playing through WMS time -->
       <div id="wms_time_controls">
-        <button id="wms_play">Play Time</button>
-        <button id="wms_stop">Stop Time</button>
+        <div id="wms_time_buttons">
+          <button id="wms_play">Play Time</button>
+          <button id="wms_stop">Stop Time</button>
+        </div>
+        <div id="wms_cfg_time_display">
+          <div id="time_slider_display"></div>
+          <div id="popout_time"></div>
+        </div>
+        <input id="wms_time_slider" type="range" min="0" max="50" value="0" class="slider">
       </div>
     </div>
     <!--------------------------->
