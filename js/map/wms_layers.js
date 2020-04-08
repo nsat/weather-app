@@ -1,6 +1,6 @@
 // add the selected WMS layer to the map
 // after removing the current one
-function addWMSLayer(layer_name, style, layer_index, times) {
+function addWMSLayer(layer_name, style, layer_index, times, legend_url) {
 	if (window.Current_WMS_Layer[layer_index] || layer_name == 'none') {
 		// remove existing WMS layer
 		window.ol_map.removeLayer(window.Current_WMS_Layer[layer_index]);
@@ -10,7 +10,8 @@ function addWMSLayer(layer_name, style, layer_index, times) {
 	if (layer_name != 'none') {
 		// set the available times
 		window.WMS_Animation_Times = times;
-		document.getElementById('wms_time_slider').max = times.length;
+		var max_time_index = times.length - 1;
+		document.getElementById('wms_time_slider').max = max_time_index;
 		var closest_time = times[0];
 		// build the WMS layer configuration
 		var layer = buildWMSLayer(layer_name, style, layer_index, closest_time);
@@ -21,6 +22,10 @@ function addWMSLayer(layer_name, style, layer_index, times) {
 		document.getElementById('wms_time_controls').style.display = 'block';
 		// make crop button visible
 		document.getElementById('cropWMSExtent').style.display = 'block';
+		// make legend button visible
+		document.getElementById('show_legend_' + layer_index).style.display = 'inline-block';
+		// add legend image to popup div
+		document.getElementById('legend_wms_' + layer_index).style.backgroundImage = 'url(' + legend_url + ')';
 	}
 }
 
@@ -79,8 +84,8 @@ function setWMSOpacity(opacity) {
 function setWMSExtent(extent) {
 	if (window.CRS == 'EPSG:3857') {
 		extent = ol.proj.transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
-		window.WMS_Extent = extent;
 	}
+	window.WMS_Extent = extent;
 	if (window.Current_WMS_Layer['0']) {
 		window.Current_WMS_Layer['0'].setExtent(extent);
 	}

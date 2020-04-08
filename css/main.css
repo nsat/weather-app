@@ -25,17 +25,18 @@ body {
   background: rgba(0,0,0,0.6);
   z-index: 101;
 }
+.legendPopup,
 #wmsPopup,
 #tokenPopup,
 #vesselPopup {
+  display: none;
+  position: absolute;
   background-color: #22293d;
   font-family: monospace;
   padding: 40px;
   border: 2px solid white;
   border-radius: 10px;
   overflow: hidden;
-  display: none;
-  position: absolute;
   top: 110px;
   left: 110px;
   max-width: 800px;
@@ -55,6 +56,17 @@ body {
   padding-left: 20px;
   padding-right: 20px;*/
 }
+#show_legend_0,
+#show_legend_1 {
+  display: none;
+  float: right;
+  pointer-events: all;
+}
+.legendPopup {
+  background-repeat: no-repeat;
+  height: 300px;
+}
+.legendPopup,
 #vesselPopup,
 #wmsPopup,
 #wmsTimePopup {
@@ -213,6 +225,7 @@ body {
   padding: 7px;
   border: none;
 }
+#cropWMSExtent.pressed,
 #drawPolygonArea.pressed,
 #requestForecast.pressed,
 #configureWMS.pressed {
@@ -222,9 +235,30 @@ body {
 #cropWMSExtent,
 #getVesselForecast,
 #submitToken,
-#wms_play,
-#wms_stop {
+#wms_play_stop {
   padding: 7px;
+}
+#wms_play_stop {
+  display: inline-block;
+  margin-bottom: -20px;
+  opacity: 0.5;
+  background-repeat: no-repeat;
+  background-size: 25px 25px;
+  height: 25px;
+  width: 25px;
+  cursor: pointer;
+}
+#wms_play_stop:hover {
+  opacity: 0.7;
+}
+#wms_play_stop:active {
+  opacity: 1.0;
+}
+#wms_play_stop.play {
+  background-image: url('../img/play.png');
+}
+#wms_play_stop.pause {
+  background-image: url('../img/pause.png');
 }
 #submitToken,
 button {
@@ -255,8 +289,12 @@ button:active {
 h1 {
   pointer-events: none;
 }
+#wms_dropdowns {
+  pointer-events: none;
+}
 .wms_config {
   padding: 10px;
+  pointer-events: none;
 }
 .wms_layer_select {
   font-weight: bold;
@@ -266,7 +304,8 @@ h1 {
   text-align: center;
   text-align-last: center;
   background: white;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  pointer-events: all;
 }
 .wms_style_select {
   font-style: italic;
@@ -277,12 +316,18 @@ h1 {
   text-align-last: center;
   background: white;
   display: inline-block;
+  pointer-events: all;
 }
 .wms_dd_name {
   font-weight: bold;
   color: white;
   text-align: left;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  pointer-events: none;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;
 }
 .wms_config_style {
   font-weight: normal;
@@ -292,6 +337,7 @@ h1 {
   margin-bottom: 20px;
 }
 #wms_time_controls {
+  margin-top: 10px;
   display: none;
   pointer-events: none;
 }
@@ -306,12 +352,12 @@ h1 {
   display: inline-block;
 }
 #wms_time_slider,
-#wms_time_controls,
 #time_slider_display {
   color: #ffffff;
   margin-top: 20px;
 }
 #wms_time_slider {
+  margin-top: 30px;
   width: 100%;
 }
 .slider {
@@ -353,14 +399,14 @@ h1 {
 }
 #popout_time {
   display: inline-block;
-  margin-left: 5px;
-  margin-bottom: -3px;
+  margin-left: 10px;
+  margin-bottom: -5px;
   cursor: pointer;
   background-image: url('../img/pop_out.png');
   background-repeat: no-repeat;
-  background-size: 15px 15px;
-  height: 15px;
-  width: 15px;
+  background-size: 20px 20px;
+  height: 20px;
+  width: 20px;
   /*background-color: rgba(0,0,0,0);*/
   border: none;
   outline: none;

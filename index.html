@@ -91,6 +91,11 @@
     <div id="wmsTimePopup">
       <h1 id="wms_time_display"></h1>
     </div>
+    <!------------------------------->
+    <!-- WMS Layers Legend Popups  -->
+    <!------------------------------->
+    <div id="legend_wms_0" class="legendPopup"></div>
+    <div id="legend_wms_1" class="legendPopup"></div>
     <!----------------------->
     <!-- WMS Layers Popup  -->
     <!----------------------->
@@ -101,7 +106,7 @@
       </button>
       <button id="cropWMSExtent">Crop WMS</button>
       <!-- container for WMS dropdown selectors -->
-      <div class="wms_dropdown" style="width:200px;">
+      <div class="wms_dropdowns" style="width:200px;">
         <!-- base layer configuration -->
         <div class="wms_config">
           <!-- first WMS selector dropdown -->
@@ -111,7 +116,10 @@
           </select>
           <!-- first style selector dropdown -->
           <div id="wms_config_style_0" class="wms_config_style">
-            <div class="wms_dd_name">Style:</div>
+            <div class="wms_dd_name">
+              Style:
+              <button id="show_legend_0">Legend</button>
+            </div>
             <select id='wms_style_select_0' class='wms_style_select'>
               <option value='none'>None</option>
             </select>
@@ -126,7 +134,10 @@
           </select>
           <!-- second style selector dropdown -->
           <div id="wms_config_style_1" class="wms_config_style">
-            <div class="wms_dd_name">Style:</div>
+            <div class="wms_dd_name">
+              Style:
+              <button id="show_legend_1">Legend</button>
+            </div>
             <select id='wms_style_select_1' class='wms_style_select'>
               <option value='none'>None</option>
             </select>
@@ -136,10 +147,7 @@
       <!-- controls for playing through WMS time -->
       <div id="wms_time_controls">
         <div id="wms_time_buttons">
-          <button id="wms_play">Play Time</button>
-          <button id="wms_stop">Stop Time</button>
-        </div>
-        <div id="wms_cfg_time_display">
+          <div id="wms_play_stop" class="play"></div>
           <div id="time_slider_display"></div>
           <div id="popout_time"></div>
         </div>

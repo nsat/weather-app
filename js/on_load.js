@@ -80,21 +80,53 @@ window.addEventListener('load', function() {
         }
     });
 
+    // toggle popup for WMS layer's legend image
+    document.getElementById('show_legend_0').addEventListener('click', function() {
+        if (document.getElementById('show_legend_0').className != 'pressed') {
+            document.getElementById('show_legend_0').className = 'pressed';
+            // make the legend image visible
+            document.getElementById('legend_wms_0').style.display = 'inline-block';
+        } else {
+            document.getElementById('show_legend_0').className = '';
+            // hide the legend image
+            document.getElementById('legend_wms_0').style.display = 'none';
+        }
+    });
+    // toggle popup for WMS layer's legend image
+    document.getElementById('show_legend_1').addEventListener('click', function() {
+        if (document.getElementById('show_legend_1').className != 'pressed') {
+            document.getElementById('show_legend_1').className = 'pressed';
+            // make the legend image visible
+            document.getElementById('legend_wms_1').style.display = 'inline-block';
+        } else {
+            document.getElementById('show_legend_1').className = '';
+            // hide the legend image
+            document.getElementById('legend_wms_1').style.display = 'none';
+        }
+    });
+
+    // enable the WMS legend popups to be dragged around on the screen
+    makeElementDraggable(document.getElementById('legend_wms_0'));
+    makeElementDraggable(document.getElementById('legend_wms_1'));
     // enable the WMS Config popup to be dragged around on the screen
     makeElementDraggable(document.getElementById('wmsPopup'));
     // enable the WMS time popup to be dragged around on the screen
     makeElementDraggable(document.getElementById('wmsTimePopup'));
-    // click handler for playing WMS time forward
-    document.getElementById('wms_play').addEventListener('click', function() {
-        // play WMS time forward
-        // starting at the current time index
-        playWMS();
-    });
-    // click handler for stopping WMS time playback
-    document.getElementById('wms_stop').addEventListener('click', function() {
-        // stop WMS time playback
-        // but do not change the time index
-        stopWMS();
+    // click handler for for playing WMS time forward or stopping WMS time playback
+    document.getElementById('wms_play_stop').addEventListener('click', function() {
+        if (window.WMS_Animation == null) {
+            // play WMS time forward
+            // starting at the current time index
+            playWMS();
+            // switch to a 'pause' icon
+            this.className = 'pause';
+        } else {
+            // stop WMS time playback
+            // but do not change the time index
+            stopWMS();
+            // switch to a 'play' icon
+            this.className = 'play';
+        }
     });
     // handler for WMS time slider while it is moving
     document.getElementById('wms_time_slider').addEventListener('input', function() {
@@ -102,6 +134,7 @@ window.addEventListener('load', function() {
             // use the integer value of the slider
             // to set the WMS time index
             var time = window.WMS_Animation_Times[this.value];
+            // only change the time display, don't actually set the time
             changeWMSTimeDisplay(time);
         } else {
             // reset slider to starting position
@@ -138,6 +171,7 @@ window.addEventListener('load', function() {
     function selectWMSAndPopulateStyles(num) {
         var times = [];
         var style = null;
+        var legend_url = null;
         var layer_selector = document.getElementById('wms_layer_select_' + num);
         var layer_title = layer_selector.options[layer_selector.selectedIndex].value;
         if (layer_title == 'none') {
@@ -174,16 +208,21 @@ window.addEventListener('load', function() {
             });
             // select the last listed style by default for the second "overlay" dropdown
             // since it is meant to be a contour line on top of the first "base" dropdown
-            // if (num == '1') {
-            //     style_selector.selectedIndex = style_selector.options.length - 1;
-            // }
+            if (num == '1') {
+                style_selector.selectedIndex = style_selector.options.length - 1;
+            }
             style = style_selector.options[style_selector.selectedIndex].value;
+            legend_url = styles[style];
         }
-        var layer_name = window.Latest_WMS[layer_title]['name'];
+        var layer_name = 'none';
+        if (window.Latest_WMS[layer_title]['name']) {
+            layer_name = window.Latest_WMS[layer_title]['name'];
+        }
         return [
             layer_name,
             style,
-            times
+            times,
+            legend_url
         ];
     }
 
@@ -198,10 +237,12 @@ window.addEventListener('load', function() {
         // get selected style
         var style_selector = document.getElementById('wms_style_select_' + num);
         var style = style = style_selector.options[style_selector.selectedIndex].value;
+        var legend_url = window.Latest_WMS[layer_title]['styles'][style];
         return [
             layer_name,
             style,
-            times
+            times,
+            legend_url
         ];
     }
 
@@ -212,7 +253,8 @@ window.addEventListener('load', function() {
         var layer_name = selections[0];
         var style = selections[1];
         var times = selections[2];
-        addWMSLayer(layer_name, style, layer_index, times);
+        var legend_url = selections[3];
+        addWMSLayer(layer_name, style, layer_index, times, legend_url);
     });
     // add the first WMS layer when a Style is selected from the first Style dropdown
     document.getElementById('wms_style_select_0').addEventListener('change', function() {
@@ -221,7 +263,8 @@ window.addEventListener('load', function() {
         var layer_name = selections[0];
         var style = selections[1];
         var times = selections[2];
-        addWMSLayer(layer_name, style, layer_index, times);
+        var legend_url = selections[3];
+        addWMSLayer(layer_name, style, layer_index, times, legend_url);
     });
 
     // add the second WMS layer when a Layer is selected from the second Layer dropdown
@@ -231,7 +274,8 @@ window.addEventListener('load', function() {
         var layer_name = selections[0];
         var style = selections[1];
         var times = selections[2];
-        addWMSLayer(layer_name, style, layer_index, times);
+        var legend_url = selections[3];
+        addWMSLayer(layer_name, style, layer_index, times, legend_url);
     });
     // add the second WMS layer when a Style is selected from the second Style dropdown
     document.getElementById('wms_style_select_1').addEventListener('change', function() {
@@ -240,14 +284,13 @@ window.addEventListener('load', function() {
         var layer_name = selections[0];
         var style = selections[1];
         var times = selections[2];
-        addWMSLayer(layer_name, style, layer_index, times);
+        var legend_url = selections[3];
+        addWMSLayer(layer_name, style, layer_index, times, legend_url);
     });
 
     // enable box-drawing tool to crop WMS region by setting layer extents
     document.getElementById('cropWMSExtent').addEventListener('click', function() {
         var self = this;
-        // unpress the button if it's already activated
-        document.getElementById('cropWMSExtent').className = '';
         document.body.style.cursor = 'default';
         // disable point forecast selection in case it's activated
         ENABLE_FORECAST = false;
@@ -283,6 +326,8 @@ window.addEventListener('load', function() {
             window.ol_map.addInteraction(boxControl);
             window.wms_crop = boxControl;
         } else {
+            // unpress the button if it's already activated
+            // and revert out of the DragBox mode
             self.className = '';
             window.ol_map.removeInteraction(window.wms_crop);
             window.wms_crop = null;
