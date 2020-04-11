@@ -66,10 +66,8 @@ body {
   background-repeat: no-repeat;
   height: 300px;
 }
-.legendPopup,
 #vesselPopup,
-#wmsPopup,
-#wmsTimePopup {
+#wmsPopup {
   z-index: 100;
   cursor: move;
 }
@@ -77,9 +75,16 @@ body {
   cursor: default;
 }
 #tokenPopup,
-#wmsPopup,
-#wmsTimePopup {
+#wmsPopup {
   z-index: 999;
+  text-align: center;
+  left: 35%;
+  top: 150px;
+}
+.legendPopup,
+#wmsTimePopup {
+  z-index: 99;
+  cursor: move;
   text-align: center;
   left: 35%;
   top: 150px;
@@ -199,11 +204,11 @@ body {
 #mouseCoordinates {
   position: absolute;
   font-family: monospace;
-  z-index: 999;
+  z-index: 99;
   display: inline-block;
   color: rgba(0,0,0,0.5);
   top: 44px;
-  right: 80px;
+  right: 44px;
   pointer-events: none;
   -webkit-user-select: none;  /* Chrome all / Safari all */
   -moz-user-select: none;     /* Firefox all */

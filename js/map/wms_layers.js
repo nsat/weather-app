@@ -167,7 +167,7 @@ function getWMSCapabilities(bundle) {
 				document.getElementById('grayPageOverlay').style.display = 'block';
                 document.getElementById('tokenPopup').style.display = 'block';
                 // notify the user that the API response failed
-                alert('API response failed for the Weather WMS API.\nPlease enter a valid API key or contact cx@spire.com')
+                alert('API request failed for the Weather WMS API.\nPlease enter a valid API key or contact cx@spire.com')
 			}
 			// return the API response text
 			// when it is received
@@ -306,10 +306,16 @@ function getWMSCapabilities(bundle) {
 			options.forEach(function(opt) {
 				window.Latest_WMS[opt] = forecast[opt];
 			});
-			// check if 2 keys are present (current total bundles supported)
-			// 1 for Basic and 1 for Maritime
-			if (Object.keys(window.Full_WMS_XML).length == 2) {
+			// if we're in the agricultural context,
+			// we have only requested the Basic WMS
+			if (window.urlParams.get('bundles') == 'agricultural') {
 				buildWMSConfigUI();
+			} else {
+				// check if 2 keys are present (current total bundles supported)
+				// 1 for Basic and 1 for Maritime
+				if (Object.keys(window.Full_WMS_XML).length == 2) {
+					buildWMSConfigUI();
+				}
 			}
 		});
 		// end of fetch promise

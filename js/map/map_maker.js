@@ -127,7 +127,7 @@ function createMap(geojsonObject) {
             });
             if (window.CRS == 'EPSG:3857') {
                 // transform the coordinates from OpenLayers projection to standard lat-lon
-                coords = ol.proj.transform(ol_coords, 'EPSG:3857', 'EPSG:4326');
+                coords = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
             }
             // set an ID for this feature
             // so we can add the forecast data as a property once the API response comes through
@@ -189,7 +189,4 @@ function createMap(geojsonObject) {
         }
     });
 
-    // add event listener to download button
-    // so the map and its layers can be downloaded as an image
-    enableMapDownload();
 }

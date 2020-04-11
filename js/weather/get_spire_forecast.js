@@ -167,7 +167,7 @@ function handleErrorResponse(forecast_feature_id) {
     document.getElementById('grayPageOverlay').style.display = 'block';
     document.getElementById('tokenPopup').style.display = 'block';
     // notify the user that the API response failed
-    alert('API response failed.\nPlease enter a valid API key.');
+    alert('API request failed for the Weather Point API.\nPlease enter a valid API key or contact cx@spire.com');
     // remove the forecast feature we added since this has failed
     var feature = window.forecast_source.getFeatureById(forecast_feature_id);
     window.forecast_layer.removeFeature(feature);

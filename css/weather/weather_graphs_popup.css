@@ -1,4 +1,4 @@
-#weatherPopup {
+#weatherGraphsPopup {
 	background-color: #22293d;
 	font-family: monospace;
 	padding: 40px;
@@ -16,10 +16,10 @@
 	-moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 	box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 }
-#weatherPopup .remove {
+#weatherGraphsPopup .remove {
   margin: 10px;
 }
-#weatherPopup canvas {
+#weatherGraphsPopup canvas {
 	margin-bottom: 40px;
 }
 #day,

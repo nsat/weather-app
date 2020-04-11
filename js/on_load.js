@@ -49,7 +49,10 @@ window.addEventListener('load', function() {
             // make async requests for the WMS capabilities
             // of the currently available bundles
             getWMSCapabilities('basic');
-            getWMSCapabilities('maritime');
+            // get Maritime WMS unless we're in the agricultural context
+            if (window.urlParams.get('bundles') != 'agricultural') {
+                getWMSCapabilities('maritime');
+            }
         }
     });
 
@@ -404,10 +407,13 @@ window.addEventListener('load', function() {
         }
     });
 
+    // enable the weather graphs popup to be dragged around on the screen
+    makeElementDraggable(document.getElementById('weatherGraphsPopup'));
+
     // function for closing the Weather Point Forecast graphs popup...
     function closeForecastPopup() {
         // hide the weather graphs popup
-        document.getElementById('weatherPopup').style.display = 'none';
+        document.getElementById('weatherGraphsPopup').style.display = 'none';
         // hide the gray page overlay
         document.getElementById('grayPageOverlay').style.display = 'none';
         // reset the day/week toggle switch so it's initiated properly for the next forecast
@@ -421,7 +427,7 @@ window.addEventListener('load', function() {
         }
     }
     // ...when the user clicks on the X button of the weather graphs popup...
-    document.getElementById('closeWeatherPopup').onclick = function() {
+    document.getElementById('closeWeatherGraphsPopup').onclick = function() {
         // close the forecast popup
         closeForecastPopup();
     }
@@ -547,12 +553,13 @@ window.addEventListener('load', function() {
                     forecast_feature_id
                 );
             } else {
+                var feature_coord = coordinate;
                 if (window.CRS == 'EPSG:3857') {
                     // transform the coordinates from standard lat-lon to the projection OpenLayers expects
-                    var coords = ol.proj.transform(coordinate, 'EPSG:4326', 'EPSG:3857')
+                    feature_coord = ol.proj.transform(coordinate, 'EPSG:4326', 'EPSG:3857')
                 }
                 // create the Forecast point feature
-                var geometry = new ol.geom.Point(coords);
+                var geometry = new ol.geom.Point(feature_coord);
                 var forecastPoint = new ol.Feature({
                     geometry: geometry,
                     // differentiate between normal forecast feature (which we style on the map)

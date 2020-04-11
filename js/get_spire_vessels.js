@@ -18,7 +18,6 @@ function requestVessels(number, boxCoords) {
         }
         var polygon = {
             'type':'Polygon',
-            // stdCoords are in EPSG:4326
             'coordinates': [ stdCoords ]
         };
         // build the URL parameter with the JSON for the bounding box
@@ -49,7 +48,7 @@ function requestVessels(number, boxCoords) {
                 document.getElementById('grayPageOverlay').style.display = 'block';
                 document.getElementById('tokenPopup').style.display = 'block';
                 // notify the user that the API response failed
-                alert('API response failed.\nPlease enter a valid API key.')
+                alert('API request failed for the Maritime Vessels API.\nPlease enter a valid API key or contact cx@spire.com')
             } else {
                 // convert the API response to the GeoJSON
                 // expected by the OpenLayers map library
