@@ -1,0 +1,39 @@
+#mapBorder {
+  pointer-events: none;
+  position: absolute;
+  width: 99%;
+  height: 900px;
+  border: 2px solid #12161d;
+  background: rgba(0,0,0,0);
+  background-color: rgba(0,0,0,0);
+  box-shadow: inset 0 0 15px 25px rgba(10,10,10,0.4);
+  z-index: 90;
+}
+#map {
+  height: 900px;
+  width: 100%;
+}
+.ol-zoom {
+  position: absolute;
+  top: 130px;
+  left: 35px;
+  z-index: 2000;
+  background-color: rgba(0,0,0,0);
+}
+.ol-control {
+  background-color: rgba(0,0,0,0);
+}
+#mouseCoordinates {
+  position: absolute;
+  font-family: monospace;
+  z-index: 99;
+  display: inline-block;
+  color: rgba(0,0,0,0.5);
+  top: 44px;
+  right: 44px;
+  pointer-events: none;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;
+}

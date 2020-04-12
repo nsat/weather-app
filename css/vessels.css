@@ -1,0 +1,14 @@
+#vesselPopup {
+  z-index: 100;
+  cursor: move;
+}
+#vesselInfo {
+  cursor: default;
+  margin: 20px;
+}
+#getVesselForecast {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  margin: 10px;
+}

@@ -304,7 +304,7 @@ window.addEventListener('load', function() {
             document.getElementById('map').style.cursor = 'crosshair';
             var boxControl = new ol.interaction.DragBox({
                 // condition: ol.events.condition.click,
-                className: 'dragbox',
+                className: 'wmsCropBox',
                 style: new ol.style.Style({
                     fill: new ol.style.Fill({
                         color: 'rgba(0, 0, 255, 0.5)'

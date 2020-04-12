@@ -3,6 +3,9 @@ body {
   background: #283446; /* Fallback */
   /*background: linear-gradient(#36455b, #283446);*/
 }
+h1 {
+  pointer-events: none;
+}
 #logo {
   position: absolute;
   z-index: 99;
@@ -21,14 +24,10 @@ body {
   position: fixed;
   width: 100%;
   height: 100%;
-  /*margin-top: -20px;*/
   background: rgba(0,0,0,0.6);
   z-index: 101;
 }
-.legendPopup,
-#wmsPopup,
-#tokenPopup,
-#vesselPopup {
+.popup {
   display: none;
   position: absolute;
   background-color: #22293d;
@@ -44,122 +43,11 @@ body {
   -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 }
-#wmsTimePopup {
-  overflow: hidden;
-  display: none;
-  position: absolute;
-  font-family: monospace;
-  font-size: 90%;
-  color: #ffffff;
-  text-shadow: 1px 1px rgba(0,0,0,0.7);
-/*  padding: 10px;
-  padding-left: 20px;
-  padding-right: 20px;*/
-}
-#show_legend_0,
-#show_legend_1 {
-  display: none;
-  float: right;
-  pointer-events: all;
-}
-.legendPopup {
-  background-repeat: no-repeat;
-  height: 300px;
-}
-#vesselPopup,
-#wmsPopup {
-  z-index: 100;
-  cursor: move;
-}
-#vesselInfo {
-  cursor: default;
-}
-#tokenPopup,
-#wmsPopup {
-  z-index: 999;
-  text-align: center;
-  left: 35%;
-  top: 150px;
-}
-.legendPopup,
-#wmsTimePopup {
-  z-index: 99;
-  cursor: move;
-  text-align: center;
-  left: 35%;
-  top: 150px;
-}
-#tokenPopup {
-  display: block;
-}
-#tokenForm {
-  padding: 30px;
-}
-#token {
-  height: 20px;
-  width: 200px;
-  text-align: center;
-}
-.remove {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  color: #000000;
-  margin-right: 10px;
-  background: #ffffff;
-  padding-left: 4px;
-  padding-right: 4px;
-  border-radius: 10px;
-}
-.remove:hover {
-  background: rgba(210, 32, 31, 0.8);
-}
-.remove:active {
-  background: rgba(210, 32, 31, 1.0);
-}
-#cropWMSExtent {
-  display: none;
-}
-#cropWMSExtent,
-#getVesselForecast,
-#wmsPopup .remove,
-#vesselPopup .remove {
-  margin: 10px;
-}
-#cropWMSExtent,
-#getVesselForecast {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-}
-#vesselInfo {
-  margin: 20px;
-}
-#wms_title,
-#vessel_title,
-#token_title {
+.title {
   color: #FFFFFF;
   text-align: center;
   text-decoration: underline;
   font-family: 'serif';
-}
-.dragbox {
-  border: 2px solid rgba(0, 60, 150, 1.0);
-}
-#mapBorder {
-  pointer-events: none;
-  position: absolute;
-  width: 99%;
-  height: 900px;
-  border: 2px solid #12161d;
-  background: rgba(0,0,0,0);
-  background-color: rgba(0,0,0,0);
-  box-shadow: inset 0 0 15px 25px rgba(10,10,10,0.4);
-  z-index: 90;
-}
-#map {
-  height: 900px;
-  width: 100%;
 }
 #buttons {
   position: absolute;
@@ -169,107 +57,12 @@ body {
   padding: 3px;
   height: 20px;
 }
-.ol-zoom {
-  position: absolute;
-  top: 130px;
-  left: 35px;
-  z-index: 2000;
-  background-color: rgba(0,0,0,0);
-}
-.ol-control {
-  background-color: rgba(0,0,0,0);
-}
-#downloadMap {
-  position: absolute;
-  z-index: 99;
-  top: 40px;
-  right: 40px;
-  cursor: pointer;
-  background-image: url('../img/download.png');
-  background-repeat: no-repeat;
-  background-size: 30px 30px;
-  height: 30px;
-  width: 30px;
-  background-color: rgba(0,0,0,0);
-  border: none;
-  outline: none;
-  opacity: 0.4;
-}
-#downloadMap:hover {
-  opacity: 0.6;
-}
-#downloadMap:active {
-  opacity: 1.0;
-}
-#mouseCoordinates {
-  position: absolute;
-  font-family: monospace;
-  z-index: 99;
-  display: inline-block;
-  color: rgba(0,0,0,0.5);
-  top: 44px;
-  right: 44px;
-  pointer-events: none;
-  -webkit-user-select: none;  /* Chrome all / Safari all */
-  -moz-user-select: none;     /* Firefox all */
-  -ms-user-select: none;      /* IE 10+ */
-  user-select: none;
-}
-#drawPolygonArea {
-  border-radius: 2px 0 0 2px;
-}
-#requestForecast {
-  /*border-radius: 0 2px 2px 0;*/
-}
-#configureWMS {
-  border-radius: 0 2px 2px 0;
-}
-#drawPolygonArea,
-#requestForecast,
-#configureWMS {
-  padding: 7px;
-  border: none;
-}
-#cropWMSExtent.pressed,
-#drawPolygonArea.pressed,
-#requestForecast.pressed,
-#configureWMS.pressed {
-  box-shadow: 1px 1px rgba(0,0,0,1.0);
-  background-color: rgba(0,60,136,1.0);
-}
-#cropWMSExtent,
-#getVesselForecast,
-#submitToken,
-#wms_play_stop {
-  padding: 7px;
-}
-#wms_play_stop {
-  display: inline-block;
-  margin-bottom: -20px;
-  opacity: 0.5;
-  background-repeat: no-repeat;
-  background-size: 25px 25px;
-  height: 25px;
-  width: 25px;
-  cursor: pointer;
-}
-#wms_play_stop:hover {
-  opacity: 0.7;
-}
-#wms_play_stop:active {
-  opacity: 1.0;
-}
-#wms_play_stop.play {
-  background-image: url('../img/play.png');
-}
-#wms_play_stop.pause {
-  background-image: url('../img/pause.png');
-}
 #submitToken,
 button {
   cursor: pointer;
   outline: none;
   color: white;
+  padding: 7px;
   margin-left: 4px;
   font-weight: bold;
   background-color: rgba(0,60,136,0.5);
@@ -291,138 +84,40 @@ button:active {
   background-color: rgba(0,60,136,1.0);
   box-shadow: 1px 1px rgba(0,0,0,1.0);
 }
-h1 {
-  pointer-events: none;
-}
-#wms_dropdowns {
-  pointer-events: none;
-}
-.wms_config {
-  padding: 10px;
-  pointer-events: none;
-}
-.wms_layer_select {
-  font-weight: bold;
-  height: 40px;
-  width: 384px;
-  cursor: pointer;
-  text-align: center;
-  text-align-last: center;
-  background: white;
-  margin-bottom: 10px;
-  pointer-events: all;
-}
-.wms_style_select {
-  font-style: italic;
-  height: 20px;
-  width: 384px;
-  cursor: pointer;
-  text-align: center;
-  text-align-last: center;
-  background: white;
-  display: inline-block;
-  pointer-events: all;
-}
-.wms_dd_name {
-  font-weight: bold;
+button.pressed {
   color: white;
-  text-align: left;
-  margin-bottom: 10px;
-  pointer-events: none;
-  -webkit-user-select: none;  /* Chrome all / Safari all */
-  -moz-user-select: none;     /* Firefox all */
-  -ms-user-select: none;      /* IE 10+ */
-  user-select: none;
+  box-shadow: 1px 1px rgba(0,0,0,1.0);
+  background-color: rgba(0,60,136,1.0);
 }
-.wms_config_style {
-  font-weight: normal;
-  display: none;
-  color: #eeeeee;
-  font-size: 80%;
-  margin-bottom: 20px;
-}
-#wms_time_controls {
-  margin-top: 10px;
-  display: none;
-  pointer-events: none;
-}
-#wms_time_slider,
-#wms_time_buttons,
-#time_slider_display,
-#popout_time {
-  pointer-events: all;
-}
-#time_slider_display {
-  cursor: default;
-  display: inline-block;
-}
-#wms_time_slider,
-#time_slider_display {
-  color: #ffffff;
-  margin-top: 20px;
-}
-#wms_time_slider {
-  margin-top: 30px;
-  width: 100%;
-}
-.slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  background: #eeeeee;
-  outline: none;
-  opacity: 0.8;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
-}
-.slider:hover {
-  opacity: 1;
+.remove {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  color: #000000;
+  margin-right: 10px;
   background: #ffffff;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-radius: 10px;
+  margin: 10px;
 }
-.slider::-webkit-slider-thumb {
-  border: 2px solid #ffffff;
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: 22px;
-  width: 22px;
-  height: 22px;
-  background: rgba(0,60,136,1.0);
-  cursor: pointer;
-  -webkit-box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
-  box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
+.remove:hover {
+  background: rgba(210, 32, 31, 0.8);
 }
-.slider::-moz-range-thumb {
-  border: 2px solid #ffffff;
-  border-radius: 22px;
-  width: 22px;
-  height: 22px;
-  background: rgba(0,60,136,1.0);
-  cursor: pointer;
-  -moz-box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
-  box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
+.remove:active {
+  background: rgba(210, 32, 31, 1.0);
 }
-#popout_time {
-  display: inline-block;
-  margin-left: 10px;
-  margin-bottom: -5px;
-  cursor: pointer;
-  background-image: url('../img/pop_out.png');
-  background-repeat: no-repeat;
-  background-size: 20px 20px;
-  height: 20px;
-  width: 20px;
-  /*background-color: rgba(0,0,0,0);*/
+/* the main buttons */
+#drawPolygonArea,
+#requestForecast,
+#configureWMS {
   border: none;
-  outline: none;
-  opacity: 0.5;
 }
-#popout_time:hover {
-  opacity: 0.7;
+#drawPolygonArea {
+  border-radius: 2px 0 0 2px;
 }
-#popout_time:active {
-  opacity: 1.0;
-}
-#popout_time.pressed {
-  opacity: 1.0;
+#configureWMS {
+  border-radius: 0 2px 2px 0;
 }

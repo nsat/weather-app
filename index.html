@@ -19,8 +19,12 @@
     <script type="text/javascript" src="lib/draggable_element.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/map.css" />
+    <link rel="stylesheet" type="text/css" href="css/token.css" />
+    <link rel="stylesheet" type="text/css" href="css/vessels.css" />
     <link rel="stylesheet" type="text/css" href="css/weather/weather_graphs_popup.css" />
     <link rel="stylesheet" type="text/css" href="css/weather/toggleswitch.css" />
+    <link rel="stylesheet" type="text/css" href="css/weather/wms.css" />
     <!-- Custom Weather Stats JS -->
     <script type="text/javascript" src="js/weather/configure_graphs.js"></script>
     <script type="text/javascript" src="js/weather/parse_data.js"></script>
@@ -64,8 +68,8 @@
     <!------------------------------>
     <!-- Token Submit Form Popup  -->
     <!------------------------------>
-    <div id="tokenPopup">
-      <h1 id="token_title">Spire API Token</h1>
+    <div id="tokenPopup" class="popup">
+      <h1 id="token_title" class="title">Spire API Token</h1>
       <form id="tokenForm">
         <input id="token" type="password" placeholder="Please Enter Your Token Here" />
         <input id="submitToken" type="submit" />
@@ -74,8 +78,8 @@
     <!------------------------>
     <!-- Vessel Info Popup  -->
     <!------------------------>
-    <div id="vesselPopup">
-      <h1 id="vessel_title">Spire Vessels API Data</h1>
+    <div id="vesselPopup" class="popup">
+      <h1 id="vessel_title" class="title">Spire Vessels API Data</h1>
       <button id="getVesselForecast">Spire Forecast</button>
       <button id="closeVesselPopup" class="remove">
         X
@@ -91,13 +95,13 @@
     <!------------------------------->
     <!-- WMS Layers Legend Popups  -->
     <!------------------------------->
-    <div id="legend_wms_0" class="legendPopup"></div>
-    <div id="legend_wms_1" class="legendPopup"></div>
+    <div id="legend_wms_0" class="legendPopup popup"></div>
+    <div id="legend_wms_1" class="legendPopup popup"></div>
     <!----------------------->
     <!-- WMS Layers Popup  -->
     <!----------------------->
-    <div id="wmsPopup">
-      <h1 id="wms_title">Spire Weather WMS Layers</h1>
+    <div id="wmsPopup" class="popup">
+      <h1 id="wms_title" class="title">Spire Weather WMS Layers</h1>
       <button id="closeWMSPopup" class="remove">
         X
       </button>
@@ -154,9 +158,9 @@
     <!--------------------------->
     <!-- Weather Graphs Popup  -->
     <!--------------------------->
-    <div id="weatherGraphsPopup">
-      <h1 id="forecast_title">Spire Weather Forecast</h1>
-      <h4 id="forecast_point_label"></h4>
+    <div id="weatherGraphsPopup" class="popup">
+      <h1 id="forecast_title" class="title">Spire Weather Forecast</h1>
+      <h4 id="forecast_point_label" class="title"></h4>
       <button id="closeWeatherGraphsPopup" class="remove">
         X
       </button>
