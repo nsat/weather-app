@@ -11,6 +11,8 @@ function embed_vega_spec(vega_spec, element_id) {
 }
 
 function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold_val) {
+	// TODO: use Vega's "wedge" mark + angle to show wind/currents direction
+	// // https://vega.github.io/vega/docs/marks/symbol/
 	var tooltip = [
 		{"field": "Value","type": "quantitative"},
 		{"field": "Time","type": "ordinal","timeUnit": "yearmonthdatehours","title": "Time (UTC)"}

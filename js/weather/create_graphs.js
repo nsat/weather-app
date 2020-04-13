@@ -580,6 +580,6 @@ function displayForecastData(data, lonlatString) {
     }
 
     // make the forecast popup visible
-    document.getElementById('weatherPopup').style.display = 'block';
+    document.getElementById('weatherGraphsPopup').style.display = 'block';
     document.getElementById('grayPageOverlay').style.display = 'block';
 }

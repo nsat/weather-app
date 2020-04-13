@@ -10,13 +10,14 @@ function requestVessels(number, boxCoords) {
         var stdCoords = [];
         for (var i=0; i < boxCoords.length; i++) {
             var coords = boxCoords[i];
-            // convert the coordinates to the projection used by the Vessels API
-            var converted = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
-            stdCoords.push(converted);
+            if (window.CRS == 'EPSG:3857') {
+                // convert the coordinates to the projection used by the Vessels API
+                coords = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
+            }
+            stdCoords.push(coords);
         }
         var polygon = {
             'type':'Polygon',
-            // stdCoords are in EPSG:4326
             'coordinates': [ stdCoords ]
         };
         // build the URL parameter with the JSON for the bounding box
@@ -47,7 +48,7 @@ function requestVessels(number, boxCoords) {
                 document.getElementById('grayPageOverlay').style.display = 'block';
                 document.getElementById('tokenPopup').style.display = 'block';
                 // notify the user that the API response failed
-                alert('API response failed.\nPlease enter a valid API key.')
+                alert('API request failed for the Maritime Vessels API.\nPlease enter a valid API key or contact cx@spire.com')
             } else {
                 // convert the API response to the GeoJSON
                 // expected by the OpenLayers map library
@@ -72,8 +73,10 @@ function convertResponseToGeoJson(resp) {
             var vessel = data[i];
             // get this vessel's last known position coordinates
             var coords = vessel['last_known_position']['geometry']['coordinates'];
-            // convert the coordinates to the projection used by OpenLayers
-            var converted = ol.proj.fromLonLat(coords, 'EPSG:3857');
+            if (window.CRS == 'EPSG:3857') {
+                // convert the coordinates to the projection used by OpenLayers
+                coords = ol.proj.fromLonLat(coords, 'EPSG:3857');
+            }
             // build the GeoJSON feature for this vessel
             // and append it to the array of features for this layer
             features.push({
@@ -91,7 +94,7 @@ function convertResponseToGeoJson(resp) {
                 },
                 'geometry': {
                     'type': 'Point',
-                    'coordinates': converted
+                    'coordinates': coords
                 }
             });
         }

@@ -50,22 +50,27 @@ function getPointForecast(coordinate, time_bundle) {
             return rawresp.json();
         })
         .then((response) => {
+            // get the forecast feature id the same way we created it earlier
+            var forecast_feature_id = String(coordinate)
             // print the API response to the JS console
             console.log('Weather API Response:', response);
             // reset cursor from spinning wheel to default
             document.body.style.cursor = 'default';
             document.getElementById('getVesselForecast').style.cursor = 'pointer';
             document.getElementById('forecast_switch').style.cursor = 'pointer';
-            // check if the API returned any errors
+            // check if the API returned any errors or faults
             if (response['errors']) {
-                // assume invalid API key and prompt re-entry
-                document.getElementById('grayPageOverlay').style.display = 'block';
-                document.getElementById('tokenPopup').style.display = 'block';
-                // notify the user that the API response failed
-                alert('API response failed.\nPlease enter a valid API key.')
+                // pass OpenLayers forecast feature ID to error handler
+                handleErrorResponse(forecast_feature_id);
+                // do not proceed with this response handler
+                return;
             }
-            // get the forecast feature id the same way we created it earlier
-            var forecast_feature_id = String(coordinate);
+            if (response['fault']) {
+                // pass OpenLayers forecast feature ID to fault handler
+                handleFaultResponse(forecast_feature_id);
+                // do not proceed with this response handler
+                return;
+            }
             // check that maritime variables exist in the returned data
             if (maritime_variables_exist(response.data) == false) {
                 // the latest forecast data must be available for the basic bundle
@@ -85,7 +90,6 @@ function getPointForecast(coordinate, time_bundle) {
             var feature = window.forecast_source.getFeatureById(forecast_feature_id);
             // store the data within the feature using the time_bundle as a key,
             // so we can differentiate between short_range data and medium_range data
-            console.log("FIRST BATCH OF FEATURE DATA", time_bundles_data_object)
             feature.setProperties(time_bundles_data_object);
             // reset forecast toggle button to not be active
             document.getElementById('requestForecast').className = '';
@@ -113,18 +117,23 @@ function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
             return rawresp.json();
         })
         .then((response) => {
-            // print the API response to the JS console
-            console.log('Weather API Response:', response);
-            // check if the API returned any errors
-            if (response['errors']) {
-                // assume invalid API key and prompt re-entry
-                document.getElementById('grayPageOverlay').style.display = 'block';
-                document.getElementById('tokenPopup').style.display = 'block';
-                // notify the user that the API response failed
-                alert('API response failed.\nPlease enter a valid API key.')
-            }
             // get the forecast feature id the same way we created it earlier
             var forecast_feature_id = String(coordinate);
+            // print the API response to the JS console
+            console.log('Weather API Response:', response);
+            // check if the API returned any errors or faults
+            if (response['errors']) {
+                // pass OpenLayers forecast feature ID to error handler
+                handleErrorResponse(forecast_feature_id);
+                // do not proceed with this response handler
+                return;
+            }
+            if (response['fault']) {
+                // pass OpenLayers forecast feature ID to fault handler
+                handleFaultResponse(forecast_feature_id);
+                // do not proceed with this response handler
+                return;
+            }
             // parse the `short_range_high_freq` and `medium_range_std_freq` data
             // out of the `medium_range_high_freq` API response
             var time_bundles_data_object = get_data_by_time_bundle(response.data);
@@ -150,4 +159,32 @@ function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
             feature.setProperties(new_feature_data);
         });
     // end of fetch promise
+}
+
+// handle an API response with 'errors' field
+function handleErrorResponse(forecast_feature_id) {
+    // assume invalid API key and prompt re-entry
+    document.getElementById('grayPageOverlay').style.display = 'block';
+    document.getElementById('tokenPopup').style.display = 'block';
+    // notify the user that the API response failed
+    alert('API request failed for the Weather Point API.\nPlease enter a valid API key or contact cx@spire.com');
+    // remove the forecast feature we added since this has failed
+    var feature = window.forecast_source.getFeatureById(forecast_feature_id);
+    window.forecast_layer.removeFeature(feature);
+    // deselect forecast feature
+    window.selectedForecast = null;
+    // reset forecast toggle button to not be active
+    document.getElementById('requestForecast').className = '';
+}
+// handle an API response with 'fault' field
+function handleFaultResponse(forecast_feature_id) {
+    // this is likely a rate-limit error...
+    // TODO: figure out what to do about that
+    // remove the forecast feature we added since this has failed
+    var feature = window.forecast_source.getFeatureById(forecast_feature_id);
+    window.forecast_source.removeFeature(feature);
+    // deselect forecast feature
+    window.selectedForecast = null;
+    // reset forecast toggle button to not be active
+    document.getElementById('requestForecast').className = '';
 }

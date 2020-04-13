@@ -19,17 +19,21 @@
     <script type="text/javascript" src="lib/draggable_element.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <link rel="stylesheet" type="text/css" href="css/weather/weatherpopup.css" />
+    <link rel="stylesheet" type="text/css" href="css/map.css" />
+    <link rel="stylesheet" type="text/css" href="css/token.css" />
+    <link rel="stylesheet" type="text/css" href="css/vessels.css" />
+    <link rel="stylesheet" type="text/css" href="css/weather/weather_graphs_popup.css" />
     <link rel="stylesheet" type="text/css" href="css/weather/toggleswitch.css" />
+    <link rel="stylesheet" type="text/css" href="css/weather/wms.css" />
     <!-- Custom Weather Stats JS -->
     <script type="text/javascript" src="js/weather/configure_graphs.js"></script>
     <script type="text/javascript" src="js/weather/parse_data.js"></script>
     <script type="text/javascript" src="js/weather/create_graphs.js"></script>
     <script type="text/javascript" src="js/weather/get_spire_forecast.js"></script>
     <!-- Custom Map JS -->
-    <script type="text/javascript" src="js/map/enable_map_download.js"></script>
     <script type="text/javascript" src="js/map/feature_styles.js"></script>
     <script type="text/javascript" src="js/map/map_maker.js"></script>
+    <script type="text/javascript" src="js/map/wms_layers.js"></script>
     <!-- Custom Vessels JS (requires map functions to draw vessels on map) -->
     <script type="text/javascript" src="js/get_spire_vessels.js"></script>
     <!-- Custom JS executed when the page and all DOM elements have loaded -->
@@ -44,15 +48,15 @@
     <!----------------->
     <!-- Spire logo in the top left of the map element -->
     <a id="logo" href="https://www.spire.com/" target="_blank" title="Spire Global"></a>
-    <!-- map download icon in the top right of the map element -->
-    <div id="downloadMap" title="Download Map"></div>
     <!-- buttons near the top left of the map element -->
     <div id="buttons">
       <!-- button to trigger Draw Polygon feature
       note: this button's text will change for the Agricultural setting -->
       <button id="drawPolygonArea">Get 500 Vessels in Area</button>
       <!-- button to trigger Click-Map-For-Point-Forecast feature -->
-      <button id="requestForecast">Get Spire Weather Forecast</button>
+      <button id="requestForecast">Get Weather Forecast</button>
+      <!-- button to trigger popup for selecting WMS layer -->
+      <button id="configureWMS">Configure WMS</button>
     </div>
     <!-- the map coordinates at the mouse's current position
     displayed in the top right of the map element (lon, lat) -->
@@ -64,8 +68,8 @@
     <!------------------------------>
     <!-- Token Submit Form Popup  -->
     <!------------------------------>
-    <div id="tokenPopup">
-      <h1 id="token_title">Spire API Token</h1>
+    <div id="tokenPopup" class="popup">
+      <h1 id="token_title" class="title">Spire API Token</h1>
       <form id="tokenForm">
         <input id="token" type="password" placeholder="Please Enter Your Token Here" />
         <input id="submitToken" type="submit" />
@@ -74,21 +78,90 @@
     <!------------------------>
     <!-- Vessel Info Popup  -->
     <!------------------------>
-    <div id="vesselPopup">
-      <h1 id="vessel_title">Spire Vessels API Data</h1>
+    <div id="vesselPopup" class="popup">
+      <h1 id="vessel_title" class="title">Spire Vessels API Data</h1>
       <button id="getVesselForecast">Spire Forecast</button>
       <button id="closeVesselPopup" class="remove">
         X
       </button>
       <div id="vesselInfo"></div>
     </div>
+    <!--------------------->
+    <!-- WMS Time Popup  -->
+    <!--------------------->
+    <div id="wmsTimePopup">
+      <h1 id="wms_time_display"></h1>
+    </div>
+    <!------------------------------->
+    <!-- WMS Layers Legend Popups  -->
+    <!------------------------------->
+    <div id="legend_wms_0" class="legendPopup popup"></div>
+    <div id="legend_wms_1" class="legendPopup popup"></div>
+    <!----------------------->
+    <!-- WMS Layers Popup  -->
+    <!----------------------->
+    <div id="wmsPopup" class="popup">
+      <h1 id="wms_title" class="title">Spire Weather WMS Layers</h1>
+      <button id="closeWMSPopup" class="remove">
+        X
+      </button>
+      <button id="cropWMSExtent">Crop WMS</button>
+      <!-- container for WMS dropdown selectors -->
+      <div class="wms_dropdowns" style="width:200px;">
+        <!-- base layer configuration -->
+        <div class="wms_config">
+          <!-- first WMS selector dropdown -->
+          <div class="wms_dd_name">Base Layer:</div>
+          <select id='wms_layer_select_0' class='wms_layer_select'>
+            <option value='none'>Loading Available Layers...</option>
+          </select>
+          <!-- first style selector dropdown -->
+          <div id="wms_config_style_0" class="wms_config_style">
+            <div class="wms_dd_name">
+              Style:
+              <button id="show_legend_0">Legend</button>
+            </div>
+            <select id='wms_style_select_0' class='wms_style_select'>
+              <option value='none'>None</option>
+            </select>
+          </div>
+        </div>
+        <!-- overlay layer configuration -->
+        <div class="wms_config">
+          <!-- second WMS selector dropdown -->
+          <div class="wms_dd_name">Overlay Layer:</div>
+          <select id='wms_layer_select_1' class='wms_layer_select'>
+            <option value='none'>Loading Available Layers...</option>
+          </select>
+          <!-- second style selector dropdown -->
+          <div id="wms_config_style_1" class="wms_config_style">
+            <div class="wms_dd_name">
+              Style:
+              <button id="show_legend_1">Legend</button>
+            </div>
+            <select id='wms_style_select_1' class='wms_style_select'>
+              <option value='none'>None</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- controls for playing through WMS time -->
+      <div id="wms_time_controls">
+        <div id="wms_time_buttons">
+          <div id="wms_play_stop" class="play"></div>
+          <div id="time_slider_display"></div>
+          <div id="popout_time"></div>
+        </div>
+        <input id="wms_time_slider" type="range" min="0" max="50" value="0" class="slider">
+      </div>
+    </div>
     <!--------------------------->
     <!-- Weather Graphs Popup  -->
     <!--------------------------->
-    <div id="weatherPopup">
-      <h1 id="forecast_title">Spire Weather Forecast</h1>
-      <h4 id="forecast_point_label"></h4>
-      <button id="closeWeatherPopup" class="remove">
+    <div id="weatherGraphsPopup" class="popup">
+      <h1 id="forecast_title" class="title">Spire Weather Forecast</h1>
+      <h4 id="forecast_point_label" class="title"></h4>
+      <button id="closeWeatherGraphsPopup" class="remove">
         X
       </button>
       <div id="toggle_forecast">

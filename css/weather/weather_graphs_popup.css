@@ -1,0 +1,40 @@
+#weatherGraphsPopup {
+	top: 20px;
+	width: 80%;
+	max-width: 80%;
+	z-index: 101;
+}
+#weatherGraphsPopup canvas {
+	margin-bottom: 40px;
+}
+#day,
+#week {
+	position: absolute;
+	top: 30px;
+	right: 40px;
+	font-size: 80%;
+	color: #D3D3D3;
+	opacity: 0.4;
+}
+#week {
+	margin-right: 101px;
+}
+#day.selected,
+#week.selected {
+	color: rgba(200,245,255,1);
+	opacity: 1.0;
+}
+#toggle_forecast {
+	position: absolute;
+	z-index: 1001;
+	top: -10px;
+	right: -15px;
+	width: 180px;
+	height: 60px;
+	border-radius: 50px;
+	background-color: #22293d;
+}
+#forecast_point_label {
+	text-decoration: none;
+	margin-bottom: 40px;
+}

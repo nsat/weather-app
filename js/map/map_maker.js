@@ -4,6 +4,7 @@ function createVesselsLayer(geojson) {
         features: (new ol.format.GeoJSON()).readFeatures(geojson)
     });
     var vectorLayer = new ol.layer.Vector({
+        zIndex: 100,
         className: name,
         source: vectorSource,
         style: vesselStyle
@@ -27,7 +28,17 @@ function createMap(geojsonObject) {
     });
 
     window.aoi_source = new ol.source.Vector({});
+    window.aoi_layer = new ol.layer.Vector({
+        source: window.aoi_source,
+        style: aoiStyle,
+        // zIndex: 100
+    });
     window.forecast_source = new ol.source.Vector({});
+    window.forecast_layer = new ol.layer.Vector({
+        source: window.forecast_source,
+        style: forecastPointStyle,
+        zIndex: 99
+    });
     // create the OpenLayers map and store it in a global variable
     window.ol_map = new ol.Map({
         controls: ol.control.defaults().extend([window.mousePositionControl]),
@@ -36,19 +47,16 @@ function createMap(geojsonObject) {
                 // free OpenStreetMap tileset
                 source: new ol.source.OSM()
             }),
-            new ol.layer.Vector({
-                source: window.aoi_source,
-                style: aoiStyle,
-                // zIndex: 100
-            }),
-            new ol.layer.Vector({
-                source: window.forecast_source,
-                style: forecastPointStyle,
-                // zIndex: 100
-            })
+            window.aoi_layer,
+            window.forecast_layer
         ],
         target: 'map',
         view: new ol.View({
+            // // If the base map projection is set to 4326,
+            // // code will need to change in other places,
+            // // where conversions from 3857 are performed
+            // projection: 'EPSG:4326', // default is EPSG:3857 (web mercator)
+            projection: window.CRS,
             center: [0, 0],
             zoom: 2
         })
@@ -110,15 +118,17 @@ function createMap(geojsonObject) {
             document.getElementById('forecast_switch').style.cursor = 'progress';
             // we are already auto-storing the latitude/longitude coordinates of the current mouse position
             // so we can simply grab the content of the DOM element displaying those coordinates
-            var ol_coords = e.coordinate;
+            var coords = e.coordinate;
             // create the Forecast point feature
-            var geometry = new ol.geom.Point(ol_coords);
+            var geometry = new ol.geom.Point(coords);
             var forecastPoint = new ol.Feature({
                 geometry: geometry,
                 type: 'forecast'
             });
-            // transform the coordinates from OpenLayers projection to standard lat-lon
-            var coords = ol.proj.transform(ol_coords, 'EPSG:3857', 'EPSG:4326');
+            if (window.CRS == 'EPSG:3857') {
+                // transform the coordinates from OpenLayers projection to standard lat-lon
+                coords = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
+            }
             // set an ID for this feature
             // so we can add the forecast data as a property once the API response comes through
             forecastPoint.setId(String(coords));
@@ -179,7 +189,4 @@ function createMap(geojsonObject) {
         }
     });
 
-    // add event listener to download button
-    // so the map and its layers can be downloaded as an image
-    enableMapDownload();
 }

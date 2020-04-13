@@ -3,6 +3,9 @@ body {
   background: #283446; /* Fallback */
   /*background: linear-gradient(#36455b, #283446);*/
 }
+h1 {
+  pointer-events: none;
+}
 #logo {
   position: absolute;
   z-index: 99;
@@ -21,103 +24,30 @@ body {
   position: fixed;
   width: 100%;
   height: 100%;
-  /*margin-top: -20px;*/
   background: rgba(0,0,0,0.6);
   z-index: 101;
 }
-#tokenPopup,
-#vesselPopup {
+.popup {
+  display: none;
+  position: absolute;
   background-color: #22293d;
   font-family: monospace;
   padding: 40px;
   border: 2px solid white;
   border-radius: 10px;
   overflow: hidden;
-  display: none;
-  position: absolute;
   top: 110px;
   left: 110px;
   max-width: 800px;
-  /*width: 50%;*/
   -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
   box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
 }
-#vesselPopup {
-  z-index: 100;
-  cursor: move;
-}
-#vesselInfo {
-  cursor: default;
-}
-#tokenPopup {
-  z-index: 999;
-  display: block;
-  text-align: center;
-  left: 35%;
-  top: 150px;
-}
-#tokenForm {
-  padding: 30px;
-}
-#token {
-  height: 20px;
-  width: 200px;
-  text-align: center;
-}
-.remove {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  color: #000000;
-  margin-right: 10px;
-  background: #ffffff;
-  padding-left: 4px;
-  padding-right: 4px;
-  border-radius: 10px;
-}
-.remove:hover {
-  background: rgba(210, 32, 31, 0.8);
-}
-.remove:active {
-  background: rgba(210, 32, 31, 1.0);
-}
-#getVesselForecast,
-#vesselPopup .remove {
-  margin: 10px;
-}
-#getVesselForecast {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-}
-#vesselInfo {
-  margin: 20px;
-}
-#vessel_title,
-#token_title {
+.title {
   color: #FFFFFF;
   text-align: center;
   text-decoration: underline;
   font-family: 'serif';
-}
-/*.dragbox {
-  border: 2px solid rgba(0, 60, 150, 1.0);
-}*/
-#mapBorder {
-  pointer-events: none;
-  position: absolute;
-  width: 99%;
-  height: 900px;
-  border: 2px solid #12161d;
-  background: rgba(0,0,0,0);
-  background-color: rgba(0,0,0,0);
-  box-shadow: inset 0 0 15px 25px rgba(10,10,10,0.4);
-  z-index: 90;
-}
-#map {
-  height: 900px;
-  width: 100%;
 }
 #buttons {
   position: absolute;
@@ -127,77 +57,12 @@ body {
   padding: 3px;
   height: 20px;
 }
-.ol-zoom {
-  position: absolute;
-  top: 130px;
-  left: 35px;
-  z-index: 2000;
-  background-color: rgba(0,0,0,0);
-}
-.ol-control {
-  background-color: rgba(0,0,0,0);
-}
-#downloadMap {
-  position: absolute;
-  z-index: 99;
-  top: 40px;
-  right: 40px;
-  cursor: pointer;
-  background-image: url('../img/download.png');
-  background-repeat: no-repeat;
-  background-size: 30px 30px;
-  height: 30px;
-  width: 30px;
-  background-color: rgba(0,0,0,0);
-  border: none;
-  outline: none;
-  opacity: 0.4;
-}
-#downloadMap:hover {
-  opacity: 0.6;
-}
-#downloadMap:active {
-  opacity: 1.0;
-}
-#mouseCoordinates {
-  position: absolute;
-  font-family: monospace;
-  z-index: 999;
-  display: inline-block;
-  color: rgba(0,0,0,0.5);
-  top: 44px;
-  right: 80px;
-  pointer-events: none;
-  -webkit-user-select: none;  /* Chrome all / Safari all */
-  -moz-user-select: none;     /* Firefox all */
-  -ms-user-select: none;      /* IE 10+ */
-  user-select: none;
-}
-#drawPolygonArea {
-  border-radius: 2px 0 0 2px;
-}
-#requestForecast {
-  border-radius: 0 2px 2px 0;
-}
-#drawPolygonArea,
-#requestForecast {
-  padding: 7px;
-  border: none;
-}
-#drawPolygonArea.pressed,
-#requestForecast.pressed {
-  box-shadow: 1px 1px rgba(0,0,0,1.0);
-  background-color: rgba(0,60,136,1.0);
-}
-#getVesselForecast,
-#submitToken {
-  padding: 7px;
-}
 #submitToken,
 button {
   cursor: pointer;
   outline: none;
   color: white;
+  padding: 7px;
   margin-left: 4px;
   font-weight: bold;
   background-color: rgba(0,60,136,0.5);
@@ -219,6 +84,40 @@ button:active {
   background-color: rgba(0,60,136,1.0);
   box-shadow: 1px 1px rgba(0,0,0,1.0);
 }
-h1 {
-  pointer-events: none;
+button.pressed {
+  color: white;
+  box-shadow: 1px 1px rgba(0,0,0,1.0);
+  background-color: rgba(0,60,136,1.0);
+}
+.remove {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  color: #000000;
+  margin-right: 10px;
+  background: #ffffff;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-radius: 10px;
+  margin: 10px;
+}
+.remove:hover {
+  background: rgba(210, 32, 31, 0.8);
+}
+.remove:active {
+  background: rgba(210, 32, 31, 1.0);
+}
+/* the main buttons */
+#drawPolygonArea,
+#requestForecast,
+#configureWMS {
+  border: none;
+}
+#drawPolygonArea {
+  border-radius: 2px 0 0 2px;
+}
+#configureWMS {
+  border-radius: 0 2px 2px 0;
 }
