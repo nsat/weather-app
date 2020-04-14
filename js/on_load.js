@@ -46,12 +46,16 @@ window.addEventListener('load', function() {
             // disable the popup and app overlay for now since `token` value is not null
             document.getElementById('tokenPopup').style.display = 'none';
             document.getElementById('grayPageOverlay').style.display = 'none';
-            // make async requests for the WMS capabilities
-            // of the currently available bundles
-            getWMSCapabilities('basic');
-            // get Maritime WMS unless we're in the agricultural context
-            if (window.urlParams.get('bundles') != 'agricultural') {
-                getWMSCapabilities('maritime');
+            // make sure that we don't duplicate efforts
+            // with the `token` change handler above that might also make these calls
+            if (window.WMSRetrievalInitiated != true) {
+                // make async requests for the WMS capabilities
+                // of the currently available bundles
+                getWMSCapabilities('basic');
+                // get Maritime WMS unless we're in the agricultural context
+                if (window.urlParams.get('bundles') != 'agricultural') {
+                    getWMSCapabilities('maritime');
+                }
             }
         }
     });
@@ -69,6 +73,17 @@ window.addEventListener('load', function() {
             document.getElementById('tokenPopup').style.display = 'none';
             // hide the gray page overlay
             document.getElementById('grayPageOverlay').style.display = 'none';
+            // make sure that we don't duplicate efforts
+            // with the `tokenForm` submit handler above that might also make these calls
+            if (window.WMSRetrievalInitiated != true) {
+                // make async requests for the WMS capabilities
+                // of the currently available bundles
+                getWMSCapabilities('basic');
+                // get Maritime WMS unless we're in the agricultural context
+                if (window.urlParams.get('bundles') != 'agricultural') {
+                    getWMSCapabilities('maritime');
+                }
+            }
         }
     });
 

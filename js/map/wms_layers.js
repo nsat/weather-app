@@ -157,6 +157,7 @@ function datestringToEpoch(ds) {
 // get the full XML response of GetCapabilities
 // which describes available layers, styles, and times
 function getWMSCapabilities(bundle) {
+	window.WMSRetrievalInitiated = true;
 	console.log('Retrieving ' + bundle + ' WMS Capabilities...');
 	var uri = 'https://api.wx.spire.com/ows/wms/?service=WMS&request=GetCapabilities&product=sof-d';
 	uri += '&bundle=' + bundle;
