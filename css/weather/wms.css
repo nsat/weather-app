@@ -3,8 +3,20 @@
   position: absolute;
   top: 2px;
   right: 2px;
-  /*padding: 7px;*/
+  background-image: url('../../img/crop.png');
+  opacity: 0.5;
   margin: 10px;
+  background-size: 25px 25px;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+}
+#cropWMSExtent:hover {
+  opacity: 0.7;
+}
+#cropWMSExtent:active,
+#cropWMSExtent.pressed {
+  opacity: 1.0;
 }
 .wmsCropBox {
   border: 2px solid rgba(0, 60, 150, 1.0);
@@ -73,6 +85,7 @@
   background: white;
   display: inline-block;
   pointer-events: all;
+  margin-top: 3px;
 }
 .wms_dd_name {
   font-weight: bold;

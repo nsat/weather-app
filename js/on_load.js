@@ -315,8 +315,8 @@ window.addEventListener('load', function() {
         // check if button is already pressed
         if (self.className != 'pressed') {
             self.className = 'pressed';
-            document.body.style.cursor = 'crosshair';
-            document.getElementById('map').style.cursor = 'crosshair';
+            document.body.style.cursor = 'cell';
+            document.getElementById('map').style.cursor = 'cell';
             var boxControl = new ol.interaction.DragBox({
                 // condition: ol.events.condition.click,
                 className: 'wmsCropBox',
