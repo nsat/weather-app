@@ -233,7 +233,7 @@ window.addEventListener('load', function() {
             legend_url = styles[style];
         }
         var layer_name = 'none';
-        if (window.Latest_WMS[layer_title]['name']) {
+        if (window.Latest_WMS[layer_title] && window.Latest_WMS[layer_title]['name']) {
             layer_name = window.Latest_WMS[layer_title]['name'];
         }
         return [

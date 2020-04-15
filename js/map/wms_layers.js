@@ -51,7 +51,7 @@ function buildWMSLayer(layer_name, style, layer_index, time) {
 	// configure the WMS layer
 	// window.Current_WMS_Layer[layer_index] = new ol.layer.Image({
 	var layer = new ol.layer.Tile({
-		zIndex: 0,
+		zIndex: Number(layer_index),
 		opacity: 0.6,
 		// source: new ol.source.ImageWMS({
 		source: new ol.source.TileWMS({
