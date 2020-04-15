@@ -4,24 +4,49 @@ function addWMSLayer(layer_name, style, layer_index, times, legend_url) {
 	if (window.Current_WMS_Layer[layer_index] || layer_name == 'none') {
 		// remove existing WMS layer
 		window.ol_map.removeLayer(window.Current_WMS_Layer[layer_index]);
-		window.Current_WMS_Layer[layer_index] = null;
-		window.WMS_Animation_Times = null;
+		// remove this layer index from the global WMS state
+		delete window.Current_WMS_Layer[layer_index];
+		// check if another WMS layer is still instantiated
+		var layer_exists = Object.keys(window.Current_WMS_Layer).length > 0;
+		// if no other layer is instantiated, hide the WMS tools
+		if (!layer_exists) {
+			// hide WMS time controls
+			document.getElementById('wms_time_controls').style.display = 'none';
+			// hide WMS crop button
+			document.getElementById('cropWMSExtent').style.display = 'none';
+			// stop time playback
+			stopWMS();
+		}
 	}
 	if (layer_name != 'none') {
-		// set the available times
-		window.WMS_Animation_Times = times;
-		var max_time_index = times.length - 1;
-		document.getElementById('wms_time_slider').max = max_time_index;
-		var closest_time = times[0];
+		var time = window.WMS_Animation_Current_Time;
+		// check if a WMS layer has already been added
+		var layer_exists = Object.keys(window.Current_WMS_Layer).length > 0;
+		if (!layer_exists) {
+			// no other WMS layer is currently instantiated
+			// so first we set the available times
+			window.WMS_Animation_Times = times;
+			// configure the UI slider maximum value
+			// with the highest index value of the times array
+			var max_time_index = times.length - 1;
+			document.getElementById('wms_time_slider').max = max_time_index;
+			// if no time is set, set time to the earliest available
+			if (!time) {
+				time = times[0];
+			}
+			// set global variable to keep track of WMS animation current time state
+			window.WMS_Animation_Current_Time = time;
+			// display the current WMS time
+			changeWMSTimeDisplay(time);
+			// make WMS time controls visible
+			document.getElementById('wms_time_controls').style.display = 'block';
+			// make WMS crop button visible
+			document.getElementById('cropWMSExtent').style.display = 'block';
+		}
 		// build the WMS layer configuration
-		var layer = buildWMSLayer(layer_name, style, layer_index, closest_time);
+		var layer = buildWMSLayer(layer_name, style, layer_index, time);
 		// add the WMS layer to the OpenLayers map
 		window.ol_map.addLayer(layer);
-		// display the current WMS time
-		changeWMSTimeDisplay(closest_time);
-		document.getElementById('wms_time_controls').style.display = 'block';
-		// make crop button visible
-		document.getElementById('cropWMSExtent').style.display = 'block';
 		// make legend button visible
 		document.getElementById('show_legend_' + layer_index).style.display = 'inline-block';
 		// add legend image to popup div
@@ -99,10 +124,16 @@ function setWMSTime(time) {
 		time = window.WMS_Animation_Current_Time;
 	}
 	console.log('WMS time being set to:', time);
+	// change the UI time displays
 	changeWMSTimeDisplay(time);
+	// get the time array index of the new time
 	var time_index = window.WMS_Animation_Times.indexOf(time);
+	// set the UI slider position
 	document.getElementById('wms_time_slider').value = time_index;
+	// keep track of the current time array index
 	window.WMS_Animation_Time_Index = time_index;
+	// keep track of the full current time string
+	window.WMS_Animation_Current_Time = time;
 	// Q: is it dangerous to assume the same times exist for both layer?
 	// A: yes, definitely.
 	if (window.Current_WMS_Layer['0']) {
