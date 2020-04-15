@@ -77,6 +77,14 @@ function convertResponseToGeoJson(resp) {
                 // convert the coordinates to the projection used by OpenLayers
                 coords = ol.proj.fromLonLat(coords, 'EPSG:3857');
             }
+            var heading_degrees = vessel['last_known_position']['heading'];
+            // a value of 511 indicates that the heading is not available
+            // so we simply set it to 0 for no icon rotation,
+            // resulting in the ship pointing straight up
+            if (heading_degrees == 511) {
+                heading_degrees = 0;
+            }
+            var heading_radians = heading_degrees * 0.0174533;
             // build the GeoJSON feature for this vessel
             // and append it to the array of features for this layer
             features.push({
@@ -87,6 +95,7 @@ function convertResponseToGeoJson(resp) {
                     // so we can distinguish it from bounding box features
                     // and apply mouse events only to vessels
                     'type': 'vessel',
+                    'heading_radians': heading_radians,
                     // include all vessel data as a GeoJSON property
                     // so we can populate #vesselInfo in the #vesselPopup element
                     // when the user clicks on this feature
