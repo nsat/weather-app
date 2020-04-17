@@ -380,3 +380,10 @@ function buildWMSConfigUI() {
 		dropdownB.appendChild(option.cloneNode(true));
 	});
 }
+
+// Developer Note:
+// It's possible to visualize forecasts other than the latest available by using the JS console.
+// Check this to see what's available:
+//	 	window.Full_WMS_XML
+// Then run this to change the app config:
+//		window.Latest_WMS = Object.assign({}, Full_WMS_XML['basic']['20200414']['12'], Full_WMS_XML['maritime']['20200414']['12']);
