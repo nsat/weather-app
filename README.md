@@ -1,3 +1,5 @@
+![screenshot](docs/app_screenshot.png)
+
 # Authentication
 
 Enter a valid Spire API Token in the prompt when the page loads, and optionally save the token as a password in your browser for autofill
