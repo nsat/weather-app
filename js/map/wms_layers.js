@@ -74,7 +74,7 @@ function buildWMSLayer(layer_name, style, layer_index, time) {
 		'TIME': time
 	};
 	// configure the WMS layer
-	// window.Current_WMS_Layer[layer_index] = new ol.layer.Image({
+	// var layer = new ol.layer.Image({
 	var layer = new ol.layer.Tile({
 		zIndex: Number(layer_index),
 		opacity: 0.6,
@@ -108,7 +108,19 @@ function setWMSOpacity(opacity) {
 
 function setWMSExtent(extent) {
 	console.log('Set WMS extent to:', extent);
+	// extent = [minX, minY, maxX, maxY]
 	window.WMS_Extent = extent;
+	if (window.CRS == 'EPSG:3857') {
+		// print extent in Mapbox format
+		// in case we want to take a screenshot and pin a raster image
+		var proj = ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
+		console.log([
+			[proj[0], proj[3]], // TL
+			[proj[2], proj[3]], // TR
+			[proj[2], proj[1]], // BR
+			[proj[0], proj[1]]  // BL
+		]);
+	}
 	if (window.Current_WMS_Layer['0']) {
 		window.Current_WMS_Layer['0'].setExtent(extent);
 	}
