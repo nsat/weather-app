@@ -1,12 +1,16 @@
 // wait to execute the following code block until the page has fully loaded,
 // ensuring that all HTML elements referenced here have already been created
-window.addEventListener('load', function() {
+window.onload = function() {
+    initialize('EPSG:4326');
+    // initialize('EPSG:3857');
+};
+
+function initialize(crs) {
     // set the CRS globally for convenience.
     // we will use this to specify the OpenLayers map CRS
     // and to determine which transforms are needed
     // elsewhere in the code
-    window.CRS = 'EPSG:4326';
-    // window.CRS = 'EPSG:3857';
+    window.CRS = crs;
 
     // initialize the OpenLayers base map
     createMap();
@@ -34,7 +38,7 @@ window.addEventListener('load', function() {
     window.urlParams = new URLSearchParams(window.location.search);
 
     // handler for token input form submission
-    document.getElementById('tokenForm').addEventListener('submit', function(evt) {
+    document.getElementById('tokenForm').onsubmit = function(evt) {
         // prevent the default behavior of a page reload on submit
         evt.preventDefault();
         // check to make sure an actual value has been submitted for the token
@@ -58,10 +62,10 @@ window.addEventListener('load', function() {
                 }
             }
         }
-    });
+    };
 
     // handler for token input value change
-    document.getElementById('token').addEventListener('change', function(evt) {
+    document.getElementById('token').onchange = function(evt) {
         // as long as there is a real value in the input field when the DOM element loses focus,
         // we handle the value change as if it were an explicit form submission.
         // this has the side effect of submitting the autofilled form on any mouse or key event after page load.
@@ -85,10 +89,10 @@ window.addEventListener('load', function() {
                 }
             }
         }
-    });
+    };
 
     // toggle popup for selecting a WMS layer
-    document.getElementById('configureWMS').addEventListener('click', function() {
+    document.getElementById('configureWMS').onclick = function() {
         if (document.getElementById('configureWMS').className != 'pressed') {
             document.getElementById('wmsPopup').style.display = 'block';
             document.getElementById('configureWMS').className = 'pressed';
@@ -96,10 +100,10 @@ window.addEventListener('load', function() {
             document.getElementById('wmsPopup').style.display = 'none';
             document.getElementById('configureWMS').className = '';
         }
-    });
+    };
 
     // toggle popup for WMS layer's legend image
-    document.getElementById('show_legend_0').addEventListener('click', function() {
+    document.getElementById('show_legend_0').onclick = function() {
         if (document.getElementById('show_legend_0').className != 'pressed') {
             document.getElementById('show_legend_0').className = 'pressed';
             // make the legend image visible
@@ -109,9 +113,9 @@ window.addEventListener('load', function() {
             // hide the legend image
             document.getElementById('legend_wms_0').style.display = 'none';
         }
-    });
+    };
     // toggle popup for WMS layer's legend image
-    document.getElementById('show_legend_1').addEventListener('click', function() {
+    document.getElementById('show_legend_1').onclick = function() {
         if (document.getElementById('show_legend_1').className != 'pressed') {
             document.getElementById('show_legend_1').className = 'pressed';
             // make the legend image visible
@@ -121,7 +125,7 @@ window.addEventListener('load', function() {
             // hide the legend image
             document.getElementById('legend_wms_1').style.display = 'none';
         }
-    });
+    };
 
     // enable the WMS legend popups to be dragged around on the screen
     makeElementDraggable(document.getElementById('legend_wms_0'));
@@ -131,7 +135,7 @@ window.addEventListener('load', function() {
     // enable the WMS time popup to be dragged around on the screen
     makeElementDraggable(document.getElementById('wmsTimePopup'));
     // click handler for for playing WMS time forward or stopping WMS time playback
-    document.getElementById('wms_play_stop').addEventListener('click', function() {
+    document.getElementById('wms_play_stop').onclick = function() {
         if (window.WMS_Animation == null) {
             // play WMS time forward
             // starting at the current time index
@@ -145,9 +149,9 @@ window.addEventListener('load', function() {
             // switch to a 'play' icon
             this.className = 'play';
         }
-    });
+    };
     // handler for WMS time slider while it is moving
-    document.getElementById('wms_time_slider').addEventListener('input', function() {
+    document.getElementById('wms_time_slider').oninput = function() {
         if (window.WMS_Animation_Times.length > 0) {
             // use the integer value of the slider
             // to set the WMS time index
@@ -159,9 +163,9 @@ window.addEventListener('load', function() {
             // if no WMS times are available
             this.value = 0;
         }
-    });
+    };
     // handler for WMS time slider change (after mouse up)
-    document.getElementById('wms_time_slider').addEventListener('change', function() {
+    document.getElementById('wms_time_slider').onchange = function() {
         if (window.WMS_Animation_Times.length > 0) {
             // use the integer value of the slider
             // to set the WMS time index
@@ -171,9 +175,9 @@ window.addEventListener('load', function() {
             // if no WMS times are available
             this.value = 0;
         }
-    });
+    };
     // button for toggling map overlay time display
-    document.getElementById('popout_time').addEventListener('click', function() {
+    document.getElementById('popout_time').onclick = function() {
         if (this.className != 'pressed') {
             this.className = 'pressed';
             // make the time popup visible
@@ -183,7 +187,7 @@ window.addEventListener('load', function() {
             this.className = '';
             document.getElementById('wmsTimePopup').style.display = 'none';
         }
-    });
+    };
 
     // configure the styles dropdown based on the selected WMS layers
     function selectWMSAndPopulateStyles(num) {
@@ -265,7 +269,7 @@ window.addEventListener('load', function() {
     }
 
     // add the first WMS layer when a Layer is selected from the first Layer dropdown
-    document.getElementById('wms_layer_select_0').addEventListener('change', function() {
+    document.getElementById('wms_layer_select_0').onchange = function() {
         var layer_index = '0';
         var selections = selectWMSAndPopulateStyles(layer_index);
         var layer_name = selections[0];
@@ -273,9 +277,9 @@ window.addEventListener('load', function() {
         var times = selections[2];
         var legend_url = selections[3];
         addWMSLayer(layer_name, style, layer_index, times, legend_url);
-    });
+    };
     // add the first WMS layer when a Style is selected from the first Style dropdown
-    document.getElementById('wms_style_select_0').addEventListener('change', function() {
+    document.getElementById('wms_style_select_0').onchange = function() {
         var layer_index = '0';
         var selections = selectNewStyleForWMS(layer_index);
         var layer_name = selections[0];
@@ -283,10 +287,10 @@ window.addEventListener('load', function() {
         var times = selections[2];
         var legend_url = selections[3];
         addWMSLayer(layer_name, style, layer_index, times, legend_url);
-    });
+    };
 
     // add the second WMS layer when a Layer is selected from the second Layer dropdown
-    document.getElementById('wms_layer_select_1').addEventListener('change', function() {
+    document.getElementById('wms_layer_select_1').onchange = function() {
         var layer_index = '1';
         var selections = selectWMSAndPopulateStyles(layer_index);
         var layer_name = selections[0];
@@ -294,9 +298,9 @@ window.addEventListener('load', function() {
         var times = selections[2];
         var legend_url = selections[3];
         addWMSLayer(layer_name, style, layer_index, times, legend_url);
-    });
+    };
     // add the second WMS layer when a Style is selected from the second Style dropdown
-    document.getElementById('wms_style_select_1').addEventListener('change', function() {
+    document.getElementById('wms_style_select_1').onchange = function() {
         var layer_index = '1';
         var selections = selectNewStyleForWMS(layer_index);
         var layer_name = selections[0];
@@ -304,10 +308,10 @@ window.addEventListener('load', function() {
         var times = selections[2];
         var legend_url = selections[3];
         addWMSLayer(layer_name, style, layer_index, times, legend_url);
-    });
+    };
 
     // enable box-drawing tool to crop WMS region by setting layer extents
-    document.getElementById('cropWMSExtent').addEventListener('click', function() {
+    document.getElementById('cropWMSExtent').onclick = function() {
         var self = this;
         document.body.style.cursor = 'default';
         // disable point forecast selection in case it's activated
@@ -353,13 +357,13 @@ window.addEventListener('load', function() {
             document.body.style.cursor = 'default';
             document.getElementById('map').style.cursor = 'default';
         }
-    });
+    };
 
     // close the WMS popup when the X button is clicked
-    document.getElementById('closeWMSPopup').addEventListener('click', function() {
+    document.getElementById('closeWMSPopup').onclick = function() {
         document.getElementById('wmsPopup').style.display = 'none';
         document.getElementById('configureWMS').className = '';
-    });
+    };
 
     // button handler for enabling point forecast on map click
     document.getElementById('requestForecast').onclick = function() {
@@ -389,7 +393,7 @@ window.addEventListener('load', function() {
     };
 
     // change forecast toggle UI and get new forecast
-    document.getElementById('forecast_switch').addEventListener( 'change', function(evt, elem) {
+    document.getElementById('forecast_switch').onchange = function(evt, elem) {
         if (elem == null) {
             elem = evt.target;
         }
@@ -420,7 +424,7 @@ window.addEventListener('load', function() {
                 forecast_feature_id
             );
         }
-    });
+    };
 
     // enable the weather graphs popup to be dragged around on the screen
     makeElementDraggable(document.getElementById('weatherGraphsPopup'));
@@ -456,7 +460,7 @@ window.addEventListener('load', function() {
         }
     };
 
-    document.getElementById('drawPolygonArea').addEventListener('click', function() {
+    document.getElementById('drawPolygonArea').onclick = function() {
         // create an alias for clicked button element
         // so we can refer to it in other event handlers
         var self = this;
@@ -530,7 +534,7 @@ window.addEventListener('load', function() {
             // un-press the button since it's currently pressed
             self.className = '';
         }
-    });
+    };
 
     // check if the `agricultural` URL parameter has been specified,
     // in which case we will hide the maritime-specific features
@@ -546,7 +550,7 @@ window.addEventListener('load', function() {
         // enable the vessel info popup to be dragged around on the screen
         makeElementDraggable(document.getElementById('vesselPopup'));
         // close the vessel info popup when the X button is clicked
-        document.getElementById('closeVesselPopup').addEventListener('click', function() {
+        document.getElementById('closeVesselPopup').onclick = function() {
             document.getElementById('vesselPopup').style.display = 'none';
             document.getElementById('vesselInfo').innerHTML = '';
             // un-select the vessel since it's no longer being inspected
@@ -554,7 +558,7 @@ window.addEventListener('load', function() {
                 window.selectedVessel.setStyle(undefined);
                 window.selectedVessel = null;
             }
-        });
+        };
         // get the weather point forecast for this vessel's last known position
         document.getElementById ('getVesselForecast').onclick = function() {
             var vessel_data = window.selectedVessel.get('data');
@@ -597,4 +601,4 @@ window.addEventListener('load', function() {
             }
         };
     }
-});
+}

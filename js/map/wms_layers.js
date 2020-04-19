@@ -107,9 +107,7 @@ function setWMSOpacity(opacity) {
 }
 
 function setWMSExtent(extent) {
-	if (window.CRS == 'EPSG:3857') {
-		extent = ol.proj.transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
-	}
+	console.log('Set WMS extent to:', extent);
 	window.WMS_Extent = extent;
 	if (window.Current_WMS_Layer['0']) {
 		window.Current_WMS_Layer['0'].setExtent(extent);

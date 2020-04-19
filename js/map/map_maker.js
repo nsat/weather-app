@@ -160,12 +160,14 @@ function createMap(geojsonObject) {
         if (window.ENABLE_FORECAST == false) {
             // reset cursor to default
             document.body.style.cursor = 'default';
+            document.getElementById('map').style.cursor = 'default';
             // remove hover styling for currently hovered vessel
             removeHoverStyles();
             // check each feature at hovered pixel
             window.ol_map.forEachFeatureAtPixel(e.pixel, function(f) {
                 // change cursor to indicate some feature is being moused over
                 document.body.style.cursor = 'pointer';
+                document.getElementById('map').style.cursor = 'pointer';
                 // ensure only one feature is hovered at a time
                 removeHoverStyles();
                 // get the type of the selected feature
