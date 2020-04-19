@@ -110,23 +110,23 @@ function setWMSExtent(extent) {
 	console.log('Set WMS extent to:', extent);
 	// extent = [minX, minY, maxX, maxY]
 	window.WMS_Extent = extent;
-	if (window.CRS == 'EPSG:3857') {
-		// print extent in Mapbox format
-		// in case we want to take a screenshot and pin a raster image
-		var proj = ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
-		console.log([
-			[proj[0], proj[3]], // TL
-			[proj[2], proj[3]], // TR
-			[proj[2], proj[1]], // BR
-			[proj[0], proj[1]]  // BL
-		]);
-	}
 	if (window.Current_WMS_Layer['0']) {
 		window.Current_WMS_Layer['0'].setExtent(extent);
 	}
 	if (window.Current_WMS_Layer['1']) {
 		window.Current_WMS_Layer['1'].setExtent(extent);
 	}
+	// print extent in Mapbox format
+	// in case we want to take a screenshot and pin a raster image
+	if (window.CRS == 'EPSG:3857') {
+		extent = ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
+	}
+	console.log([
+		[extent[0], extent[3]], // TL
+		[extent[2], extent[3]], // TR
+		[extent[2], extent[1]], // BR
+		[extent[0], extent[1]]  // BL
+	]);
 }
 
 function setWMSTime(time) {
@@ -144,8 +144,8 @@ function setWMSTime(time) {
 	window.WMS_Animation_Time_Index = time_index;
 	// keep track of the full current time string
 	window.WMS_Animation_Current_Time = time;
-	// Q: is it dangerous to assume the same times exist for both layer?
-	// A: yes, definitely.
+	// Q: is it dangerous to assume the same times exist for both layers?
+	// A: yes, assumptions are dangerous.
 	if (window.Current_WMS_Layer['0']) {
 		window.Current_WMS_Layer['0'].getSource().updateParams({'TIME': time });
 	}
