@@ -39,6 +39,38 @@ var forecastHoverStyle = new ol.style.Style({
     })
 });
 
+// style for a Airport point feature
+var airportPointStyle = function(feature) {
+    var type = feature.get('type');
+    if (type == 'airport') {
+        return new ol.style.Style({
+            zIndex: Infinity,
+            image: new ol.style.Icon({
+                anchor: [0.5, 0.5],
+                scale: 0.05,
+                opacity: 0.8,
+                src: 'img/airport.png'
+            })
+        });
+    } else if (type == 'vessel_forecast') {
+        // features with a type of `vessel_forecast`
+        // are kept invisible, so they don't interfere
+        // with the vessel's rendering at the same coordinate
+        return null;
+    }
+}
+
+// style for a Airport point feature that is being hovered on
+var airportHoverStyle = new ol.style.Style({
+    zIndex: Infinity,
+    image: new ol.style.Icon({
+        anchor: [0.5, 0.5],
+        scale: 0.10,
+        opacity: 1.0,
+        src: 'img/airport.png'
+    })
+});
+
 // style for a Vessel point feature
 var vesselStyle = function(feature) {
     return new ol.style.Style({

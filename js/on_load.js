@@ -14,6 +14,8 @@ function initialize(crs) {
 
     // initialize the OpenLayers base map
     createMap();
+    // initialize Airports dataset
+    addAirportsToMap();
 
     // initialize variable for storing full WMS capabilities
     window.Full_WMS_XML = {};
