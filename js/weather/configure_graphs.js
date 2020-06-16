@@ -1,3 +1,12 @@
+function clearAllGraphs() {
+	var graphs = document.getElementById('weather_graphs').children;
+	for (var i=0; i<graphs.length; i++) {
+		var g = graphs[i];
+		g.innerHTML = '';
+		g.style.display = 'none'
+	}
+}
+
 function embed_vega_spec(vega_spec, element_id) {
 	// https://vega.github.io/vega/docs/config/
 	var theme = {
@@ -6,6 +15,9 @@ function embed_vega_spec(vega_spec, element_id) {
 		"style": {"guide-label": {"fill": "#fff"}, "guide-title": {"fill": "#fff"}},
 		"axis": {"domainColor": "#fff", "gridColor": "#888", "tickColor": "#fff"}
 	}
+	// ensure graph is visible
+	var id = element_id.replace('#','')
+	document.getElementById(id).style.display = 'inline-block';
 	// embed the Vega visualization to an HTML element
 	vegaEmbed(element_id, vega_spec, {config: theme});
 }

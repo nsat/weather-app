@@ -134,13 +134,8 @@ function createMap(geojsonObject) {
                     window.hoveredAirport = null;
                     // get airport ICAO
                     var icao = window.selectedAirport.get('icao');
-                    console.log("Airport forecast!", icao, window.selectedAirport.get('name'));
-                    getOptimizedPointForecast(icao, window.MEDIUM_RANGE_FORECAST);
-                    // // always show the `medium_range_std_freq` forecast data by default
-                    // var forecast_data = window.selectedAirport.get(window.MEDIUM_RANGE_FORECAST);
-                    // console.log('Selected airport:', forecast_data);
-                    // // display the weather graphs popup
-                    // displayForecastData(forecast_data, window.selectedForecast.getId());
+                    getOptimizedPointForecast(icao);
+                    console.log('Selected airport:', icao, window.selectedAirport.get('name'));
                 }
                 return true;
             });

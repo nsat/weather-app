@@ -1,10 +1,6 @@
-function getOptimizedPointForecast(icao, time_bundle) {
+function getOptimizedPointForecast(icao) {
     // build the route for the API call using the `lat` and `lon` URL parameters
     var uri = 'https://api.wx.spire.com/forecast/point/optimized?location=' + icao;
-    // always use `medium_range_high_freq` since we can parse other time bundles out of it.
-    // that way we can switch between "weekly" `medium_range_std_freq` (6-hourly for 7 days)
-    // and "daily" `medium_range_std_freq` (hourly for 24 hours) without multiple API calls
-    uri += '&time_bundle=medium_range_high_freq';
     // print the full API request to the JS console
     console.log('Spire Weather API: GET', uri);
     // build the HTTP header for Authorization
@@ -17,14 +13,13 @@ function getOptimizedPointForecast(icao, time_bundle) {
             return rawresp.json();
         })
         .then((response) => {
-            // get the forecast feature id the same way we created it earlier
+            // set the airport_feature_id variable for clarity
             var airport_feature_id = icao;
             // print the API response to the JS console
             console.log('Weather API Response:', response);
             // reset cursor from spinning wheel to default
             document.body.style.cursor = 'default';
             document.getElementById('getVesselForecast').style.cursor = 'pointer';
-            document.getElementById('forecast_switch').style.cursor = 'pointer';
             // check if the API returned any errors or faults
             if (response['errors']) {
                 // pass OpenLayers airport feature ID to error handler
@@ -38,18 +33,12 @@ function getOptimizedPointForecast(icao, time_bundle) {
                 // do not proceed with this response handler
                 return;
             }
-            // parse the `short_range_high_freq` and `medium_range_std_freq` data
-            // out of the `medium_range_high_freq` API response
-            var time_bundles_data_object = get_data_by_time_bundle(response.data);
             // get data for the specified time bundle
-            var display_data = time_bundles_data_object[time_bundle];
+            var display_data = response.data;
+            // get the airport's name from the OpenLayers feature
+            var airport_name = window.selectedAirport.get('name');
             // show the forecast data in popup graphs
-            displayForecastData(display_data, airport_feature_id);
-            // get the OpenLayers feature we already created
-            var feature = window.airport_source.getFeatureById(airport_feature_id);
-            // store the data within the feature using the time_bundle as a key,
-            // so we can differentiate between short_range data and medium_range data
-            feature.setProperties(time_bundles_data_object);
+            displayOptimizedPointData(display_data, airport_feature_id, airport_name);
             // reset forecast toggle button to not be active
             document.getElementById('requestForecast').className = '';
         });

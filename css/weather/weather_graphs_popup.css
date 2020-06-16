@@ -38,3 +38,6 @@
 	text-decoration: none;
 	margin-bottom: 40px;
 }
+#weather_graphs div {
+	display: none;
+}

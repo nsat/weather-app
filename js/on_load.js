@@ -394,6 +394,16 @@ function initialize(crs) {
         }
     };
 
+    // determine which display function to call
+    // based on whether it is Optimized Point or standard
+    function displayGraphs(data, id, optimized) {
+        if (optimized) {
+            displayOptimizedPointData(data, id);
+        } else {
+            displayForecastData(data, id);
+        }
+    }
+
     // change forecast toggle UI and get new forecast
     document.getElementById('forecast_switch').onchange = function(evt, elem) {
         if (elem == null) {
@@ -401,9 +411,20 @@ function initialize(crs) {
         }
         // the forecast toggle is not visible unless a forecast is being displayed
         // so we first need to get the feature ID of the current forecast
-        // which happens to be a stringified version of the [lon,lat] array
+        // which is a stringified version of the [lon,lat] array (for standard Point)
+        // or an ICAO string (for Optimized Point)
+        var optimized_point = false;
+        var forecast_feature;
         var forecast_feature_id = window.FORECAST_COORDINATE;
-        var forecast_feature = window.forecast_source.getFeatureById(forecast_feature_id);
+        if (forecast_feature_id == null) {
+            // handle Optimized Point (airport ICAO)
+            forecast_feature_id = window.selectedAirport.get('icao');
+            forecast_feature = window.airport_source.getFeatureById(forecast_feature_id);
+            optimized_point = true;
+        } else {
+            // handle standard Point (lat/lon)
+            forecast_feature = window.forecast_source.getFeatureById(forecast_feature_id);
+        }
         // check state of toggle switch
         if (elem.checked) {
             // change from 7day forecast to 24hr forecast
@@ -411,9 +432,10 @@ function initialize(crs) {
             document.getElementById('week').className = '';
             // 24hr forecast data is already retrieved and stored
             // so we just need to build the graphs for it
-            displayForecastData(
+            displayGraphs(
                 forecast_feature.get(window.SHORT_RANGE_FORECAST),
-                forecast_feature_id
+                forecast_feature_id,
+                optimized_point
             );
         } else {
             // change from 24hr forecast to 7day forecast
@@ -421,9 +443,10 @@ function initialize(crs) {
             document.getElementById('week').className = 'selected';
             // 7day forecast data is already retrieved and stored
             // so we just need to build the graphs for it
-            displayForecastData(
+            displayGraphs(
                 forecast_feature.get(window.MEDIUM_RANGE_FORECAST),
-                forecast_feature_id
+                forecast_feature_id,
+                optimized_point
             );
         }
     };
