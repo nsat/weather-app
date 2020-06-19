@@ -33,7 +33,7 @@ function displayOptimizedPointData(data, icao, name) {
     var probability_of_precipitation_1hr = [];
     var probability_of_precipitation_3hr = [];
     var probability_of_precipitation_6hr = [];
-    var precipitation_probability_24hr = [];
+    var probability_of_precipitation_24hr = [];
 
     // check URL parameter to set the temperature scale
     var tempscale = window.urlParams.get('tempscale');
@@ -268,9 +268,9 @@ function displayOptimizedPointData(data, icao, name) {
             });
         }
 
-        var prob_precip_24 = data[i].values.precipitation_probability_24hr;
+        var prob_precip_24 = data[i].values.probability_of_precipitation_24hr;
         if (prob_precip_24 != undefined) {
-            precipitation_probability_24hr.push({
+            probability_of_precipitation_24hr.push({
                 'Time': valid_time_vega_format,
                 'Value': prob_precip_24
             });
@@ -285,16 +285,36 @@ function displayOptimizedPointData(data, icao, name) {
     ////////////////////////////////////////////////
 
     if (air_temperature.length > 0 && wind_speed.length > 0) {
-        // add the graphs to the DOM
-        embed_vega_spec(
-            build_vega_spec(
-                'Cloud Ceiling (range)',
-                { 'values': ceiling },
-                null, // warn threshold value
-                null // alert threshold value
-            ),
-            '#op_ceiling'
-        );
+        // add the Ceiling table to the DOM
+        console.log("ceiling",ceiling)
+        var table = document.createElement('table');
+        var caption = document.createElement('caption');
+        caption.innerHTML = 'Cloud Ceiling';
+        table.appendChild(caption);
+        var headers = document.createElement('tr');
+        var time = document.createElement('th');
+        var value = document.createElement('th');
+        time.innerHTML = 'Time';
+        value.innerHTML = 'Value';
+        headers.appendChild(time);
+        headers.appendChild(value);
+        table.appendChild(headers);
+        for (var i=0; i < ceiling.length; i++) {
+            var data = ceiling[i];
+            var row = document.createElement('tr');
+            var t = document.createElement('td');
+            var v = document.createElement('td');
+            t.innerHTML = data['Time'];
+            v.innerHTML = data['Value'];
+            row.appendChild(t);
+            row.appendChild(v);
+            table.appendChild(row);
+        }
+        var ceiling_div = document.getElementById('op_ceiling');
+        ceiling_div.innerHTML = '';
+        ceiling_div.appendChild(table);
+        ceiling_div.style.display = 'block';
+        // add the other data variable graphs to the DOM
         embed_vega_spec(
             build_vega_spec(
                 'Horizontal Visibility (m)',
@@ -532,7 +552,7 @@ function displayOptimizedPointData(data, icao, name) {
         embed_vega_spec(
             build_vega_spec(
                 '24hr Probability of Precipitation (%)',
-                { 'values': precipitation_probability_24hr },
+                { 'values': probability_of_precipitation_24hr },
                 null, // warn threshold value
                 null // alert threshold value
             ),

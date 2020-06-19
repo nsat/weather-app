@@ -38,6 +38,28 @@
 	text-decoration: none;
 	margin-bottom: 40px;
 }
+/*#weather_graphs {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}*/
 #weather_graphs div {
 	display: none;
+}
+/* Cloud Ceiling table */
+#op_ceiling {
+	margin: auto;
+}
+#op_ceiling caption {
+	font-weight: bold;
+	padding-bottom: 5px;
+}
+#op_ceiling th {
+	text-decoration: underline;
+}
+#op_ceiling table, th, td {
+	border: 1px solid white;
+	text-align: center;
+	padding: 20px;
+	color: white;
 }

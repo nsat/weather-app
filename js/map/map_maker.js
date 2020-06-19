@@ -17,13 +17,13 @@ function createAirportsLayer(geojson) {
     window.airport_source = new ol.source.Vector({
         features: (new ol.format.GeoJSON()).readFeatures(geojson)
     });
-    var vectorLayer = new ol.layer.Vector({
+    window.airports_layer = new ol.layer.Vector({
         zIndex: 100,
         className: 'airports-layer',
         source: window.airport_source,
         style: airportPointStyle
     });
-    window.ol_map.addLayer(vectorLayer);
+    window.ol_map.addLayer(window.airports_layer);
 }
 
 function createMap(geojsonObject) {

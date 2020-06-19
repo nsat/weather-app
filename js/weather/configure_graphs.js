@@ -19,7 +19,15 @@ function embed_vega_spec(vega_spec, element_id) {
 	var id = element_id.replace('#','')
 	document.getElementById(id).style.display = 'inline-block';
 	// embed the Vega visualization to an HTML element
-	vegaEmbed(element_id, vega_spec, {config: theme});
+	vegaEmbed(
+		element_id,
+		vega_spec,
+		{
+			config: theme,
+			// disable dropdown for download PNG/view source
+			actions: false
+		}
+	);
 }
 
 function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold_val) {
