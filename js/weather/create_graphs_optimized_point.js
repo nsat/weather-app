@@ -464,7 +464,8 @@ function displayOptimizedPointData(data, icao, name) {
                 '24hr Max. Temperature Local Time (' + tempscale + ')',
                 { 'values': max_temperature_local_day },
                 null, // warn threshold value
-                null // alert threshold value
+                null, // alert threshold value
+                'Local' // specify timezone
             ),
             '#op_max_temp_local'
         );
@@ -473,7 +474,8 @@ function displayOptimizedPointData(data, icao, name) {
                 '24hr Min. Temperature Local Time (' + tempscale + ')',
                 { 'values': min_temperature_local_day },
                 null, // warn threshold value
-                null // alert threshold value
+                null, // alert threshold value
+                'Local' // specify timezone
             ),
             '#op_min_temp_local'
         );

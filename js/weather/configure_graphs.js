@@ -30,12 +30,12 @@ function embed_vega_spec(vega_spec, element_id) {
 	);
 }
 
-function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold_val) {
+function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold_val, tz='UTC') {
 	// TODO: use Vega's "wedge" mark + angle to show wind/currents direction
 	// // https://vega.github.io/vega/docs/marks/symbol/
 	var tooltip = [
 		{"field": "Value","type": "quantitative"},
-		{"field": "Time","type": "ordinal","timeUnit": "yearmonthdatehours","title": "Time (UTC)"}
+		{"field": "Time","type": "ordinal","timeUnit": "yearmonthdatehours","title": "Time ("+tz+")"}
 	]
 	return {
 		"$schema": "https://vega.github.io/schema/vega-lite/v4.json",
@@ -57,7 +57,7 @@ function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold
 								"type": "ordinal",
 								"timeUnit": "monthdatehours",
 								"axis": {
-									"title": "Time  (UTC)",
+									"title": "Time  ("+tz+")",
 									"labelAngle": 0
 								}
 							},

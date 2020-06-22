@@ -57,7 +57,9 @@
 #op_ceiling th {
 	text-decoration: underline;
 }
-#op_ceiling table, th, td {
+#op_ceiling table,
+#op_ceiling th,
+#op_ceiling td {
 	border: 1px solid white;
 	text-align: center;
 	padding: 20px;
