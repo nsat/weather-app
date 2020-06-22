@@ -5,11 +5,25 @@ function createVesselsLayer(geojson) {
     });
     var vectorLayer = new ol.layer.Vector({
         zIndex: 100,
-        className: name,
+        className: 'vessels-layer',
         source: vectorSource,
         style: vesselStyle
     });
     window.ol_map.addLayer(vectorLayer);
+}
+
+function createAirportsLayer(geojson) {
+    // console.log("Create Map Layer for:", geojson)
+    window.airport_source = new ol.source.Vector({
+        features: (new ol.format.GeoJSON()).readFeatures(geojson)
+    });
+    window.airports_layer = new ol.layer.Vector({
+        zIndex: 100,
+        className: 'airports-layer',
+        source: window.airport_source,
+        style: airportPointStyle
+    });
+    window.ol_map.addLayer(window.airports_layer);
 }
 
 function createMap(geojsonObject) {
@@ -39,14 +53,15 @@ function createMap(geojsonObject) {
         style: forecastPointStyle,
         zIndex: 99
     });
+    window.tile_layer = new ol.layer.Tile({
+        // free OpenStreetMap tileset
+        source: new ol.source.OSM()
+    });
     // create the OpenLayers map and store it in a global variable
     window.ol_map = new ol.Map({
         controls: ol.control.defaults().extend([window.mousePositionControl]),
         layers: [
-            new ol.layer.Tile({
-                // free OpenStreetMap tileset
-                source: new ol.source.OSM()
-            }),
+            window.tile_layer,
             window.aoi_layer,
             window.forecast_layer
         ],
@@ -67,6 +82,9 @@ function createMap(geojsonObject) {
     // keep track of hovered/selected vessel
     window.selectedVessel = null;
     window.hoveredVessel = null;
+    // keep track of hovered/selected airport
+    window.selectedAirport = null;
+    window.hoveredAirport = null;
     // map click/touch event listener
     window.ol_map.on('click', function(e) {
         // check that a map click won't trigger a forecast,
@@ -107,6 +125,17 @@ function createMap(geojsonObject) {
                     console.log('Selected forecast:', forecast_data);
                     // display the weather graphs popup
                     displayForecastData(forecast_data, window.selectedForecast.getId());
+                } else if (type == 'airport') {
+                    // keep track of which forecast is selected
+                    window.selectedAirport = f;
+                    // this is always hidden by the weather graph popup
+                    // so we don't add special selection styling here
+                    // but we do turn off hover styling
+                    window.hoveredAirport = null;
+                    // get airport ICAO
+                    var icao = window.selectedAirport.get('icao');
+                    getOptimizedPointForecast(icao);
+                    console.log('Selected airport:', icao, window.selectedAirport.get('name'));
                 }
                 return true;
             });
@@ -151,6 +180,11 @@ function createMap(geojsonObject) {
             window.hoveredForecast.setStyle(undefined);
             window.hoveredForecast = null;
         }
+        // remove hover styling for currently hovered airport
+        if (window.hoveredAirport) {
+            window.hoveredAirport.setStyle(undefined);
+            window.hoveredAirport = null;
+        }
     }
 
     // mouse hover event listener
@@ -185,6 +219,13 @@ function createMap(geojsonObject) {
                         // if it is not already currently selected
                         window.hoveredForecast = f;
                         window.hoveredForecast.setStyle(forecastHoverStyle);
+                    }
+                } else if (type == 'airport') {
+                    if (window.selectedForecast != f) {
+                        // only set hover style on this forecast
+                        // if it is not already currently selected
+                        window.hoveredForecast = f;
+                        window.hoveredForecast.setStyle(airportHoverStyle);
                     }
                 }
             });

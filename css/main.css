@@ -111,6 +111,7 @@ button.pressed {
 }
 /* the main buttons */
 #drawPolygonArea,
+#toggleAirports,
 #requestForecast,
 #configureWMS {
   border: none;

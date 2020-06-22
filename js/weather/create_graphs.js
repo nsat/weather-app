@@ -1,4 +1,6 @@
 function displayForecastData(data, lonlatString) {
+    // initialize graphs
+    clearAllGraphs();
     // global variable to track which forecast is displayed
     // to enable shifting from 7day to 24hr forecast
     window.FORECAST_COORDINATE = lonlatString;
@@ -6,6 +8,8 @@ function displayForecastData(data, lonlatString) {
     var lonlat = lonlatString.split(',');
     // change the latitude and longitude text for the weather graphs popup
     document.getElementById('forecast_point_label').innerHTML = 'Latitude: ' + lonlat[1] + '<br>Longitude: ' + lonlat[0];
+    // ensure day/week toggle is visible
+    document.getElementById('toggle_forecast').style.display = 'block';
     // initialize arrays to store output data:
     // basic
     var air_temp_vals = [];
@@ -60,14 +64,14 @@ function displayForecastData(data, lonlatString) {
             // add Basic Bundle variables
 
             var air_temp = data[i].values.air_temperature;
-            if (air_temp) {
+            if (air_temp != undefined) {
                 air_temp_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(air_temp, tempscale)
                 });
             }
             var dp_temp = data[i].values.dew_point_temperature;
-            if (dp_temp) {
+            if (dp_temp != undefined) {
                 dew_point_temp_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(dp_temp, tempscale)
@@ -75,7 +79,7 @@ function displayForecastData(data, lonlatString) {
             }
             var u = data[i].values.eastward_wind;
             var v = data[i].values.northward_wind;
-            if (u && v) {
+            if (u  != undefined && v != undefined) {
                 wind_speed_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_speed_from_u_v(u, v)
@@ -86,28 +90,28 @@ function displayForecastData(data, lonlatString) {
                 });
             }
             var rel_hum = data[i].values.relative_humidity;
-            if (rel_hum) {
+            if (rel_hum != undefined) {
                 rel_hum_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': rel_hum
                 });
             }
             var air_press = data[i].values.air_pressure_at_sea_level;
-            if (air_press) {
+            if (air_press != undefined) {
                 air_press_sea_level_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': air_press
                 });
             }
             var wind_gust = data[i].values.wind_gust;
-            if (wind_gust) {
+            if (wind_gust != undefined) {
                 wind_gust_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': wind_gust
                 });
             }
             var precip = data[i].values.precipitation_amount;
-            if (precip) {
+            if (precip != undefined) {
                 precip_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_differenced_total_value(data, 'precipitation_amount', i)
@@ -119,14 +123,14 @@ function displayForecastData(data, lonlatString) {
             // add Maritime Bundle variables
 
             var sea_temp = data[i].values.sea_surface_temperature;
-            if (sea_temp) {
+            if (sea_temp != undefined) {
                 sea_surface_temp_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(sea_temp, tempscale)
                 });
             }
             var wave_height = data[i].values.sea_surface_wave_significant_height;
-            if (wave_height) {
+            if (wave_height != undefined) {
                 wave_height_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': wave_height
@@ -134,7 +138,7 @@ function displayForecastData(data, lonlatString) {
             }
             var u = data[i].values.eastward_sea_water_velocity;
             var v = data[i].values.northward_sea_water_velocity;
-            if (u && v) {
+            if (u != undefined && v != undefined) {
                 ocean_currents_speed_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_speed_from_u_v(u, v)
@@ -150,7 +154,7 @@ function displayForecastData(data, lonlatString) {
             // add Agricultural Bundle variables
 
             var dp_temp = data[i].values.dew_point_temperature;
-            if (dp_temp) {
+            if (dp_temp != undefined) {
                 ag_dew_point_temperature_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(dp_temp, tempscale)
@@ -158,119 +162,119 @@ function displayForecastData(data, lonlatString) {
             }
 
             var sur_temp = data[i].values.surface_temperature;
-            if (sur_temp) {
+            if (sur_temp != undefined) {
                 surface_temperature_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(sur_temp, tempscale)
                 });
             }
             var spec_hum = data[i].values.specific_humidity;
-            if (spec_hum) {
+            if (spec_hum != undefined) {
                 specific_humidity_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': spec_hum
                 });
             }
             var sh_flux = data[i].values.sensible_heat_flux;
-            if (sh_flux) {
+            if (sh_flux != undefined) {
                 sensible_heat_flux_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': sh_flux
                 });
             }
             var lh_flux = data[i].values.latent_heat_flux;
-            if (lh_flux) {
+            if (lh_flux != undefined) {
                 latent_heat_flux_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': lh_flux
                 });
             }
             var ds_flux = data[i].values.surface_net_downward_shortwave_flux;
-            if (ds_flux) {
+            if (ds_flux != undefined) {
                 surface_net_downward_shortwave_flux_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_differenced_total_value(data, 'surface_net_downward_shortwave_flux', i)
                 });
             }
             var dl_flux = data[i].values.surface_net_downward_longwave_flux;
-            if (dl_flux) {
+            if (dl_flux != undefined) {
                 surface_net_downward_longwave_flux_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_differenced_total_value(data, 'surface_net_downward_longwave_flux', i)
                 });
             }
             var us_flux = data[i].values.surface_net_upward_shortwave_flux;
-            if (us_flux) {
+            if (us_flux != undefined) {
                 surface_net_upward_shortwave_flux_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_differenced_total_value(data, 'surface_net_upward_shortwave_flux', i)
                 });
             }
             var ul_flux = data[i].values.surface_net_upward_longwave_flux;
-            if (ul_flux) {
+            if (ul_flux != undefined) {
                 surface_net_upward_longwave_flux_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_differenced_total_value(data, 'surface_net_upward_longwave_flux', i)
                 });
             }
             var ul_flux_atmo = data[i].values.net_upward_longwave_flux_at_top_of_atmosphere;
-            if (ul_flux_atmo) {
+            if (ul_flux_atmo != undefined) {
                 net_upward_longwave_flux_at_top_of_atmosphere_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_differenced_total_value(data, 'net_upward_longwave_flux_at_top_of_atmosphere', i)
                 });
             }
             var soil_temp_0_10cm = data[i].values['soil_temperature_0-10cm'];
-            if (soil_temp_0_10cm) {
+            if (soil_temp_0_10cm != undefined) {
                 soil_temperature_0_10cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(soil_temp_0_10cm, tempscale)
                 });
             }
             var soil_temp_10_40cm = data[i].values['soil_temperature_10-40cm'];
-            if (soil_temp_10_40cm) {
+            if (soil_temp_10_40cm != undefined) {
                 soil_temperature_10_40cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(soil_temp_10_40cm, tempscale)
                 });
             }
             var soil_temp_40_100cm = data[i].values['soil_temperature_40-100cm'];
-            if (soil_temp_40_100cm) {
+            if (soil_temp_40_100cm != undefined) {
                 soil_temperature_40_100cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(soil_temp_40_100cm, tempscale)
                 });
             }
             var soil_temp_100_200cm = data[i].values['soil_temperature_100-200cm'];
-            if (soil_temp_100_200cm) {
+            if (soil_temp_100_200cm != undefined) {
                 soil_temperature_100_200cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_temperature(soil_temp_100_200cm, tempscale)
                 });
             }
             var soil_moisture_0_10cm = data[i].values['soil_moisture_0-10cm'];
-            if (soil_moisture_0_10cm) {
+            if (soil_moisture_0_10cm != undefined) {
                 soil_moisture_0_10cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': soil_moisture_0_10cm
                 });
             }
             var soil_moisture_10_40cm = data[i].values['soil_moisture_10-40cm'];
-            if (soil_moisture_10_40cm) {
+            if (soil_moisture_10_40cm != undefined) {
                 soil_moisture_10_40cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': soil_moisture_10_40cm
                 });
             }
             var soil_moisture_40_100cm = data[i].values['soil_moisture_40-100cm'];
-            if (soil_moisture_40_100cm) {
+            if (soil_moisture_40_100cm != undefined) {
                 soil_moisture_40_100cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': soil_moisture_40_100cm
                 });
             }
             var soil_moisture_100_200cm = data[i].values['soil_moisture_100-200cm'];
-            if (soil_moisture_100_200cm) {
+            if (soil_moisture_100_200cm != undefined) {
                 soil_moisture_100_200cm_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': soil_moisture_100_200cm
@@ -336,7 +340,7 @@ function displayForecastData(data, lonlatString) {
         );
         embed_vega_spec(
             build_vega_spec(
-                'Precipitation (kg/m2)',
+                'Precipitation (mm)',
                 { 'values': precip_vals },
                 2, // warn threshold value
                 3 // alert threshold value

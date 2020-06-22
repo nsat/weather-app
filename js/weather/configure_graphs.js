@@ -1,3 +1,12 @@
+function clearAllGraphs() {
+	var graphs = document.getElementById('weather_graphs').children;
+	for (var i=0; i<graphs.length; i++) {
+		var g = graphs[i];
+		g.innerHTML = '';
+		g.style.display = 'none'
+	}
+}
+
 function embed_vega_spec(vega_spec, element_id) {
 	// https://vega.github.io/vega/docs/config/
 	var theme = {
@@ -6,16 +15,27 @@ function embed_vega_spec(vega_spec, element_id) {
 		"style": {"guide-label": {"fill": "#fff"}, "guide-title": {"fill": "#fff"}},
 		"axis": {"domainColor": "#fff", "gridColor": "#888", "tickColor": "#fff"}
 	}
+	// ensure graph is visible
+	var id = element_id.replace('#','')
+	document.getElementById(id).style.display = 'inline-block';
 	// embed the Vega visualization to an HTML element
-	vegaEmbed(element_id, vega_spec, {config: theme});
+	vegaEmbed(
+		element_id,
+		vega_spec,
+		{
+			config: theme,
+			// disable dropdown for download PNG/view source
+			actions: false
+		}
+	);
 }
 
-function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold_val) {
+function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold_val, tz='UTC') {
 	// TODO: use Vega's "wedge" mark + angle to show wind/currents direction
 	// // https://vega.github.io/vega/docs/marks/symbol/
 	var tooltip = [
 		{"field": "Value","type": "quantitative"},
-		{"field": "Time","type": "ordinal","timeUnit": "yearmonthdatehours","title": "Time (UTC)"}
+		{"field": "Time","type": "ordinal","timeUnit": "yearmonthdatehours","title": "Time ("+tz+")"}
 	]
 	return {
 		"$schema": "https://vega.github.io/schema/vega-lite/v4.json",
@@ -37,7 +57,7 @@ function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold
 								"type": "ordinal",
 								"timeUnit": "monthdatehours",
 								"axis": {
-									"title": "Time  (UTC)",
+									"title": "Time  ("+tz+")",
 									"labelAngle": 0
 								}
 							},
