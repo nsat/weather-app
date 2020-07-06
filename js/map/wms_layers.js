@@ -207,9 +207,9 @@ function getWMSCapabilities(bundle) {
 		.then(function(response) {
 			if (response.status == 401) {
 				document.getElementById('grayPageOverlay').style.display = 'block';
-                document.getElementById('tokenPopup').style.display = 'block';
-                // notify the user that the API response failed
-                alert('API request failed for the Weather WMS API.\nPlease enter a valid API key or contact cx@spire.com')
+				document.getElementById('tokenPopup').style.display = 'block';
+				// notify the user that the API response failed
+				alert('API request failed for the Weather WMS API.\nPlease enter a valid API key or contact cx@spire.com')
 			}
 			// return the API response text
 			// when it is received
