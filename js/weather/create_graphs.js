@@ -1,6 +1,8 @@
-function displayForecastData(data, lonlatString) {
-    // initialize graphs
-    clearAllGraphs();
+function displayForecastData(data, lonlatString, clear=true) {
+    if (clear) {
+        // initialize graphs
+        clearAllGraphs();
+    }
     // global variable to track which forecast is displayed
     // to enable shifting from 7day to 24hr forecast
     window.FORECAST_COORDINATE = lonlatString;

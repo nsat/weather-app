@@ -139,8 +139,9 @@ function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
             var time_bundles_data_object = get_data_by_time_bundle(response.data);
             // get data for the specified time bundle
             var display_data = time_bundles_data_object[time_bundle];
-            // show the forecast data in popup graphs
-            displayForecastData(display_data, forecast_feature_id);
+            // show the forecast data in popup graphs,
+            // and pass `false` to prevent clearing existing Basic values
+            displayForecastData(display_data, forecast_feature_id, false);
             // get the OpenLayers feature we already created
             var feature = window.forecast_source.getFeatureById(forecast_feature_id);
             // get the current data for this feature so we can add to it
