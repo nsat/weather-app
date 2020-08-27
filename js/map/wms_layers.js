@@ -74,18 +74,32 @@ function buildWMSLayer(layer_name, style, layer_index, time) {
 		'TIME': time
 	};
 	// configure the WMS layer
-	// var layer = new ol.layer.Image({
-	var layer = new ol.layer.Tile({
-		zIndex: Number(layer_index),
-		opacity: 0.6,
-		// source: new ol.source.ImageWMS({
-		source: new ol.source.TileWMS({
-			url: url,
-			params: params,
-			serverType: 'mapserver', // 'geoserver'
-			//transition: 0 // disable fade-in
-		})
-	});
+	if (window.TILED_WMS == true) {
+		// use tiling;
+		// less performant but more resolution
+		var layer = new ol.layer.Tile({
+			zIndex: Number(layer_index),
+			opacity: 0.6,
+			source: new ol.source.TileWMS({
+				url: url,
+				params: params,
+				serverType: 'mapserver', // 'geoserver'
+				//transition: 0 // disable fade-in
+			})
+		});
+	} else {
+		// don't use tiling;
+		// more performant but less resolution
+		var layer = new ol.layer.Image({
+			zIndex: Number(layer_index),
+			opacity: 0.6,
+			source: new ol.source.ImageWMS({
+				url: url,
+				params: params,
+				serverType: 'mapserver'
+			})
+		});
+	}
 	// if there is already an extent set,
 	// use it for this new layer as well
 	if (window.WMS_Extent) {

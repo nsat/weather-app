@@ -1,6 +1,9 @@
 // wait to execute the following code block until the page has fully loaded,
 // ensuring that all HTML elements referenced here have already been created
 window.onload = function() {
+    // set this flag to false for better performance
+    window.TILED_WMS = true;
+    // initialize the app and specify the CRS
     initialize('EPSG:4326');
     // initialize('EPSG:3857');
 };
