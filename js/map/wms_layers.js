@@ -47,10 +47,12 @@ function addWMSLayer(layer_name, style, layer_index, times, legend_url) {
 		var layer = buildWMSLayer(layer_name, style, layer_index, time);
 		// add the WMS layer to the OpenLayers map
 		window.ol_map.addLayer(layer);
-		// make legend button visible
-		document.getElementById('show_legend_' + layer_index).style.display = 'inline-block';
-		// add legend image to popup div
-		document.getElementById('legend_wms_' + layer_index).style.backgroundImage = 'url(' + legend_url + ')';
+		if (legend_url != 'none') {
+			// make legend button visible
+			document.getElementById('show_legend_' + layer_index).style.display = 'inline-block';
+			// add legend image to popup div
+			document.getElementById('legend_wms_' + layer_index).style.backgroundImage = 'url(' + legend_url + ')';
+		}
 	}
 }
 
@@ -295,8 +297,12 @@ function getWMSCapabilities(bundle) {
 									styles.forEach(function(style) {
 										var styleName = style.getElementsByTagName('Name')[0].textContent;
 										var legend = style.getElementsByTagName('LegendURL')[0];
-										var legendURL = legend.getElementsByTagName('OnlineResource')[0].getAttribute('xlink:href');
-										stylesAndLegends[styleName] = legendURL + '&spire-api-key=' + window.TOKEN;
+										if (legend) {
+											var legendURL = legend.getElementsByTagName('OnlineResource')[0].getAttribute('xlink:href');
+											stylesAndLegends[styleName] = legendURL + '&spire-api-key=' + window.TOKEN;
+										} else {
+											stylesAndLegends[styleName] = 'none';
+										}
 									});
 									// keep track of the available variables for this hour in our global object
 									window.Full_WMS_XML[bundle][dateText][hourText][displayName] = {
