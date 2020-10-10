@@ -114,7 +114,7 @@ function initialize(crs) {
 
     // download the forecast JSON data from the graph popup window
     document.getElementById('download_forecast').onclick = function() {
-        downloadDataJSON();
+        downloadDataCSV();
     };
 
     // toggle popup for selecting a WMS layer

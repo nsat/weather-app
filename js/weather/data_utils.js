@@ -1,16 +1,74 @@
-// download forecast JSON data to local file(s)
-function downloadDataJSON() {
+// download forecast JSON data to local CSV file(s)
+function downloadDataCSV() {
     for (var i=0; i < window.forecast_data.length; i++) {
         var data = window.forecast_data[i];
         var location = data[0];
-        var payload = data[1];
+        var json = data[1];
+        var csv_output = convertJSONtoCSV(json);
+        console.log(csv_output)
         var a = document.createElement("a");
-        var output_text = JSON.stringify(payload);
-        var file = new Blob([output_text], {type: 'text/plain'});
+        var file = new Blob([csv_output], {type: 'text/csv'});
         a.href = URL.createObjectURL(file);
-        a.download = 'spire_forecast__' + location + '.json';
+        a.download = 'spire_forecast__' + location + '.csv';
         a.click();
     }
+}
+
+// // download forecast JSON data as raw API response to local file(s)
+// function downloadDataJSON() {
+//     for (var i=0; i < window.forecast_data.length; i++) {
+//         var data = window.forecast_data[i];
+//         var location = data[0];
+//         var json = data[1];
+//         var a = document.createElement("a");
+//         var output_text = JSON.stringify(json);
+//         var file = new Blob([output_text], {type: 'text/plain'});
+//         a.href = URL.createObjectURL(file);
+//         a.download = 'spire_forecast__' + location + '.json';
+//         a.click();
+//     }
+// }
+
+// convert API response JSON to CSV for download
+function convertJSONtoCSV(json) {
+    // initialize CSV output content
+    var csv_content = "";
+    // define CSV headers
+    var header_array = [
+        "Forecast Issuance",
+        "Valid Time",
+        "Latitude",
+        "Longitude",
+        "Variable",
+        "Value",
+    ];
+    // write CSV header
+    var header = header_array.join(",");
+    csv_content += header + "\r\n";
+    // write CSV rows
+    for (var i=0; i < json["data"].length; i++) {
+        var data = json["data"][i];
+        var values = data["values"];
+        // convert dictionary object to array of arrays
+        var entries = Object.entries(values);
+        // for each key/value pair, create a new CSV row
+        for (var j=0; j < entries.length; j++) {
+            var x = entries[j];
+            var key = x[0];
+            var value = x[1];
+            var row_array = [
+                data["times"]["issuance_time"],
+                data["times"]["valid_time"],
+                data["location"]["coordinates"]["lat"],
+                data["location"]["coordinates"]["lon"],
+                key,
+                value
+            ];
+            var row = row_array.join(",");
+            csv_content += row + "\r\n";
+        }
+    }
+    return csv_content;
 }
 
 // parse the `short_range_high_freq` and `medium_range_std_freq` data
