@@ -55,7 +55,7 @@
 	padding-bottom: 5px;
 }
 #op_ceiling th {
-	text-decoration: underline;
+	font-size: 120%;
 }
 #op_ceiling table,
 #op_ceiling th,

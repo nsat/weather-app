@@ -294,7 +294,7 @@ function displayOptimizedPointData(data, icao, name) {
         var headers = document.createElement('tr');
         var time = document.createElement('th');
         var value = document.createElement('th');
-        time.innerHTML = 'Time';
+        time.innerHTML = 'Time (UTC)';
         value.innerHTML = 'Value';
         headers.appendChild(time);
         headers.appendChild(value);

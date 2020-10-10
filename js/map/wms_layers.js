@@ -232,18 +232,17 @@ function getWMSCapabilities(bundle) {
 			return response.text();
 		})
 		.then(function(str) {
-			// parse the raw XML text into an XML object
-			return (new window.DOMParser()).parseFromString(str, 'text/xml');
+			// parse the raw XML text into a JSON object
+			var parsed = new WMSCapabilities(str).toJSON();
+			return parsed;
 		})
 		.then(function(data) {
 			console.log('Successfully retrieved ' + bundle + ' WMS Capabilities.');
 			// keep track of this bundle's relevant capabilities in a global variable
 			window.Full_WMS_XML[bundle] = {};
 			// parse through the returned XML to get the layers broken down by date
-			var capabilities = data.getElementsByTagName("Capability")[0];
-			var toplayers = capabilities.getElementsByTagName("Layer")[0].getElementsByTagName("Layer")[0];
-			// convert HTMLCollection to JS array for easier iteration
-			var days = Array.prototype.slice.call( toplayers.children );
+			var capabilities = data['Capability'];
+			var days = capabilities['Layer']['Layer'][0]['Layer'];
 			// keep track of the most recent forecast
 			// which we will use as the default
 			var latest_date = {
@@ -252,71 +251,68 @@ function getWMSCapabilities(bundle) {
 			}
 			// layers are first ordered by forecast date
 			days.forEach(function(day) {
-				if (day.tagName == 'Layer') {
-					// get the date text in this format: YYYYMMDD
-					var dateText = day.getElementsByTagName('Title')[0].textContent;
-					var epochTime = datestringToEpoch(dateText);
-					if (epochTime > latest_date['epoch']) {
-						latest_date['text'] = dateText;
-						latest_date['epoch'] = epochTime;
-					}
-					// keep track of each available date in our global object
-					window.Full_WMS_XML[bundle][dateText] = {};
-					// convert HTMLCollection to JS array for easier iteration
-					var hours = Array.prototype.slice.call( day.children );
-					// iterate through the next level of layers (hours)
-					hours.forEach(function(hour) {
-						if (hour.tagName == 'Layer') {
-							// get the hour text: 00, 06, 12, or 18
-							var hourText = hour.getElementsByTagName('Title')[0].textContent;
-							// keep track of the date's available hours in our global object
-							window.Full_WMS_XML[bundle][dateText][hourText] = {};
-							// convert HTMLCollection to JS array for easier iteration
-							var variables = Array.prototype.slice.call( hour.children );
-							// iterate through the next level of layers (data variables)
-							variables.forEach(function(variable) {
-								if (variable.tagName == 'Layer') {
-									var name = variable.getElementsByTagName('Name')[0].textContent;
-									var displayName = variable.getElementsByTagName('Title')[0].textContent;
-									var dimensionFields = variable.getElementsByTagName('Dimension');
-									// convert HTMLCollection to JS array for easier iteration
-									var dimensions = Array.prototype.slice.call( dimensionFields );
-									var times = [];
-									// get the time dimension values
-									dimensions.forEach(function(dimension) {
-										if (dimension.getAttribute('name') == 'time') {
-											// convert comma-separated times from text to array
-											times = dimension.textContent.split(',');
-										}
-									});
-									var styleOptions = variable.getElementsByTagName('Style');
-									// convert HTMLCollection to JS array for easier iteration
-									var styles = Array.prototype.slice.call( styleOptions );
-									var stylesAndLegends = {};
-									// get the name of each style for this variable
-									styles.forEach(function(style) {
-										var styleName = style.getElementsByTagName('Name')[0].textContent;
-										var legend = style.getElementsByTagName('LegendURL')[0];
-										if (legend) {
-											var legendURL = legend.getElementsByTagName('OnlineResource')[0].getAttribute('xlink:href');
-											stylesAndLegends[styleName] = legendURL + '&spire-api-key=' + window.TOKEN;
-										} else {
-											stylesAndLegends[styleName] = 'none';
-										}
-									});
-									// keep track of the available variables for this hour in our global object
-									window.Full_WMS_XML[bundle][dateText][hourText][displayName] = {
-										'name': name,
-										'title': displayName,
-										'styles': stylesAndLegends,
-										'times': times,
-										'bundle': bundle
-									};
-								}
-							});
-						}
-					});
+				// get the date text in this format: YYYYMMDD
+				var dateText = day['Title'];
+				var epochTime = datestringToEpoch(dateText);
+				if (epochTime > latest_date['epoch']) {
+					latest_date['text'] = dateText;
+					latest_date['epoch'] = epochTime;
 				}
+				// keep track of each available date in our global object
+				window.Full_WMS_XML[bundle][dateText] = {};
+				// get the array of 4 forecast issuances
+				var hours = day['Layer'];
+				// iterate through the next level of layers (hours)
+				hours.forEach(function(hour) {
+					// get the hour text: 00, 06, 12, or 18
+					var hourText = hour['Title'];
+					// keep track of the date's available hours in our global object
+					window.Full_WMS_XML[bundle][dateText][hourText] = {};
+					// get the array of available weather variables
+					var variables = hour['Layer'];
+					// iterate through the next level of layers (data variables)
+					variables.forEach(function(variable) {
+						var name = variable['Name'];
+						var displayName = variable['Title'];
+						// get the time dimension objects
+						var dimensions = variable['Dimension'];
+						// skip if there's no time dimension
+						if (dimensions == undefined) {
+							return;
+						}
+						var times = [];
+						// get the time string values
+						dimensions.forEach(function(dimension) {
+							// use the `time` dimension (not `reference_time`)
+							if (dimension['name'] == 'time') {
+								// convert comma-separated times from text to array
+								times = dimension.values.split(',');
+							}
+						});
+						// get the style options for this variable
+						var styleOptions = variable['Style'];
+						var stylesAndLegends = {};
+						// get the name of each style for this variable
+						styleOptions.forEach(function(style) {
+							var styleName = style['Name'];
+							var legend = style['LegendURL'];
+							if (legend) {
+								var legendURL = legend[0]['OnlineResource'];
+								stylesAndLegends[styleName] = legendURL + '&spire-api-key=' + window.TOKEN;
+							} else {
+								stylesAndLegends[styleName] = 'none';
+							}
+						});
+						// keep track of the available variables for this hour in our global object
+						window.Full_WMS_XML[bundle][dateText][hourText][displayName] = {
+							'name': name,
+							'title': displayName,
+							'styles': stylesAndLegends,
+							'times': times,
+							'bundle': bundle
+						};
+					});
+				});
 			});
 			var latest_forecast = window.Full_WMS_XML[bundle][latest_date['text']];
 			var issuance_times = Object.keys(latest_forecast);
@@ -368,19 +364,12 @@ function getWMSCapabilities(bundle) {
 			options.forEach(function(opt) {
 				window.Latest_WMS[opt] = forecast[opt];
 			});
-			// if we're in the agricultural context,
-			// we have only requested the Basic WMS
-			if (window.urlParams.get('bundles') == 'agricultural') {
+			// check if 2 keys are present (current total bundles supported)
+			// 1 for Basic and 1 for Maritime
+			if (Object.keys(window.Full_WMS_XML).length == 2) {
 				buildWMSConfigUI();
-			} else {
-				// check if 2 keys are present (current total bundles supported)
-				// 1 for Basic and 1 for Maritime
-				if (Object.keys(window.Full_WMS_XML).length == 2) {
-					buildWMSConfigUI();
-				}
 			}
 		});
-		// end of fetch promise
 }
 
 function buildWMSConfigUI() {
