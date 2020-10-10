@@ -293,8 +293,8 @@ function displayOptimizedPointData(data, icao, name) {
         var headers = document.createElement('tr');
         var time = document.createElement('th');
         var value = document.createElement('th');
-        time.innerHTML = 'Time (UTC)';
-        value.innerHTML = 'Value';
+        time.innerHTML = 'Time<br>(UTC)';
+        value.innerHTML = 'Cloud Ceiling<br>(Range in Meters)';
         headers.appendChild(time);
         headers.appendChild(value);
         table.appendChild(headers);

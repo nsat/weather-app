@@ -56,6 +56,10 @@
 }
 #op_ceiling th {
 	font-size: 120%;
+	background-color: rgba(10,50,100,0.9);
+}
+#op_ceiling td {
+	background-color: rgba(25,75,140,0.9);
 }
 #op_ceiling table,
 #op_ceiling th,
