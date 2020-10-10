@@ -73,17 +73,22 @@ function getPointForecast(coordinate, time_bundle) {
                 // do not proceed with this response handler
                 return;
             }
-            // store the original API response
-            window.forecast_data = [
-                [coordinate, response]
-            ];
             // check that maritime variables exist in the returned data
             if (maritime_variables_exist(response.data) == false) {
+                // store the Basic bundle API response
+                window.forecast_data = [
+                    [coordinate + '_basic', response]
+                ];
                 // the latest forecast data must be available for the basic bundle
                 // but not yet for the maritime bundle,
                 // so we must explicitly request only the maritime bundle
                 // to get the latest data returned for those variables
                 getMaritimeDataOnly(coordinate, lat, lon, time_bundle);
+            } else {
+                // store the API response
+                window.forecast_data = [
+                    [coordinate, response]
+                ];
             }
             // parse the `short_range_high_freq` and `medium_range_std_freq` data
             // out of the `medium_range_high_freq` API response
@@ -140,9 +145,9 @@ function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
                 // do not proceed with this response handler
                 return;
             }
-            // store original API response
+            // store the Maritime bundle API response
             window.forecast_data.push(
-                [coordinate, response]
+                [coordinate + '_maritime', response]
             );
             // parse the `short_range_high_freq` and `medium_range_std_freq` data
             // out of the `medium_range_high_freq` API response

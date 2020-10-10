@@ -113,10 +113,10 @@ function get_differenced_total_value(data, name, i) {
 // and it is possible for us to get brand new Basic data returned before Maritime is ready
 // in which case we need to fetch the most recent Maritime bundle data explicitly
 function maritime_variables_exist(data) {
-    if (data[0].values.sea_surface_temperature &&
-        data[0].values.sea_surface_wave_significant_height &&
-        data[0].values.eastward_sea_water_velocity &&
-        data[0].values.northward_sea_water_velocity) {
+    if (typeof(data[0].values.sea_surface_temperature) != undefined &&
+        typeof(data[0].values.sea_surface_wave_significant_height) != undefined  &&
+        typeof(data[0].values.eastward_sea_water_velocity) != undefined  &&
+        typeof(data[0].values.northward_sea_water_velocity) != undefined) {
         // maritime variables exist in the returned data
         // so we are all good to proceed
         return true;
