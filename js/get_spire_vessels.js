@@ -1,3 +1,21 @@
+// check for authentication to the Vessels API
+// and show the UI button if auth is good
+function test_vessels_api() {
+    var uri = 'https://api.sense.spire.com/vessels/?limit=1';
+    // print the full API request to the JS console
+    console.log('Testing auth to Vessels API: GET', uri);
+    // build the HTTP header for Authorization
+    var auth_header = {'Authorization': 'Bearer ' + window.TOKEN};
+    // make the API request with the specified auth header
+    fetch(uri, {headers: auth_header})
+        .then((resp) => {
+            if (resp.status == 200) {
+                // show button that allows user to make Vessels API requests
+                document.getElementById('drawPolygonArea').style.display = 'inline-block';
+            }
+        })
+}
+
 // use Spire Maritime's Vessels API
 // to get the latest positions of N number of vessels
 function requestVessels(number, boxCoords) {

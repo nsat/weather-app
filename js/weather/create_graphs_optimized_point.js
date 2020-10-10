@@ -286,7 +286,6 @@ function displayOptimizedPointData(data, icao, name) {
 
     if (air_temperature.length > 0 && wind_speed.length > 0) {
         // add the Ceiling table to the DOM
-        console.log("ceiling",ceiling)
         var table = document.createElement('table');
         var caption = document.createElement('caption');
         caption.innerHTML = 'Cloud Ceiling';
@@ -565,4 +564,6 @@ function displayOptimizedPointData(data, icao, name) {
     // make the forecast popup visible
     document.getElementById('weatherGraphsPopup').style.display = 'block';
     document.getElementById('grayPageOverlay').style.display = 'block';
+    // make download button visible
+    document.getElementById('download_forecast').style.display = 'block';
 }

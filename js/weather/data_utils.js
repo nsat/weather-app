@@ -1,3 +1,18 @@
+// download forecast JSON data to local file(s)
+function downloadDataJSON() {
+    for (var i=0; i < window.forecast_data.length; i++) {
+        var data = window.forecast_data[i];
+        var location = data[0];
+        var payload = data[1];
+        var a = document.createElement("a");
+        var output_text = JSON.stringify(payload);
+        var file = new Blob([output_text], {type: 'text/plain'});
+        a.href = URL.createObjectURL(file);
+        a.download = 'spire_forecast__' + location + '.json';
+        a.click();
+    }
+}
+
 // parse the `short_range_high_freq` and `medium_range_std_freq` data
 // out of the `medium_range_high_freq` API response
 function get_data_by_time_bundle(data) {

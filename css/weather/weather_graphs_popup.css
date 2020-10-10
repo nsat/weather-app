@@ -65,3 +65,11 @@
 	padding: 20px;
 	color: white;
 }
+/* Download Data button */
+#download_forecast {
+	display: none;
+	position: absolute;
+	top: 10px;
+	left: 50px;
+	cursor: pointer;
+}

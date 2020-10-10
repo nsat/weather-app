@@ -1,3 +1,5 @@
+// make a Point Forecast API request
+// and generate UI graphs from the response data
 function getPointForecast(coordinate, time_bundle) {
     // ensure coordinate components are numbers
     // in case they were parsed from an OpenLayers feature ID string
@@ -71,6 +73,10 @@ function getPointForecast(coordinate, time_bundle) {
                 // do not proceed with this response handler
                 return;
             }
+            // store the original API response
+            window.forecast_data = [
+                [coordinate, response]
+            ];
             // check that maritime variables exist in the returned data
             if (maritime_variables_exist(response.data) == false) {
                 // the latest forecast data must be available for the basic bundle
@@ -134,6 +140,10 @@ function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
                 // do not proceed with this response handler
                 return;
             }
+            // store original API response
+            window.forecast_data.push(
+                [coordinate, response]
+            );
             // parse the `short_range_high_freq` and `medium_range_std_freq` data
             // out of the `medium_range_high_freq` API response
             var time_bundles_data_object = get_data_by_time_bundle(response.data);

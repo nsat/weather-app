@@ -29,7 +29,7 @@
     <link rel="stylesheet" type="text/css" href="css/weather/wms.css" />
     <!-- Custom Weather Stats JS -->
     <script type="text/javascript" src="js/weather/configure_graphs.js"></script>
-    <script type="text/javascript" src="js/weather/parse_data.js"></script>
+    <script type="text/javascript" src="js/weather/data_utils.js"></script>
     <script type="text/javascript" src="js/weather/create_graphs.js"></script>
     <script type="text/javascript" src="js/weather/create_graphs_optimized_point.js"></script>
     <script type="text/javascript" src="js/weather/get_spire_forecast.js"></script>
@@ -181,6 +181,10 @@
         </div>
         <span id="day">Day</span>
       </div>
+      <!-- Download button -->
+      <button id="download_forecast">
+          Download Data
+      </button>
       <!-- the order of the DIV elements here
       is the order in which the graphs will be displayed
       regardless of which ones are created first in the JavaScript code -->

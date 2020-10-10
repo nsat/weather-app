@@ -605,4 +605,6 @@ function displayForecastData(data, lonlatString, clear=true) {
     // make the forecast popup visible
     document.getElementById('weatherGraphsPopup').style.display = 'block';
     document.getElementById('grayPageOverlay').style.display = 'block';
+    // make download button visible
+    document.getElementById('download_forecast').style.display = 'block';
 }

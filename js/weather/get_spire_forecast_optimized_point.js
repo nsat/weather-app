@@ -1,3 +1,28 @@
+// check for authentication to the Optimized Point Forecast API;
+// show the airport map icons and UI button if auth is good
+function test_optimized_point_api() {
+    var uri = 'https://api.wx.spire.com/forecast/point/optimized?location=KLAX';
+    // print the full API request to the JS console
+    console.log('Testing auth to Optimized Point API: GET', uri);
+    // build the HTTP header for Authorization
+    var auth_header = {'spire-api-key': window.TOKEN};
+    // make the API request with the specified auth header
+    fetch(uri, {headers: auth_header})
+        .then((resp) => {
+            if (resp.status != 200) {
+                window.optimized_point = false;
+            } else {
+                window.optimized_point = true;
+                // initialize Airports dataset
+                addAirportsToMap();
+                // show button that allows user to hide airport icons
+                document.getElementById('toggleAirports').style.display = 'inline-block';
+            }
+        })
+}
+
+// make an Optimized Point Forecast API request
+// and generate UI graphs from the response data
 function getOptimizedPointForecast(icao) {
     // build the route for the API call using the `lat` and `lon` URL parameters
     var uri = 'https://api.wx.spire.com/forecast/point/optimized?location=' + icao;
@@ -33,6 +58,10 @@ function getOptimizedPointForecast(icao) {
                 // do not proceed with this response handler
                 return;
             }
+            // store the original API response
+            window.forecast_data = [
+                [icao, response]
+            ];
             // get data for the specified time bundle
             var display_data = response.data;
             // get the airport's name from the OpenLayers feature

@@ -17,8 +17,6 @@ function initialize(crs) {
 
     // initialize the OpenLayers base map
     createMap();
-    // initialize Airports dataset
-    addAirportsToMap();
 
     // initialize variable for storing full WMS capabilities
     window.Full_WMS_XML = {};
@@ -42,6 +40,29 @@ function initialize(crs) {
     // which are used for various configuration options
     window.urlParams = new URLSearchParams(window.location.search);
 
+    // after a token has been entered, get WMS capabilities
+    // and perform some API test calls to determine authentication level
+    function handle_submitted_token() {
+        // hide the token popup form
+        document.getElementById('tokenPopup').style.display = 'none';
+        // hide the gray page overlay
+        document.getElementById('grayPageOverlay').style.display = 'none';
+        // make sure that we don't duplicate efforts
+        // with the `tokenForm` submit handler above that might also make these calls
+        if (window.WMSRetrievalInitiated != true) {
+            // make async requests for the WMS capabilities
+            // of the currently available bundles
+            getWMSCapabilities('basic');
+            // check permissions
+            test_optimized_point_api();
+            test_vessels_api();
+            // get Maritime WMS unless we're in the agricultural context
+            if (window.urlParams.get('bundles') != 'agricultural') {
+                getWMSCapabilities('maritime');
+            }
+        }
+    }
+
     // handler for token input form submission
     document.getElementById('tokenForm').onsubmit = function(evt) {
         // prevent the default behavior of a page reload on submit
@@ -52,20 +73,8 @@ function initialize(crs) {
             // naively set the global token variable, assuming the user-specified token is valid.
             // if any future API request fails due to authentication, the token popup will open again. 
             window.TOKEN = token;
-            // disable the popup and app overlay for now since `token` value is not null
-            document.getElementById('tokenPopup').style.display = 'none';
-            document.getElementById('grayPageOverlay').style.display = 'none';
-            // make sure that we don't duplicate efforts
-            // with the `token` change handler above that might also make these calls
-            if (window.WMSRetrievalInitiated != true) {
-                // make async requests for the WMS capabilities
-                // of the currently available bundles
-                getWMSCapabilities('basic');
-                // get Maritime WMS unless we're in the agricultural context
-                if (window.urlParams.get('bundles') != 'agricultural') {
-                    getWMSCapabilities('maritime');
-                }
-            }
+            // initiate API calls
+            handle_submitted_token();
         }
     };
 
@@ -78,21 +87,8 @@ function initialize(crs) {
             // set the global token value which we will later use
             // to pass in to every API request
             window.TOKEN = this.value;
-            // hide the token popup form
-            document.getElementById('tokenPopup').style.display = 'none';
-            // hide the gray page overlay
-            document.getElementById('grayPageOverlay').style.display = 'none';
-            // make sure that we don't duplicate efforts
-            // with the `tokenForm` submit handler above that might also make these calls
-            if (window.WMSRetrievalInitiated != true) {
-                // make async requests for the WMS capabilities
-                // of the currently available bundles
-                getWMSCapabilities('basic');
-                // get Maritime WMS unless we're in the agricultural context
-                if (window.urlParams.get('bundles') != 'agricultural') {
-                    getWMSCapabilities('maritime');
-                }
-            }
+            // initiate API calls
+            handle_submitted_token();
         }
     };
 
@@ -114,6 +110,11 @@ function initialize(crs) {
             // change text to reflect new application state
             this.textContent = 'Hide Airports';
         }
+    };
+
+    // download the forecast JSON data from the graph popup window
+    document.getElementById('download_forecast').onclick = function() {
+        downloadDataJSON();
     };
 
     // toggle popup for selecting a WMS layer

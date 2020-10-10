@@ -116,6 +116,10 @@ button.pressed {
 #configureWMS {
   border: none;
 }
+#drawPolygonArea,
+#toggleAirports {
+  display: none;
+}
 #drawPolygonArea {
   border-radius: 2px 0 0 2px;
 }
