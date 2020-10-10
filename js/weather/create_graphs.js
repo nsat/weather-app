@@ -22,6 +22,7 @@ function displayForecastData(data, lonlatString, clear=true) {
     var air_press_sea_level_vals = [];
     var precip_vals = [];
     var wind_gust_vals = [];
+    var total_cloud_cover_vals = [];
     // maritime
     var sea_surface_temp_vals = [];
     var wave_height_vals = [];
@@ -117,6 +118,13 @@ function displayForecastData(data, lonlatString, clear=true) {
                 precip_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_differenced_total_value(data, 'precipitation_amount', i)
+                });
+            }
+            var tcc = data[i].values.total_cloud_cover;
+            if (tcc != undefined) {
+                total_cloud_cover_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': tcc
                 });
             }
         }
@@ -357,6 +365,15 @@ function displayForecastData(data, lonlatString, clear=true) {
                 5 // alert threshold value
             ),
             '#wind_gust'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Total Cloud Cover (%)',
+                { 'values': total_cloud_cover_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#total_cloud_cover'
         );
         if (AGRICULTURAL == false) {
             // Dewpoint Temperature (2 Meters AGL) is used in both Basic and Agricultural bundles
