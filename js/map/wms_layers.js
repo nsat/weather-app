@@ -79,6 +79,32 @@ function buildWMSLayer(layer_name, style, layer_index, time) {
 	if (window.TILED_WMS == true) {
 		// use tiling;
 		// less performant but more resolution
+		let projExtent = ol.proj.get(window.CRS).getExtent();
+		let startResolution = ol.extent.getWidth(projExtent) / 256;
+		let resolutions = new Array(22);
+		for (let i = 0, ii = resolutions.length; i < ii; ++i) {
+			resolutions[i] = startResolution / Math.pow(2, i);
+		}
+
+		// Load the selected layers config so we can get the bounding box provided in the Capabilities that matches the selected CRS.
+		let current_layer_config = Object.keys(window.Latest_WMS).reduce((matching_layer, layer_title) => {
+			if (window.Latest_WMS[layer_title]['name'] === layer_name) matching_layer = window.Latest_WMS[layer_title]
+			return matching_layer;
+		}, {})
+
+		let extent;
+        if (Object.keys(current_layer_config['bounding_boxes']).includes(window.CRS)) {
+			extent = current_layer_config['bounding_boxes'][window.CRS];
+		} else {
+        	extent = projExtent;
+		}
+
+		let tileGrid = new ol.tilegrid.TileGrid({
+			extent: extent,
+			resolutions: resolutions,
+			tileSize: [1024, 512], // TODO: This should be dynamic. Larger = fewer requests which should be faster.  Splitting up into 4 or 8 per map will feel the best because the browser can request them in parallel without queuing.
+		});
+
 		var layer = new ol.layer.Tile({
 			zIndex: Number(layer_index),
 			opacity: 0.6,
@@ -86,6 +112,7 @@ function buildWMSLayer(layer_name, style, layer_index, time) {
 				url: url,
 				params: params,
 				serverType: 'mapserver', // 'geoserver'
+				tileGrid: tileGrid,
 				//transition: 0 // disable fade-in
 			})
 		});
@@ -272,6 +299,7 @@ function getWMSCapabilities(bundle) {
 					var variables = hour['Layer'];
 					// iterate through the next level of layers (data variables)
 					variables.forEach(function(variable) {
+						var bounding_boxes = Object.fromEntries(variable['BoundingBox'].map(bbox => [bbox["crs"], bbox["extent"]] ));
 						var name = variable['Name'];
 						var displayName = variable['Title'];
 						// get the time dimension objects
@@ -309,7 +337,8 @@ function getWMSCapabilities(bundle) {
 							'title': displayName,
 							'styles': stylesAndLegends,
 							'times': times,
-							'bundle': bundle
+							'bundle': bundle,
+							'bounding_boxes': bounding_boxes
 						};
 					});
 				});
