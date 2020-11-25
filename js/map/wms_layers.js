@@ -88,7 +88,9 @@ function buildWMSLayer(layer_name, style, layer_index, time) {
 
 		// Load the selected layers config so we can get the bounding box provided in the Capabilities that matches the selected CRS.
 		let current_layer_config = Object.keys(window.Latest_WMS).reduce((matching_layer, layer_title) => {
-			if (window.Latest_WMS[layer_title]['name'] === layer_name) matching_layer = window.Latest_WMS[layer_title]
+			if (window.Latest_WMS[layer_title]['name'] === layer_name) {
+				matching_layer = window.Latest_WMS[layer_title];
+			}
 			return matching_layer;
 		}, {})
 
