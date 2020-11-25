@@ -4,8 +4,8 @@ window.onload = function() {
     // set this flag to false for better performance
     window.TILED_WMS = true;
     // initialize the app and specify the CRS
-    initialize('EPSG:4326');
-    // initialize('EPSG:3857');
+    // initialize('EPSG:4326');
+    initialize('EPSG:3857');
 };
 
 function initialize(crs) {
