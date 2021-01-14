@@ -31,6 +31,11 @@ function embed_vega_spec(vega_spec, element_id) {
 }
 
 function build_vega_spec(y_axis_title, data, warn_threshold_val, alert_threshold_val, tz='UTC') {
+	// to see yellow and red indicators in the bar graphs,
+	// remove the following two lines and set the threshold values
+	// in `create_graphs.js`
+	warn_threshold_val = null
+	alert_threshold_val = null
 	// TODO: use Vega's "wedge" mark + angle to show wind/currents direction
 	// // https://vega.github.io/vega/docs/marks/symbol/
 	var tooltip = [

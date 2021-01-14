@@ -58,8 +58,11 @@
 	font-size: 120%;
 	background-color: rgba(10,50,100,0.9);
 }
-#op_ceiling td {
+#op_ceiling td.table_time {
 	background-color: rgba(25,75,140,0.9);
+}
+#op_ceiling td.table_value {
+	background-color: rgba(45,95,160,0.9);
 }
 #op_ceiling table,
 #op_ceiling th,

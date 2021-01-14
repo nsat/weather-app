@@ -304,7 +304,9 @@ function displayOptimizedPointData(data, icao, name) {
             var t = document.createElement('td');
             var v = document.createElement('td');
             t.innerHTML = data['Time'];
+            t.className = 'table_time';
             v.innerHTML = data['Value'];
+            v.className = 'table_value';
             row.appendChild(t);
             row.appendChild(v);
             table.appendChild(row);
