@@ -60,7 +60,7 @@ var airportPointStyle = function(feature) {
     }
 }
 
-// style for a Airport point feature that is being hovered on
+// style for an Airport point feature that is being hovered on
 var airportHoverStyle = new ol.style.Style({
     zIndex: Infinity,
     image: new ol.style.Icon({
@@ -68,6 +68,38 @@ var airportHoverStyle = new ol.style.Style({
         scale: 0.10,
         opacity: 1.0,
         src: 'img/airport.png'
+    })
+});
+
+// style for a Maritime Port point feature
+var portPointStyle = function(feature) {
+    var type = feature.get('type');
+    if (type == 'port') {
+        return new ol.style.Style({
+            zIndex: Infinity,
+            image: new ol.style.Icon({
+                anchor: [0.5, 0.5],
+                scale: 0.05,
+                opacity: 0.8,
+                src: 'img/anchor.png'
+            })
+        });
+    } else if (type == 'vessel_forecast') {
+        // features with a type of `vessel_forecast`
+        // are kept invisible, so they don't interfere
+        // with the vessel's rendering at the same coordinate
+        return null;
+    }
+}
+
+// style for a Maritime Port point feature that is being hovered on
+var portHoverStyle = new ol.style.Style({
+    zIndex: Infinity,
+    image: new ol.style.Icon({
+        anchor: [0.5, 0.5],
+        scale: 0.10,
+        opacity: 1.0,
+        src: 'img/anchor.png'
     })
 });
 

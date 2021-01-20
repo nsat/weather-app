@@ -26,6 +26,20 @@ function createAirportsLayer(geojson) {
     window.ol_map.addLayer(window.airports_layer);
 }
 
+function createMaritimePortsLayer(geojson) {
+    // console.log("Create Map Layer for:", geojson)
+    window.port_source = new ol.source.Vector({
+        features: (new ol.format.GeoJSON()).readFeatures(geojson)
+    });
+    window.ports_layer = new ol.layer.Vector({
+        zIndex: 100,
+        className: 'ports-layer',
+        source: window.port_source,
+        style: portPointStyle
+    });
+    window.ol_map.addLayer(window.ports_layer);
+}
+
 function createMap(geojsonObject) {
     // clear the existing map element
     document.getElementById('map').innerHTML = '';
@@ -85,6 +99,9 @@ function createMap(geojsonObject) {
     // keep track of hovered/selected airport
     window.selectedAirport = null;
     window.hoveredAirport = null;
+    // keep track of hovered/selected maritime port
+    window.selectedPort = null;
+    window.hoveredPort = null;
     // map click/touch event listener
     window.ol_map.on('click', function(e) {
         // check that a map click won't trigger a forecast,
@@ -134,8 +151,19 @@ function createMap(geojsonObject) {
                     window.hoveredAirport = null;
                     // get airport ICAO
                     var icao = window.selectedAirport.get('icao');
-                    getOptimizedPointForecast(icao);
+                    getOptimizedPointForecast(icao, 'icao');
                     console.log('Selected airport:', icao, window.selectedAirport.get('name'));
+                } else if (type == 'port') {
+                    // keep track of which forecast is selected
+                    window.selectedPort = f;
+                    // this is always hidden by the weather graph popup
+                    // so we don't add special selection styling here
+                    // but we do turn off hover styling
+                    window.hoveredPort = null;
+                    // get port UN/LOCODE
+                    var locode = window.selectedPort.get('unlocode');
+                    getOptimizedPointForecast(locode, 'unlocode');
+                    console.log('Selected port:', locode, window.selectedPort.get('name'));
                 }
                 return true;
             });
@@ -185,6 +213,11 @@ function createMap(geojsonObject) {
             window.hoveredAirport.setStyle(undefined);
             window.hoveredAirport = null;
         }
+        // remove hover styling for currently hovered airport
+        if (window.hoveredPort) {
+            window.hoveredPort.setStyle(undefined);
+            window.hoveredPort = null;
+        }
     }
 
     // mouse hover event listener
@@ -226,6 +259,13 @@ function createMap(geojsonObject) {
                         // if it is not already currently selected
                         window.hoveredForecast = f;
                         window.hoveredForecast.setStyle(airportHoverStyle);
+                    }
+                }  else if (type == 'port') {
+                    if (window.selectedForecast != f) {
+                        // only set hover style on this forecast
+                        // if it is not already currently selected
+                        window.hoveredForecast = f;
+                        window.hoveredForecast.setStyle(portHoverStyle);
                     }
                 }
             });

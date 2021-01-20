@@ -101,14 +101,14 @@ function initialize(crs) {
             // change button style to indicate it has been pressed
             this.className = 'hidden';
             // change text to reflect new application state
-            this.textContent = 'Show Airports';
+            this.textContent = 'Show Ports';
         } else {
             // show the OpenLayers map layer for airports
             window.airports_layer.setVisible(true);
             // unpress the button if it's already activated
             this.className = '';
             // change text to reflect new application state
-            this.textContent = 'Hide Airports';
+            this.textContent = 'Hide Ports';
         }
     };
 
@@ -442,8 +442,13 @@ function initialize(crs) {
         var forecast_feature_id = window.FORECAST_COORDINATE;
         if (forecast_feature_id == null) {
             // handle Optimized Point (airport ICAO)
-            forecast_feature_id = window.selectedAirport.get('icao');
-            forecast_feature = window.airport_source.getFeatureById(forecast_feature_id);
+            if (window.selectedAirport) {
+                forecast_feature_id = window.selectedAirport.get('icao');
+                forecast_feature = window.airport_source.getFeatureById(forecast_feature_id);
+            } else if (window.selectedPort) {
+                forecast_feature_id = window.selectedPort.get('unlocode');
+                forecast_feature = window.port_source.getFeatureById(forecast_feature_id);
+            }
             optimized_point = true;
         } else {
             // handle standard Point (lat/lon)

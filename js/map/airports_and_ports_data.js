@@ -50,3 +50,55 @@ function addAirportsToMap() {
     };
     createAirportsLayer(geojson);
 }
+function addPortsToMap() {
+    var ports = [
+        [ 'Port of Houston','USHOU',29.72891386,-95.02049728 ],
+        [ 'Port of Tokyo','JPTYO',35.60651382,139.7884196 ],
+        [ 'Port of Amsterdam','NLAMS',52.40362156,4.842630109 ],
+        [ 'Port of Vancouver','CAVAN',49.29154878,-122.8983521 ],
+        [ 'Port of Santos','BRSSZ',-23.94578379,-46.33005747 ],
+        [ 'Port of Shanghai','CNSHA',30.83565949,121.8203658 ]
+    ];
+    // initialize features array
+    var features = [];
+    // iterate through each airport in the response
+    for (var i=0; i < ports.length; i++) {
+        var port = ports[i];
+        // get this airport's last known position coordinates
+        var name = port[0];
+        var locode = port[1];
+        var lat = port[2];
+        var lon = port[3];
+        var coords = [lon,lat];
+        if (window.CRS == 'EPSG:3857') {
+            // convert the coordinates to the projection used by OpenLayers
+            coords = ol.proj.fromLonLat(coords, 'EPSG:3857');
+        }
+        // build the GeoJSON feature for this airport
+        // and append it to the array of features for this layer
+        features.push({
+            'type': 'Feature',
+            'id': locode,
+            'properties': {
+                // specify the type as a airport
+                // so we can distinguish it from bounding box features
+                // and apply mouse events only to airports
+                'type': 'port',
+                'name': name,
+                'unlocode': locode
+            },
+            'geometry': {
+                'type': 'Point',
+                'coordinates': coords
+            }
+        });
+    }
+    // create the full GeoJSON object
+    // which will be used to create a unique map layer
+    geojson = {
+        'type': 'FeatureCollection',
+        'properties': {'type': 'ports'},
+        'features': features
+    };
+    createMaritimePortsLayer(geojson);
+}

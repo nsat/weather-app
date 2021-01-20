@@ -284,7 +284,7 @@ function displayOptimizedPointData(data, icao, name) {
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
 
-    if (air_temperature.length > 0 && wind_speed.length > 0) {
+    if (ceiling.length > 0) {
         // add the Ceiling table to the DOM
         var table = document.createElement('table');
         var caption = document.createElement('caption');
@@ -315,6 +315,9 @@ function displayOptimizedPointData(data, icao, name) {
         ceiling_div.innerHTML = '';
         ceiling_div.appendChild(table);
         ceiling_div.style.display = 'block';
+    }
+
+    if (air_temperature.length > 0 && wind_speed.length > 0) {
         // add the other data variable graphs to the DOM
         embed_vega_spec(
             build_vega_spec(
