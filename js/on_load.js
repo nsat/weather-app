@@ -96,15 +96,17 @@ function initialize(crs) {
     document.getElementById('toggleAirports').onclick = function() {
         // check if button is already pressed
         if (this.className != 'hidden') {
-            // hide the OpenLayers map layer for airports
+            // hide the OpenLayers map layer for ports
             window.airports_layer.setVisible(false);
+            window.ports_layer.setVisible(false);
             // change button style to indicate it has been pressed
             this.className = 'hidden';
             // change text to reflect new application state
             this.textContent = 'Show Ports';
         } else {
-            // show the OpenLayers map layer for airports
+            // show the OpenLayers map layer for ports
             window.airports_layer.setVisible(true);
+            window.ports_layer.setVisible(true);
             // unpress the button if it's already activated
             this.className = '';
             // change text to reflect new application state
