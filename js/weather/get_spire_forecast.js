@@ -35,7 +35,7 @@ function getPointForecast(coordinate, time_bundle) {
         window.AGRICULTURAL = true;
     } else {
         // request both maritime and basic data variables
-        uri += '&bundles=maritime,basic';
+        uri += '&bundles=maritime,maritime-wave,basic';
         window.MARITIME = true;
     }
     // disable forecast-on-map-click now that we are making a request
@@ -115,7 +115,7 @@ function getPointForecast(coordinate, time_bundle) {
 function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
     var uri = 'https://api.wx.spire.com/forecast/point?lat=' + lat + '&lon=' + lon;
     uri += '&time_bundle=medium_range_high_freq';
-    uri += '&bundles=maritime';
+    uri += '&bundles=maritime,maritime-wave';
     // print the full API request to the JS console
     console.log('Spire Weather API: GET', uri);
     // build the HTTP header for Authorization

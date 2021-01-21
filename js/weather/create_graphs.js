@@ -26,8 +26,17 @@ function displayForecastData(data, lonlatString, clear=true) {
     // maritime
     var sea_surface_temp_vals = [];
     var wave_height_vals = [];
+    var combined_wave_mean_direction_vals = [];
+    var combined_wave_mean_period_vals = [];
     var ocean_currents_speed_vals = [];
     var ocean_currents_dir_vals = [];
+    // maritime waves
+    var swell_wave_height_vals = [];
+    var swell_wave_mean_direction_vals = [];
+    var swell_wave_mean_period_vals = [];
+    var wind_wave_height_vals = [];
+    var wind_wave_mean_direction_vals = [];
+    var wind_wave_mean_period_vals = [];
     // agricultural
     var ag_dew_point_temperature_vals = [];
     var surface_net_downward_shortwave_flux_vals = [];
@@ -146,6 +155,20 @@ function displayForecastData(data, lonlatString, clear=true) {
                     'Value': wave_height
                 });
             }
+            var wave_mean_dir = data[i].values.sea_surface_wave_mean_direction;
+            if (wave_mean_dir != undefined) {
+                combined_wave_mean_direction_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': wave_mean_dir
+                });
+            }
+            var wave_mean_period = data[i].values.sea_surface_wave_mean_period;
+            if (wave_mean_period != undefined) {
+                combined_wave_mean_period_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': wave_mean_dir
+                });
+            }
             var u = data[i].values.eastward_sea_water_velocity;
             var v = data[i].values.northward_sea_water_velocity;
             if (u != undefined && v != undefined) {
@@ -156,6 +179,49 @@ function displayForecastData(data, lonlatString, clear=true) {
                 ocean_currents_dir_vals.push({
                     'Time': valid_time_vega_format,
                     'Value': get_direction_from_u_v(u, v)
+                });
+            }
+            // maritime waves
+            var swell_wave_height = data[i].values.sea_surface_total_swell_wave_significant_height;
+            if (swell_wave_height != undefined) {
+                swell_wave_height_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': swell_wave_height
+                });
+            }
+            var swell_wave_dir = data[i].values.sea_surface_total_swell_wave_mean_direction;
+            if (swell_wave_dir != undefined) {
+                swell_wave_mean_direction_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': swell_wave_dir
+                });
+            }
+            var swell_wave_period = data[i].values.sea_surface_total_swell_wave_mean_period;
+            if (swell_wave_period != undefined) {
+                swell_wave_mean_period_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': swell_wave_period
+                });
+            }
+            var wind_wave_height = data[i].values.sea_surface_wind_wave_significant_height;
+            if (wind_wave_height != undefined) {
+                wind_wave_height_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': wind_wave_height
+                });
+            }
+            var wind_wave_dir = data[i].values.sea_surface_wind_wave_mean_direction;
+            if (wind_wave_dir != undefined) {
+                wind_wave_mean_direction_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': wind_wave_dir
+                });
+            }
+            var wind_wave_period = data[i].values.sea_surface_wind_wave_mean_period;
+            if (wind_wave_period != undefined) {
+                wind_wave_mean_period_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': wind_wave_period
                 });
             }
         }
@@ -575,12 +641,30 @@ function displayForecastData(data, lonlatString, clear=true) {
         );
         embed_vega_spec(
             build_vega_spec(
-                'Significant Wave Height (m)',
+                'Significant Wave Height (m) Wind & Swell',
                 { 'values': wave_height_vals },
                 4, // warn threshold value
                 5 // alert threshold value
             ),
             '#wave_height'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Wave Mean Direction (Degrees) Wind & Swell',
+                { 'values': combined_wave_mean_direction_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#combined_wave_mean_direction'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Wave Mean Period (Seconds) Wind & Swell',
+                { 'values': combined_wave_mean_period_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#combined_wave_mean_period'
         );
         embed_vega_spec(
             build_vega_spec(
@@ -599,6 +683,61 @@ function displayForecastData(data, lonlatString, clear=true) {
                 null // no alert
             ),
             '#ocean_currents_direction'
+        );
+        // maritime waves
+        embed_vega_spec(
+            build_vega_spec(
+                'Significant Swell Wave Height (m)',
+                { 'values': swell_wave_height_vals },
+                4, // warn threshold value
+                5 // alert threshold value
+            ),
+            '#swell_wave_height'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Swell Wave Mean Direction (Degrees)',
+                { 'values': swell_wave_mean_direction_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#swell_wave_mean_direction'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Swell Wave Mean Period (Seconds)',
+                { 'values': swell_wave_mean_period_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#swell_wave_mean_period'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Significant Wind Wave Height (m)',
+                { 'values': wind_wave_height_vals },
+                4, // warn threshold value
+                5 // alert threshold value
+            ),
+            '#wind_wave_height'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Wind Wave Mean Direction (Degrees)',
+                { 'values': wind_wave_mean_direction_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#wind_wave_mean_direction'
+        );
+        embed_vega_spec(
+            build_vega_spec(
+                'Wind Wave Mean Period (Seconds)',
+                { 'values': wind_wave_mean_period_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#wind_wave_mean_period'
         );
     }
 
