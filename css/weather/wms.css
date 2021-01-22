@@ -170,7 +170,6 @@
   box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
 }
 #wms_play_stop {
-  display: inline-block;
   margin-right: 10px;
   margin-bottom: -7px;
   opacity: 0.5;
@@ -187,13 +186,18 @@
   opacity: 1.0;
 }
 #wms_play_stop.play {
+  display: none;/* hide for now*/
+  /*display: inline-block;*/
   background-image: url('../../img/play.png');
 }
 #wms_play_stop.pause {
+  display: none;/* hide for now*/
+  /*display: inline-block;*/
   background-image: url('../../img/pause.png');
 }
 #popout_time {
-  display: inline-block;
+  display: none;/* hide for now*/
+  /*display: inline-block;*/
   margin-left: 10px;
   margin-bottom: -5px;
   cursor: pointer;
