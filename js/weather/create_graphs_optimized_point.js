@@ -4,7 +4,7 @@ function displayOptimizedPointData(data, icao, name) {
     // change the display text for the weather graphs popup
     document.getElementById('forecast_point_label').innerHTML = name + ' (' + icao + ')';
     // hide day/week toggle
-    document.getElementById('toggle_forecast').style.display = 'none';
+    document.getElementById('toggle_forecast').style.display = 'block';
     // initialize arrays to store output data:
     var ceiling = [];
     var visibility = [];

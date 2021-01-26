@@ -151,7 +151,7 @@ function createMap(geojsonObject) {
                     window.hoveredAirport = null;
                     // get airport ICAO
                     var icao = window.selectedAirport.get('icao');
-                    getOptimizedPointForecast(icao, 'icao');
+                    getOptimizedPointForecast(icao, 'icao', window.MEDIUM_RANGE_FORECAST);
                     console.log('Selected airport:', icao, window.selectedAirport.get('name'));
                 } else if (type == 'port') {
                     // keep track of which forecast is selected
@@ -162,7 +162,7 @@ function createMap(geojsonObject) {
                     window.hoveredPort = null;
                     // get port UN/LOCODE
                     var locode = window.selectedPort.get('unlocode');
-                    getOptimizedPointForecast(locode, 'unlocode');
+                    getOptimizedPointForecast(locode, 'unlocode', window.MEDIUM_RANGE_FORECAST);
                     console.log('Selected port:', locode, window.selectedPort.get('name'));
                 }
                 return true;

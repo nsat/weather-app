@@ -422,9 +422,9 @@ function initialize(crs) {
 
     // determine which display function to call
     // based on whether it is Optimized Point or standard
-    function displayGraphs(data, id, optimized) {
-        if (optimized) {
-            displayOptimizedPointData(data, id);
+    function displayGraphs(data, id, optimized_point) {
+        if (optimized_point != null) {
+            displayOptimizedPointData(data, id, optimized_point);
         } else {
             displayForecastData(data, id);
         }
@@ -439,7 +439,7 @@ function initialize(crs) {
         // so we first need to get the feature ID of the current forecast
         // which is a stringified version of the [lon,lat] array (for standard Point)
         // or an ICAO string (for Optimized Point)
-        var optimized_point = false;
+        var optimized_point = null;
         var forecast_feature;
         var forecast_feature_id = window.FORECAST_COORDINATE;
         if (forecast_feature_id == null) {
@@ -451,7 +451,7 @@ function initialize(crs) {
                 forecast_feature_id = window.selectedPort.get('unlocode');
                 forecast_feature = window.port_source.getFeatureById(forecast_feature_id);
             }
-            optimized_point = true;
+            optimized_point = window.selectedAirport.get('name');
         } else {
             // handle standard Point (lat/lon)
             forecast_feature = window.forecast_source.getFeatureById(forecast_feature_id);
