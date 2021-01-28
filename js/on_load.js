@@ -50,16 +50,11 @@ function initialize(crs) {
         // make sure that we don't duplicate efforts
         // with the `tokenForm` submit handler above that might also make these calls
         if (window.WMSRetrievalInitiated != true) {
-            // make async requests for the WMS capabilities
-            // of the currently available bundles
+            // request the WMS capabilities to build the UI
             getWMSCapabilities('basic');
             // check permissions
             test_optimized_point_api();
             test_vessels_api();
-            // get Maritime WMS unless we're in the agricultural context
-            if (window.urlParams.get('bundles') != 'agricultural') {
-                getWMSCapabilities('maritime');
-            }
         }
     }
 

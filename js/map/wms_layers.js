@@ -282,11 +282,6 @@ function getWMSCapabilities(bundle) {
 			days.forEach(function(day) {
 				// get the date text in this format: YYYYMMDD
 				var dateText = day['Title'];
-				var epochTime = datestringToEpoch(dateText);
-				if (epochTime > latest_date['epoch']) {
-					latest_date['text'] = dateText;
-					latest_date['epoch'] = epochTime;
-				}
 				// keep track of each available date in our global object
 				window.Full_WMS_XML[bundle][dateText] = {};
 				// get the array of 4 forecast issuances
@@ -342,6 +337,14 @@ function getWMSCapabilities(bundle) {
 							'bundle': bundle,
 							'bounding_boxes': bounding_boxes
 						};
+						// keep track of the latest date with a complete set of time steps
+						if (times.length >= 50) {
+							var epochTime = datestringToEpoch(dateText);
+							if (epochTime > latest_date['epoch']) {
+								latest_date['text'] = dateText;
+								latest_date['epoch'] = epochTime;
+							}
+						}
 					});
 				});
 			});
@@ -395,11 +398,24 @@ function getWMSCapabilities(bundle) {
 			options.forEach(function(opt) {
 				window.Latest_WMS[opt] = forecast[opt];
 			});
-			// check if 2 keys are present (current total bundles supported)
-			// 1 for Basic and 1 for Maritime
-			if (Object.keys(window.Full_WMS_XML).length == 2) {
+			// check which context we're in
+            if (window.urlParams.get('bundles') == 'agricultural') {
+				// we're in the Agricultural context, so:
+				// proceed with building the UI
 				buildWMSConfigUI();
-			}
+            } else {
+				// we are in the Maritime context, so:
+				// check if 2 keys are present (current total bundles supported)
+				// 1 for Basic and 1 for Maritime
+				if (Object.keys(window.Full_WMS_XML).length == 2) {
+					// proceed with building the UI
+					buildWMSConfigUI();
+				} else {
+					// get the WMS capabilities for the Maritime bundle
+					// and we'll build the configuration UI after that
+					getWMSCapabilities('maritime');
+				}
+            }
 		});
 }
 
