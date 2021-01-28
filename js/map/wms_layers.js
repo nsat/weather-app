@@ -95,10 +95,10 @@ function buildWMSLayer(layer_name, style, layer_index, time) {
 		}, {})
 
 		let extent;
-        if (Object.keys(current_layer_config['bounding_boxes']).includes(window.CRS)) {
+		if (Object.keys(current_layer_config['bounding_boxes']).includes(window.CRS)) {
 			extent = current_layer_config['bounding_boxes'][window.CRS];
 		} else {
-        	extent = projExtent;
+			extent = projExtent;
 		}
 
 		let tileGrid = new ol.tilegrid.TileGrid({
@@ -399,11 +399,11 @@ function getWMSCapabilities(bundle) {
 				window.Latest_WMS[opt] = forecast[opt];
 			});
 			// check which context we're in
-            if (window.urlParams.get('bundles') == 'agricultural') {
+			if (window.urlParams.get('bundles') == 'agricultural') {
 				// we're in the Agricultural context, so:
 				// proceed with building the UI
 				buildWMSConfigUI();
-            } else {
+			} else {
 				// we are in the Maritime context, so:
 				// check if 2 keys are present (current total bundles supported)
 				// 1 for Basic and 1 for Maritime
@@ -415,7 +415,7 @@ function getWMSCapabilities(bundle) {
 					// and we'll build the configuration UI after that
 					getWMSCapabilities('maritime');
 				}
-            }
+			}
 		});
 }
 
