@@ -61,9 +61,9 @@ function getPointForecast(coordinate, time_bundle) {
             document.getElementById('getVesselForecast').style.cursor = 'pointer';
             document.getElementById('forecast_switch').style.cursor = 'pointer';
             // check if the API returned any errors or faults
-            if (response['errors']) {
+            if (response['errors'] || !response.data) {
                 // pass OpenLayers forecast feature ID to error handler
-                handleErrorResponse(forecast_feature_id);
+                handleErrorResponse(forecast_feature_id, response.message);
                 // do not proceed with this response handler
                 return;
             }
@@ -128,14 +128,15 @@ function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
             return rawresp.json();
         })
         .then((response) => {
+            console.log(response)
             // get the forecast feature id the same way we created it earlier
             var forecast_feature_id = String(coordinate);
             // print the API response to the JS console
             console.log('Weather API Response:', response);
             // check if the API returned any errors or faults
-            if (response['errors']) {
+            if (response['errors'] || !response.data) {
                 // pass OpenLayers forecast feature ID to error handler
-                handleErrorResponse(forecast_feature_id);
+                handleErrorResponse(forecast_feature_id, response.message);
                 // do not proceed with this response handler
                 return;
             }
@@ -178,12 +179,12 @@ function getMaritimeDataOnly(coordinate, lat, lon, time_bundle) {
 }
 
 // handle an API response with 'errors' field
-function handleErrorResponse(forecast_feature_id) {
+function handleErrorResponse(forecast_feature_id, msg) {
     // assume invalid API key and prompt re-entry
     document.getElementById('grayPageOverlay').style.display = 'block';
     document.getElementById('tokenPopup').style.display = 'block';
     // notify the user that the API response failed
-    alert('API request failed for the Weather Point API.\nPlease enter a valid API key or contact cx@spire.com');
+    alert('API request failed for the Weather Point API.\nPlease enter a valid API key or contact wx-support@spire.com\n' + msg);
     // remove the forecast feature we added since this has failed
     var feature = window.forecast_source.getFeatureById(forecast_feature_id);
     window.forecast_layer.removeFeature(feature);

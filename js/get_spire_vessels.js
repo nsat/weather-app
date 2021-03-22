@@ -66,7 +66,7 @@ function requestVessels(number, boxCoords) {
                 document.getElementById('grayPageOverlay').style.display = 'block';
                 document.getElementById('tokenPopup').style.display = 'block';
                 // notify the user that the API response failed
-                alert('API request failed for the Maritime Vessels API.\nPlease enter a valid API key or contact cx@spire.com')
+                alert('API request failed for the Maritime Vessels API.\nPlease enter a valid API key or contact wx-support@spire.com')
             } else {
                 // convert the API response to the GeoJSON
                 // expected by the OpenLayers map library

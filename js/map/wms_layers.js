@@ -61,11 +61,16 @@ function addWMSLayer(layer_name, style, layer_index, times, legend_url) {
 function buildWMSLayer(layer_name, style, layer_index, time) {
 	console.log("Building WMS layer:", layer_name, style);
 	var bundle = 'basic';
-	// check the layer name for the string 'maritime'
+	// check the layer name for the string 'maritime' or 'precipitation'
 	// in which case we will need to specify the bundle
 	// in the URL of our API request
-	if (layer_name.indexOf('maritime') != -1) {
+	console.log(layer_name)
+	if (layer_name.indexOf('.maritime-wave/') != -1) {
+		bundle = 'maritime-wave';
+	} else if (layer_name.indexOf('.maritime/') != -1) {
 		bundle = 'maritime';
+	} else if (layer_name.indexOf('.precipitation/') != -1) {
+		bundle = 'precipitation';
 	}
 	// build the URL for the API request
 	var url = 'https://api.wx.spire.com/ows/wms/?bundle=' + bundle + '&spire-api-key=' + window.TOKEN;
@@ -245,16 +250,18 @@ function datestringToEpoch(ds) {
 function getWMSCapabilities(bundle) {
 	window.WMSRetrievalInitiated = true;
 	console.log('Retrieving ' + bundle + ' WMS Capabilities...');
+	// keep track of this bundle's relevant capabilities in a global variable
+	window.Full_WMS_XML[bundle] = {};
 	var uri = 'https://api.wx.spire.com/ows/wms/?service=WMS&request=GetCapabilities&product=sof-d';
 	uri += '&bundle=' + bundle;
 	uri += '&spire-api-key=' + window.TOKEN;
 	fetch(uri)
 		.then(function(response) {
-			if (response.status == 401) {
+			if (response.status == 401 || response.status == 403) {
 				document.getElementById('grayPageOverlay').style.display = 'block';
 				document.getElementById('tokenPopup').style.display = 'block';
 				// notify the user that the API response failed
-				alert('API request failed for the Weather WMS API.\nPlease enter a valid API key or contact cx@spire.com')
+				alert('API request failed for the Weather WMS API.\nPlease enter a valid API key or contact wx-support@spire.com\n' + response.message)
 			}
 			// return the API response text
 			// when it is received
@@ -267,8 +274,6 @@ function getWMSCapabilities(bundle) {
 		})
 		.then(function(data) {
 			console.log('Successfully retrieved ' + bundle + ' WMS Capabilities.');
-			// keep track of this bundle's relevant capabilities in a global variable
-			window.Full_WMS_XML[bundle] = {};
 			// parse through the returned XML to get the layers broken down by date
 			var capabilities = data['Capability'];
 			var days = capabilities['Layer']['Layer'][0]['Layer'];
@@ -404,16 +409,17 @@ function getWMSCapabilities(bundle) {
 				// proceed with building the UI
 				buildWMSConfigUI();
 			} else {
-				// we are in the Maritime context, so:
-				// check if 2 keys are present (current total bundles supported)
-				// 1 for Basic and 1 for Maritime
-				if (Object.keys(window.Full_WMS_XML).length == 2) {
-					// proceed with building the UI
-					buildWMSConfigUI();
-				} else {
-					// get the WMS capabilities for the Maritime bundle
-					// and we'll build the configuration UI after that
+				// we are in the Maritime context,
+				// so check for all relevant bundles
+				if ( !('maritime' in window.Full_WMS_XML)) {
 					getWMSCapabilities('maritime');
+				} else if ( !('maritime-wave' in window.Full_WMS_XML)) {
+					getWMSCapabilities('maritime-wave');
+				} else if ( !('precipitation' in window.Full_WMS_XML)) {
+					getWMSCapabilities('precipitation');
+				} else {
+					// build the UI
+					buildWMSConfigUI();
 				}
 			}
 		});

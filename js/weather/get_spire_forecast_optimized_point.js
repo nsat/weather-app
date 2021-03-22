@@ -52,9 +52,9 @@ function getOptimizedPointForecast(identity, location_type, time_bundle) {
             document.body.style.cursor = 'default';
             document.getElementById('getVesselForecast').style.cursor = 'pointer';
             // check if the API returned any errors or faults
-            if (response['errors']) {
+            if (response['errors']  || !response.data) {
                 // pass OpenLayers airport feature ID to error handler
-                handleErrorResponse(feature_id);
+                handleErrorResponse(feature_id, response.message);
                 // do not proceed with this response handler
                 return;
             }
@@ -98,12 +98,12 @@ function getOptimizedPointForecast(identity, location_type, time_bundle) {
 }
 
 // handle an API response with 'errors' field
-function handleErrorResponse(feature_id) {
+function handleErrorResponse(feature_id, msg) {
     // assume invalid API key and prompt re-entry
     document.getElementById('grayPageOverlay').style.display = 'block';
     document.getElementById('tokenPopup').style.display = 'block';
     // notify the user that the API response failed
-    alert('API request failed for the Weather Point API.\nPlease enter a valid API key or contact cx@spire.com');
+    alert('API request failed for the Weather Point API.\nPlease enter a valid API key or contact wx-support@spire.com\n' + msg);
     // deselect airport/port feature
     window.selectedAirport = null;
     window.selectedPort = null;
