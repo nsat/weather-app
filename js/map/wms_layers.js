@@ -458,4 +458,9 @@ function buildWMSConfigUI() {
 // Check this to see what's available:
 //	 	window.Full_WMS_XML
 // Then run this to change the app config:
-//		window.Latest_WMS = Object.assign({}, Full_WMS_XML['basic']['20200414']['12'], Full_WMS_XML['maritime']['20200414']['12']);
+// 	window.Latest_WMS = Object.assign({},
+// 		Full_WMS_XML['basic']['20210413']['00'],
+// 		Full_WMS_XML['maritime']['20210413']['00'],
+// 		Full_WMS_XML['maritime-wave']['20210413']['00'],
+// 		Full_WMS_XML['precipitation']['20210413']['00']
+// 	);
