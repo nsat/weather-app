@@ -2,7 +2,7 @@
   pointer-events: none;
   position: absolute;
   width: 99%;
-  height: 900px;
+  height: 100vh;
   border: 2px solid #12161d;
   background: rgba(0,0,0,0);
   background-color: rgba(0,0,0,0);
@@ -10,7 +10,7 @@
   z-index: 90;
 }
 #map {
-  height: 900px;
+  height: 100vh;
   width: 100%;
 }
 .ol-zoom {
