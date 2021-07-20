@@ -8,7 +8,7 @@ function addAirportsToMap() {
         [ 'Ronald Reagan Washington National Airport','KDCA',38.8521,-77.037697 ],
         [ 'Sydney Airport','YSSY',-33.95,151.18 ],
         [ 'Indira Gandhi International Airport','VIDP',28.5667,77.1167 ],
-        [ 'O.R. Tambo International Airport','FAOR',-26.12,28.22 ],
+        [ 'Cape Town International Airport','FACT',-33.9715, 18.6021 ],
         [ 'Cairo International Airport','HECA',30.1167,31.3833 ],
         [ 'Ministro Pistarini International Airport','SAEZ',-34.82,-58.53 ],
         [ 'Santiago International Airport','SCEL',-33.38,-70.78 ],
