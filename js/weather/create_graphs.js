@@ -23,6 +23,7 @@ function displayForecastData(data, lonlatString, clear=true) {
     var precip_vals = [];
     var wind_gust_vals = [];
     var total_cloud_cover_vals = [];
+    var surface_vis_vals = [];
     // maritime
     var sea_surface_temp_vals = [];
     var wave_height_vals = [];
@@ -75,6 +76,13 @@ function displayForecastData(data, lonlatString, clear=true) {
         if (window.BASIC) {
             // add Basic Bundle variables
 
+            var surface_vis = data[i].values.surface_visibility;
+            if (surface_vis != undefined) {
+                surface_vis_vals.push({
+                    'Time': valid_time_vega_format,
+                    'Value': surface_vis
+                });
+            }
             var air_temp = data[i].values.air_temperature;
             if (air_temp != undefined) {
                 air_temp_vals.push({
@@ -369,6 +377,15 @@ function displayForecastData(data, lonlatString, clear=true) {
         // check that basic data has actually been returned
         air_temp_vals.length > 0 && wind_speed_vals.length > 0) {
         // add the basic graphs
+        embed_vega_spec(
+            build_vega_spec(
+                'Surface Visibility (m)',
+                { 'values': surface_vis_vals },
+                null, // warn threshold value
+                null // alert threshold value
+            ),
+            '#surface_visibility'
+        );
         embed_vega_spec(
             build_vega_spec(
                 'Air Temperature (' + tempscale + ')',
