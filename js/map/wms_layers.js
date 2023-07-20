@@ -250,29 +250,44 @@ function datestringToEpoch(ds) {
 function getWMSCapabilities(bundle) {
 	window.WMSRetrievalInitiated = true;
 	console.log('Retrieving ' + bundle + ' WMS Capabilities...');
-	// keep track of this bundle's relevant capabilities in a global variable
-	window.Full_WMS_XML[bundle] = {};
 	var uri = 'https://api.wx.spire.com/ows/wms/?service=WMS&request=GetCapabilities&product=sof-d';
 	uri += '&bundle=' + bundle;
 	uri += '&spire-api-key=' + window.TOKEN;
 	fetch(uri)
 		.then(function(response) {
 			if (response.status == 401 || response.status == 403) {
-				document.getElementById('grayPageOverlay').style.display = 'block';
-				document.getElementById('tokenPopup').style.display = 'block';
-				// notify the user that the API response failed
-				alert('API request failed for the Weather WMS API.\nPlease enter a valid API key or contact wx-support@spire.com\n' + response.message)
+				if (bundle == "basic") {
+					document.getElementById('grayPageOverlay').style.display = 'block';
+					document.getElementById('tokenPopup').style.display = 'block';
+					// notify the user that the API response failed
+					alert('API request failed for the Weather WMS API.\nPlease enter a valid API key or contact wx-support@spire.com\n' + response.message)
+				} else {
+					window.WMSRetrievalInitiated = false;
+				}
+				return null;
 			}
+			// keep track of this bundle's relevant capabilities in a global variable
+			window.Full_WMS_XML[bundle] = {};
 			// return the API response text
 			// when it is received
 			return response.text();
 		})
 		.then(function(str) {
-			// parse the raw XML text into a JSON object
-			var parsed = new WMSCapabilities(str).toJSON();
-			return parsed;
+			if (str != null) {
+				// parse the raw XML text into a JSON object
+				var parsed = new WMSCapabilities(str).toJSON();
+				return parsed;
+			}
+			return str;
 		})
 		.then(function(data) {
+			if (data == null) {
+				console.log('FAILED to retrieve ' + bundle + ' WMS Capabilities.');
+				console.log('Building WMS UI config (and assuming at least one bundle succeeded...)')
+				// build the UI
+				buildWMSConfigUI();
+				return null;
+			}
 			console.log('Successfully retrieved ' + bundle + ' WMS Capabilities.');
 			// parse through the returned XML to get the layers broken down by date
 			var capabilities = data['Capability'];
