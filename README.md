@@ -14,8 +14,6 @@ Ensure your API token is valid for:
 
 https://nsat.github.io/weather-app/
 
-For descriptions and videos covering Maritime functionality, please [click here](https://faq.spire.com/how-can-spire-maritime-weather-data-be-used-in-a-web-app).
-
 # Agricultural Option
 
 Ensure your API Token is valid for:
@@ -25,8 +23,6 @@ Ensure your API Token is valid for:
 Specify `bundles=agricultural` as a URL parameter
 
 https://nsat.github.io/weather-app/?bundles=agricultural
-
-For descriptions and videos covering Agricultural functionality, please [click here](https://faq.spire.com/how-can-spire-agricultural-weather-data-be-used-in-a-web-app).
 
 # Developers
 
