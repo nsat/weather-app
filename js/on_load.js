@@ -94,18 +94,20 @@ function initialize(crs) {
             // hide the OpenLayers map layer for ports
             window.airports_layer.setVisible(false);
             window.ports_layer.setVisible(false);
+            window.custom_layer.setVisible(false);
             // change button style to indicate it has been pressed
             this.className = 'hidden';
             // change text to reflect new application state
-            this.textContent = 'Show Ports';
+            this.textContent = 'Show OPF';
         } else {
             // show the OpenLayers map layer for ports
             window.airports_layer.setVisible(true);
             window.ports_layer.setVisible(true);
+            window.custom_layer.setVisible(true);
             // unpress the button if it's already activated
             this.className = '';
             // change text to reflect new application state
-            this.textContent = 'Hide Ports';
+            this.textContent = 'Hide OPF';
         }
     };
 
@@ -435,18 +437,22 @@ function initialize(crs) {
         // which is a stringified version of the [lon,lat] array (for standard Point)
         // or an ICAO string (for Optimized Point)
         var optimized_point = null;
-        var forecast_feature;
+        var forecast_feature = null;
         var forecast_feature_id = window.FORECAST_COORDINATE;
         if (forecast_feature_id == null) {
-            // handle Optimized Point (airport ICAO)
             if (window.selectedAirport) {
                 forecast_feature_id = window.selectedAirport.get('icao');
                 forecast_feature = window.airport_source.getFeatureById(forecast_feature_id);
+                optimized_point = window.selectedAirport.get('name');
             } else if (window.selectedPort) {
                 forecast_feature_id = window.selectedPort.get('unlocode');
                 forecast_feature = window.port_source.getFeatureById(forecast_feature_id);
+                optimized_point = window.selectedPort.get('name');
+            } else if (window.selectedCustom) {
+                forecast_feature_id = window.selectedCustom.get('identity');
+                forecast_feature = window.custom_source.getFeatureById(forecast_feature_id);
+                optimized_point = window.selectedCustom.get('name');
             }
-            optimized_point = window.selectedAirport.get('name');
         } else {
             // handle standard Point (lat/lon)
             forecast_feature = window.forecast_source.getFeatureById(forecast_feature_id);

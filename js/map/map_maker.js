@@ -40,6 +40,20 @@ function createMaritimePortsLayer(geojson) {
     window.ol_map.addLayer(window.ports_layer);
 }
 
+function createCustomSitesLayer(geojson) {
+    // console.log("Create Map Layer for:", geojson)
+    window.custom_source = new ol.source.Vector({
+        features: (new ol.format.GeoJSON()).readFeatures(geojson)
+    });
+    window.custom_layer = new ol.layer.Vector({
+        zIndex: 100,
+        className: 'custom-layer',
+        source: window.custom_source,
+        style: customPointStyle
+    });
+    window.ol_map.addLayer(window.custom_layer);
+}
+
 function createMap(geojsonObject) {
     // clear the existing map element
     document.getElementById('map').innerHTML = '';
@@ -102,6 +116,9 @@ function createMap(geojsonObject) {
     // keep track of hovered/selected maritime port
     window.selectedPort = null;
     window.hoveredPort = null;
+    // keep track of hovered/selected custom site
+    window.selectedCustom = null;
+    window.hoveredCustom = null;
     // map click/touch event listener
     window.ol_map.on('click', function(e) {
         // check that a map click won't trigger a forecast,
@@ -164,6 +181,17 @@ function createMap(geojsonObject) {
                     var locode = window.selectedPort.get('unlocode');
                     getOptimizedPointForecast(locode, 'unlocode', window.MEDIUM_RANGE_FORECAST);
                     console.log('Selected port:', locode, window.selectedPort.get('name'));
+                } else if (type == 'custom') {
+                    // keep track of which forecast is selected
+                    window.selectedCustom = f;
+                    // this is always hidden by the weather graph popup
+                    // so we don't add special selection styling here
+                    // but we do turn off hover styling
+                    window.hoveredCustom = null;
+                    // get location ID
+                    var ident = window.selectedCustom.get('identity');
+                    getOptimizedPointForecast(ident, 'custom', window.MEDIUM_RANGE_FORECAST);
+                    console.log('Selected site:', ident, window.selectedCustom.get('name'));
                 }
                 return true;
             });
@@ -213,10 +241,15 @@ function createMap(geojsonObject) {
             window.hoveredAirport.setStyle(undefined);
             window.hoveredAirport = null;
         }
-        // remove hover styling for currently hovered airport
+        // remove hover styling for currently hovered maritime port
         if (window.hoveredPort) {
             window.hoveredPort.setStyle(undefined);
             window.hoveredPort = null;
+        }
+        // remove hover styling for currently hovered custom site
+        if (window.hoveredCustom) {
+            window.hoveredCustom.setStyle(undefined);
+            window.hoveredCustom = null;
         }
     }
 
@@ -239,33 +272,32 @@ function createMap(geojsonObject) {
                 removeHoverStyles();
                 // get the type of the selected feature
                 var type = f.get('type');
+                // only set hover style on this icon
+                // if it is not already currently selected
                 if (type == 'vessel') {
                     if (window.selectedVessel != f) {
-                        // only set hover style on this vessel
-                        // if it is not already currently selected
                         window.hoveredVessel = f;
                         window.hoveredVessel.setStyle(vesselHoverStyle);
                     }
                 } else if (type == 'forecast') {
                     if (window.selectedForecast != f) {
-                        // only set hover style on this forecast
-                        // if it is not already currently selected
                         window.hoveredForecast = f;
                         window.hoveredForecast.setStyle(forecastHoverStyle);
                     }
                 } else if (type == 'airport') {
                     if (window.selectedForecast != f) {
-                        // only set hover style on this forecast
-                        // if it is not already currently selected
                         window.hoveredForecast = f;
                         window.hoveredForecast.setStyle(airportHoverStyle);
                     }
                 }  else if (type == 'port') {
                     if (window.selectedForecast != f) {
-                        // only set hover style on this forecast
-                        // if it is not already currently selected
                         window.hoveredForecast = f;
                         window.hoveredForecast.setStyle(portHoverStyle);
+                    }
+                }  else if (type == 'custom') {
+                    if (window.selectedForecast != f) {
+                        window.hoveredForecast = f;
+                        window.hoveredForecast.setStyle(customHoverStyle);
                     }
                 }
             });

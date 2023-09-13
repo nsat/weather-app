@@ -17,6 +17,8 @@ function test_optimized_point_api() {
                 addAirportsToMap();
                 // initialize Maritime Ports dataset
                 addPortsToMap();
+                // initialize Custom Sites dataset
+                addCustomSitesToMap();
                 // show button that allows user to hide airport icons
                 document.getElementById('toggleAirports').style.display = 'inline-block';
             }
@@ -79,10 +81,14 @@ function getOptimizedPointForecast(identity, location_type, time_bundle) {
                 // get the airport's name from the OpenLayers feature
                 feature_name = window.selectedAirport.get('name');
                 layer_source = window.airport_source;
-            } else {
+            } else if (location_type == 'unlocode') {
                 // get the maritime port's name from the OpenLayers feature
                 feature_name = window.selectedPort.get('name');
                 layer_source = window.port_source;
+            } else if (location_type == 'custom') {
+                // get the custom site's name from the OpenLayers feature
+                feature_name = window.selectedCustom.get('name');
+                layer_source = window.custom_source;
             }
             // show the forecast data in popup graphs
             displayOptimizedPointData(display_data, feature_id, feature_name);
@@ -107,6 +113,7 @@ function handleErrorResponse(feature_id, msg) {
     // deselect airport/port feature
     window.selectedAirport = null;
     window.selectedPort = null;
+    window.selectedCustom = null;
     // reset forecast toggle button to not be active
     document.getElementById('requestForecast').className = '';
 }
@@ -117,6 +124,7 @@ function handleFaultResponse(feature_id) {
     // deselect forecast feature
     window.selectedAirport = null;
     window.selectedPort = null;
+    window.selectedCustom = null;
     // reset forecast toggle button to not be active
     document.getElementById('requestForecast').className = '';
 }

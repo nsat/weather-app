@@ -27,13 +27,14 @@ function addAirportsToMap() {
         var lat = airport[2];
         var lon = airport[3];
         var coords = [lon,lat];
+        // handle map projection
         if (window.CRS == 'EPSG:3857') {
             // convert the coordinates to the projection used by OpenLayers
             coords = ol.proj.fromLonLat(coords, 'EPSG:3857');
         }
         // build the GeoJSON feature for this airport
         // and append it to the array of features for this layer
-        features.push({
+        var feature = {
             'type': 'Feature',
             'id': icao,
             'properties': {
@@ -48,7 +49,8 @@ function addAirportsToMap() {
                 'type': 'Point',
                 'coordinates': coords
             }
-        });
+        }
+        features.push(feature);
     }
     // create the full GeoJSON object
     // which will be used to create a unique map layer
@@ -81,6 +83,7 @@ function addPortsToMap() {
         var lat = port[2];
         var lon = port[3];
         var coords = [lon,lat];
+        // handle map projection
         if (window.CRS == 'EPSG:3857') {
             // convert the coordinates to the projection used by OpenLayers
             coords = ol.proj.fromLonLat(coords, 'EPSG:3857');
@@ -112,4 +115,55 @@ function addPortsToMap() {
         'features': features
     };
     createMaritimePortsLayer(geojson);
+}
+function addCustomSitesToMap() {
+    var sites = [
+        [ 'SH_XPKN2TQ','渡島北部地区',41.909,140.656],
+        [ 'SH_XPKN0J4','清川北部村内地区',41.864,140.629],
+        [ 'SH_XPKN29M','北斗地域気象観測所(アメダス)',41.888,140.654],
+    ];
+    // initialize features array
+    var features = [];
+    // iterate through each site in the response
+    for (var i=0; i < sites.length; i++) {
+        var site = sites[i];
+        // get this site's position coordinates
+        var ident = site[0];
+        var name = site[1];
+        var lat = site[2];
+        var lon = site[3];
+        var coords = [lon,lat];
+        // handle map projection
+        if (window.CRS == 'EPSG:3857') {
+            // convert the coordinates to the projection used by OpenLayers
+            coords = ol.proj.fromLonLat(coords, 'EPSG:3857');
+        }
+        // build the GeoJSON feature for this site
+        // and append it to the array of features for this layer
+        var feature = {
+            'type': 'Feature',
+            'id': ident,
+            'properties': {
+                // specify the type as a site (or custom)
+                // so we can distinguish it from bounding box features
+                // and apply mouse events only to sites
+                'type': 'custom',
+                'name': name,
+                'identity': ident
+            },
+            'geometry': {
+                'type': 'Point',
+                'coordinates': coords
+            }
+        }
+        features.push(feature);
+    }
+    // create the full GeoJSON object
+    // which will be used to create a unique map layer
+    geojson = {
+        'type': 'FeatureCollection',
+        'properties': {'type': 'custom'},
+        'features': features
+    };
+    createCustomSitesLayer(geojson);
 }

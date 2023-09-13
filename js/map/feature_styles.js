@@ -103,6 +103,38 @@ var portHoverStyle = new ol.style.Style({
     })
 });
 
+// style for a Custom Site point feature
+var customPointStyle = function(feature) {
+    var type = feature.get('type');
+    if (type == 'custom') {
+        return new ol.style.Style({
+            zIndex: Infinity,
+            image: new ol.style.Icon({
+                anchor: [0.5, 0.5],
+                scale: 0.05,
+                opacity: 0.8,
+                src: 'img/node.png'
+            })
+        });
+    } else if (type == 'vessel_forecast') {
+        // features with a type of `vessel_forecast`
+        // are kept invisible, so they don't interfere
+        // with the vessel's rendering at the same coordinate
+        return null;
+    }
+}
+
+// style for a Custom Site point feature that is being hovered on
+var customHoverStyle = new ol.style.Style({
+    zIndex: Infinity,
+    image: new ol.style.Icon({
+        anchor: [0.5, 0.5],
+        scale: 0.10,
+        opacity: 1.0,
+        src: 'img/node.png'
+    })
+});
+
 // style for a Vessel point feature
 var vesselStyle = function(feature) {
     return new ol.style.Style({
